@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "Olfaire",
+    "slug": "olfaire",
     "version": "1.0.0",
 
     "web": {
@@ -13,7 +13,7 @@
       "tsconfigPaths": true
     },
 
-    "scheme": "my-expo-app",
+    "scheme": "olfaire",
     "plugins": ["expo-router"],
 
     "orientation": "portrait",

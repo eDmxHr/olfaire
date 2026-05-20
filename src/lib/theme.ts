@@ -2,56 +2,56 @@ import { DarkTheme, DefaultTheme, type Theme } from '@react-navigation/native';
 
 export const THEME = {
   light: {
-    background: 'hsl(0 0% 100%)',
-    foreground: 'hsl(0 0% 3.9%)',
-    card: 'hsl(0 0% 100%)',
-    cardForeground: 'hsl(0 0% 3.9%)',
-    popover: 'hsl(0 0% 100%)',
-    popoverForeground: 'hsl(0 0% 3.9%)',
-    primary: 'hsl(0 0% 9%)',
-    primaryForeground: 'hsl(0 0% 98%)',
-    secondary: 'hsl(0 0% 96.1%)',
-    secondaryForeground: 'hsl(0 0% 9%)',
-    muted: 'hsl(0 0% 96.1%)',
-    mutedForeground: 'hsl(0 0% 45.1%)',
-    accent: 'hsl(0 0% 96.1%)',
-    accentForeground: 'hsl(0 0% 9%)',
-    destructive: 'hsl(0 84.2% 60.2%)',
-    border: 'hsl(0 0% 89.8%)',
-    input: 'hsl(0 0% 89.8%)',
-    ring: 'hsl(0 0% 63%)',
+    background: 'hsl(40 33% 97%)',       // parchment #FAF9F6
+    foreground: 'hsl(30 8% 10%)',         // ink #1C1A18
+    card: 'hsl(40 18% 91%)',              // linen #EDEAE3
+    cardForeground: 'hsl(30 8% 10%)',     // ink
+    popover: 'hsl(40 33% 97%)',           // parchment
+    popoverForeground: 'hsl(30 8% 10%)', // ink
+    primary: 'hsl(30 8% 10%)',            // ink
+    primaryForeground: 'hsl(40 33% 97%)', // parchment
+    secondary: 'hsl(40 18% 91%)',         // linen
+    secondaryForeground: 'hsl(30 8% 10%)', // ink
+    muted: 'hsl(40 18% 91%)',             // linen
+    mutedForeground: 'hsl(30 4% 53%)',    // ash #8C8680
+    accent: 'hsl(40 18% 91%)',            // linen
+    accentForeground: 'hsl(30 8% 10%)',   // ink
+    destructive: 'hsl(9 56% 49%)',        // red #C4503A
+    border: 'hsl(37 10% 81%)',            // dust #D4CFC8
+    input: 'hsl(37 10% 81%)',             // dust
+    ring: 'hsl(37 61% 42%)',              // amber #B07D2A
     radius: '0.625rem',
-    chart1: 'hsl(12 76% 61%)',
-    chart2: 'hsl(173 58% 39%)',
-    chart3: 'hsl(197 37% 24%)',
-    chart4: 'hsl(43 74% 66%)',
-    chart5: 'hsl(27 87% 67%)',
+    chart1: 'hsl(37 61% 42%)',            // amber
+    chart2: 'hsl(37 61% 55%)',            // amber light
+    chart3: 'hsl(30 20% 65%)',            // warm grey
+    chart4: 'hsl(9 56% 49%)',             // red
+    chart5: 'hsl(37 30% 72%)',            // dust warm
   },
   dark: {
-    background: 'hsl(0 0% 3.9%)',
-    foreground: 'hsl(0 0% 98%)',
-    card: 'hsl(0 0% 3.9%)',
-    cardForeground: 'hsl(0 0% 98%)',
-    popover: 'hsl(0 0% 3.9%)',
-    popoverForeground: 'hsl(0 0% 98%)',
-    primary: 'hsl(0 0% 98%)',
-    primaryForeground: 'hsl(0 0% 9%)',
-    secondary: 'hsl(0 0% 14.9%)',
-    secondaryForeground: 'hsl(0 0% 98%)',
-    muted: 'hsl(0 0% 14.9%)',
-    mutedForeground: 'hsl(0 0% 63.9%)',
-    accent: 'hsl(0 0% 14.9%)',
-    accentForeground: 'hsl(0 0% 98%)',
-    destructive: 'hsl(0 70.9% 59.4%)',
-    border: 'hsl(0 0% 14.9%)',
-    input: 'hsl(0 0% 14.9%)',
-    ring: 'hsl(300 0% 45%)',
+    background: 'hsl(30 8% 10%)',         // ink #1C1A18
+    foreground: 'hsl(40 33% 97%)',        // parchment #FAF9F6
+    card: 'hsl(30 8% 13%)',               // ink elevated
+    cardForeground: 'hsl(40 33% 97%)',    // parchment
+    popover: 'hsl(30 8% 10%)',            // ink
+    popoverForeground: 'hsl(40 33% 97%)', // parchment
+    primary: 'hsl(40 33% 97%)',           // parchment
+    primaryForeground: 'hsl(30 8% 10%)', // ink
+    secondary: 'hsl(30 8% 17%)',          // ink raised
+    secondaryForeground: 'hsl(40 33% 97%)', // parchment
+    muted: 'hsl(30 8% 17%)',              // ink raised
+    mutedForeground: 'hsl(30 4% 53%)',    // ash
+    accent: 'hsl(30 8% 17%)',             // ink raised
+    accentForeground: 'hsl(40 33% 97%)',  // parchment
+    destructive: 'hsl(9 60% 55%)',        // red brighter on dark
+    border: 'hsl(30 8% 20%)',             // ink subtle border
+    input: 'hsl(30 8% 20%)',              // ink subtle border
+    ring: 'hsl(37 61% 42%)',              // amber
     radius: '0.625rem',
-    chart1: 'hsl(220 70% 50%)',
-    chart2: 'hsl(160 60% 45%)',
-    chart3: 'hsl(30 80% 55%)',
-    chart4: 'hsl(280 65% 60%)',
-    chart5: 'hsl(340 75% 55%)',
+    chart1: 'hsl(37 61% 55%)',            // amber bright
+    chart2: 'hsl(37 50% 68%)',            // amber pale
+    chart3: 'hsl(30 15% 60%)',            // warm grey
+    chart4: 'hsl(9 60% 55%)',             // red bright
+    chart5: 'hsl(37 25% 45%)',            // dust dark
   },
 };
 

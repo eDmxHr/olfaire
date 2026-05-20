@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 88" width="100" height="88" fill="none">
+  <!-- Upper wings -->
+  <path d="M47 36 C42 26 22 16 8 22 C2 28 6 40 16 44 C28 48 42 44 47 40" fill="#1C1A18"/>
+  <path d="M53 36 C58 26 78 16 92 22 C98 28 94 40 84 44 C72 48 58 44 53 40" fill="#1C1A18"/>
+  <!-- Lower wings -->
+  <path d="M46 44 C38 50 22 56 18 66 C15 74 24 77 34 70 C43 64 47 56 47 48" fill="#1C1A18" opacity="0.75"/>
+  <path d="M54 44 C62 50 78 56 82 66 C85 74 76 77 66 70 C57 64 53 56 53 48" fill="#1C1A18" opacity="0.75"/>
+  <!-- Wing vein detail upper -->
+  <path d="M47 38 C36 36 22 30 12 28" stroke="#FAF9F6" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>
+  <path d="M53 38 C64 36 78 30 88 28" stroke="#FAF9F6" stroke-width="0.8" opacity="0.5" stroke-linecap="round"/>
+  <!-- Wing vein detail lower -->
+  <path d="M46 46 C38 52 28 60 22 66" stroke="#FAF9F6" stroke-width="0.7" opacity="0.4" stroke-linecap="round"/>
+  <path d="M54 46 C62 52 72 60 78 66" stroke="#FAF9F6" stroke-width="0.7" opacity="0.4" stroke-linecap="round"/>
+  <!-- Body amber line -->
+  <line x1="50" y1="26" x2="50" y2="68" stroke="#B07D2A" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Head -->
+  <circle cx="50" cy="22" r="4" fill="#1C1A18"/>
+  <!-- Antennae -->
+  <path d="M48 19 Q38 12 30 5" stroke="#1C1A18" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M52 19 Q62 12 70 5" stroke="#1C1A18" stroke-width="1.1" stroke-linecap="round"/>
+  <!-- Antennae tips amber -->
+  <circle cx="30" cy="5" r="2" fill="#B07D2A"/>
+  <circle cx="70" cy="5" r="2" fill="#B07D2A"/>
+</svg>
