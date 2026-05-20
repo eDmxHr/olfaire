@@ -1,14 +1,16 @@
-import { ScreenContent } from 'components/ScreenContent';
+import { PortalHost } from '@rn-primitives/portal';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-
-import './global.css';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function App() {
+import '../../global.css';
+
+export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <ScreenContent title="Home" path="App.tsx"></ScreenContent>
+      <Stack />
       <StatusBar style="auto" />
+      <PortalHost />
     </SafeAreaProvider>
   );
 }
