@@ -16,6 +16,10 @@ web-build/
 ios
 android
 
+# Environment variables
+.env
+.env.*
+
 # macOS
 .DS_Store
 
