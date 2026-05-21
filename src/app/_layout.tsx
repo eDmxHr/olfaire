@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Appearance } from 'react-native';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments } from 'expo-router';
@@ -7,12 +6,14 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { supabase } from '@/lib/supabase';
-
 import '../../global.css';
 import { useAuthStore } from '@/store/authStore';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useTodayStore } from '@/store/TodayStore';
+import { useProfile } from '@/hooks/useProfile';
+import { useCollection } from '@/hooks/useCollection';
+import { useToday } from '@/hooks/useToday';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,15 +22,14 @@ function useAuthRedirect() {
   const session = useAuthStore((s) => s.session);
   const profile = useAuthStore((s) => s.profile);
   const setSession = useAuthStore((s) => s.setSession);
-  const fetchProfile = useAuthStore((s) => s.fetchProfile);
-  const fetchCollection = useCollectionStore((s) => s.fetchCollection);
-  const fetchTodayLog = useTodayStore((s) => s.fetchTodayLog);
-  const fetchWeather = useTodayStore((s) => s.fetchWeather);
-  const fetchLumiOpening = useTodayStore((s) => s.fetchLumiOpening);
-  const resetToday = useTodayStore((s) => s.reset);
-  const resetLayering = useLayeringStore((s) => s.reset);
-  const resetCollection = useCollectionStore((s) => s.reset);
   const clearAuth = useAuthStore((s) => s.clearAll);
+  const resetCollection = useCollectionStore((s) => s.reset);
+  const resetLayering = useLayeringStore((s) => s.reset);
+  const resetToday = useTodayStore((s) => s.reset);
+
+  const { fetchProfile } = useProfile();
+  const { fetchCollection } = useCollection();
+  const { fetchTodayLog, fetchWeather, fetchLumiOpening } = useToday();
 
   const segments = useSegments();
 
