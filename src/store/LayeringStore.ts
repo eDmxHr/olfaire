@@ -80,15 +80,14 @@ function buildFragranceContext(item: CollectionItem, label: string): string {
   Concentration: ${f.concentration ?? 'unknown'} | Family: ${f.family ?? 'unknown'}`;
 }
 
-/** Check layering_cache for an existing analysis of this pair */
-async function checkCache(
+/** Check layering_cache for an existing analysis of this pair */ async function checkCache(
   idA: number,
   idB: number
 ): Promise<{ hit: boolean; data: LayeringCache | null; cacheId: string | null }> {
   const least = Math.min(idA, idB);
   const greatest = Math.max(idA, idB);
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('layering_cache')
     .select('*')
     .eq('fragrance_a_id', least)
@@ -96,7 +95,7 @@ async function checkCache(
     .maybeSingle();
 
   if (error || !data) return { hit: false, data: null, cacheId: null };
-  return { hit: true, data, cacheId: data.id };
+  return { hit: true, data: data as LayeringCache, cacheId: (data as LayeringCache).id };
 }
 
 /** Write a new analysis result to layering_cache */
@@ -108,7 +107,7 @@ async function writeCache(
   const least = Math.min(idA, idB);
   const greatest = Math.max(idA, idB);
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('layering_cache')
     .insert({
       fragrance_a_id: least,
@@ -126,7 +125,7 @@ async function writeCache(
     console.error('writeCache error:', error);
     return null;
   }
-  return data?.id ?? null;
+  return (data as { id: string })?.id ?? null;
 }
 
 // ── Store ─────────────────────────────────────────────────────────
@@ -281,7 +280,7 @@ Respond with exactly this JSON structure:
 
     set({ isSaving: true });
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('signatures')
         .insert({ layering_cache_id: cacheId, name, tags })
         .select()

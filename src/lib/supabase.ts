@@ -144,49 +144,51 @@ export interface FragranceContribution {
   created_at: string;
 }
 
+type R = Record<string, unknown>;
+
 // ── Database schema type ──────────────────────────────────────────
 export type Database = {
   public: {
     Tables: {
       profiles: {
         Row: Profile;
-        Insert: Partial<Profile> & { id: string };
-        Update: Partial<Profile>;
+        Insert: Omit<Profile, 'created_at' | 'updated_at'>;
+        Update: Omit<Partial<Profile>, 'id' | 'created_at' | 'updated_at'>;
       };
       fragrances: {
         Row: Fragrance;
         Insert: Omit<Fragrance, 'id' | 'created_at'>;
-        Update: Partial<Omit<Fragrance, 'id' | 'created_at'>>;
+        Update: Omit<Partial<Fragrance>, 'id' | 'created_at'>;
       };
       user_collection: {
         Row: CollectionItem;
         Insert: Omit<CollectionItem, 'id' | 'added_at'>;
-        Update: Partial<Omit<CollectionItem, 'id' | 'added_at'>>;
+        Update: Omit<Partial<CollectionItem>, 'id' | 'added_at'>;
       };
       daily_log: {
         Row: DailyLog;
         Insert: Omit<DailyLog, 'id' | 'created_at'>;
-        Update: Partial<Omit<DailyLog, 'id' | 'created_at'>>;
+        Update: Omit<Partial<DailyLog>, 'id' | 'created_at'>;
       };
       layering_cache: {
         Row: LayeringCache;
         Insert: Omit<LayeringCache, 'id' | 'created_at'>;
-        Update: Partial<Omit<LayeringCache, 'id' | 'created_at'>>;
+        Update: Omit<Partial<LayeringCache>, 'id' | 'created_at'>;
       };
       signatures: {
         Row: Signature;
         Insert: Omit<Signature, 'id' | 'created_at'>;
-        Update: Partial<Omit<Signature, 'id' | 'created_at'>>;
+        Update: Omit<Partial<Signature>, 'id' | 'created_at'>;
       };
       dna_profiles: {
         Row: DNAProfile;
         Insert: Omit<DNAProfile, 'updated_at'>;
-        Update: Partial<Omit<DNAProfile, 'user_id'>>;
+        Update: Omit<Partial<DNAProfile>, 'user_id' | 'updated_at'>;
       };
       fragrance_contributions: {
         Row: FragranceContribution;
         Insert: Omit<FragranceContribution, 'id' | 'created_at'>;
-        Update: Partial<Omit<FragranceContribution, 'id' | 'created_at'>>;
+        Update: Omit<Partial<FragranceContribution>, 'id' | 'created_at'>;
       };
     };
     Functions: {

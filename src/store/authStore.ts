@@ -58,10 +58,10 @@ export const useAuthStore = create<AuthState>()(
       fetchProfile: async () => {
         set({ isLoading: true });
         try {
-          const { data, error } = await supabase.from('profiles').select('*').single();
+          const { data, error } = await (supabase as any).from('profiles').select('*').single();
 
           if (error) throw error;
-          if (data) set({ profile: data });
+          if (data) set({ profile: data as Profile });
         } catch (err) {
           console.error('fetchProfile error:', err);
         } finally {
@@ -73,14 +73,15 @@ export const useAuthStore = create<AuthState>()(
         const current = get().profile;
         if (!current) return;
 
-        // Optimistic update — UI responds immediately
         set({ profile: { ...current, ...updates } });
 
         try {
-          const { error } = await supabase.from('profiles').update(updates).eq('id', current.id);
+          const { error } = await (supabase as any)
+            .from('profiles')
+            .update(updates)
+            .eq('id', current.id);
 
           if (error) {
-            // Rollback on failure
             set({ profile: current });
             console.error('updateProfile error:', error);
           }

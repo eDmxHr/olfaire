@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import { supabase, type DailyLog, type Mood, type WearRating } from '@/lib/supabase';
+import {
+  CollectionItem,
+  supabase,
+  type DailyLog,
+  type Mood,
+  type WearRating,
+} from '@/lib/supabase';
 
 // ── Types ─────────────────────────────────────────────────────────
 interface WeatherContext {
@@ -205,7 +211,7 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
     set({ isLoadingSuggestion: true });
     try {
       // Fetch user's collection for context
-      const { data: collection } = await supabase
+      const { data: collection } = await (supabase as any)
         .from('user_collection')
         .select('*, fragrance:fragrances(*)')
         .eq('is_wishlist', false)
@@ -217,7 +223,7 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
 
       // Build context for Lumi
       const collectionContext = collection
-        .map((item) => {
+        .map((item: CollectionItem) => {
           const f = item.fragrance as any;
           return `- ${f.house} ${f.name} | ${f.family} ${f.concentration}
   Top: ${f.notes_top?.join(', ')} | Heart: ${f.notes_heart?.join(', ')} | Base: ${f.notes_base?.join(', ')}
@@ -265,7 +271,7 @@ Respond with exactly:
       set({ suggestion: parsed });
 
       // Cache Lumi's line in the daily log
-      await supabase
+      await (supabase as any)
         .from('daily_log')
         .update({
           suggested_fragrance_id: parsed.fragrance_id,
@@ -288,7 +294,7 @@ Respond with exactly:
     set({ todayLog: { ...todayLog, worn_fragrance_id: fragranceId } });
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('daily_log')
         .update({ worn_fragrance_id: fragranceId })
         .eq('id', todayLog.id);
@@ -296,7 +302,7 @@ Respond with exactly:
       if (error) throw error;
 
       // Increment wear count via RPC
-      await supabase.rpc('increment_wear_count', { p_fragrance_id: fragranceId });
+      await (supabase as any).rpc('increment_wear_count', { p_fragrance_id: fragranceId });
     } catch (err) {
       // Rollback
       set({ todayLog });
@@ -312,7 +318,7 @@ Respond with exactly:
     set({ todayLog: { ...todayLog, wear_rating: rating } });
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('daily_log')
         .update({ wear_rating: rating })
         .eq('id', todayLog.id);

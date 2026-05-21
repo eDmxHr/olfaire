@@ -67,7 +67,7 @@ export const useCollectionStore = create<CollectionState>()(
       fetchCollection: async () => {
         set({ isLoading: true });
         try {
-          const { data, error } = await supabase
+          const { data, error } = await (supabase as any)
             .from('user_collection')
             .select('*, fragrance:fragrances(*)')
             .order('added_at', { ascending: false });
@@ -75,8 +75,8 @@ export const useCollectionStore = create<CollectionState>()(
           if (error) throw error;
           if (data) {
             set({
-              items: data.filter((i) => !i.is_wishlist),
-              wishlist: data.filter((i) => i.is_wishlist),
+              items: data.filter((i: CollectionItem) => !i.is_wishlist),
+              wishlist: data.filter((i: CollectionItem) => i.is_wishlist),
             });
           }
         } catch (err) {
@@ -101,11 +101,9 @@ export const useCollectionStore = create<CollectionState>()(
       addBottle: async (fragranceId, isWishlist = false) => {
         set({ isSyncing: true });
         try {
-          const { data, error } = await supabase
+          const { data, error } = await (supabase as any)
             .from('user_collection')
-            .insert<{ fragrance_id: number; is_wishlist: boolean }>(
-              { fragrance_id: fragranceId, is_wishlist: isWishlist }
-            )
+            .insert({ fragrance_id: fragranceId, is_wishlist: isWishlist })
             .select('*, fragrance:fragrances(*)')
             .single();
 
@@ -154,7 +152,7 @@ export const useCollectionStore = create<CollectionState>()(
         });
 
         try {
-          const { error } = await supabase
+          const { error } = await (supabase as any)
             .from('user_collection')
             .update({ stock_level: level })
             .eq('id', collectionId);
@@ -176,7 +174,7 @@ export const useCollectionStore = create<CollectionState>()(
         });
 
         try {
-          const { error } = await supabase
+          const { error } = await (supabase as any)
             .from('user_collection')
             .update({ personal_rating: rating })
             .eq('id', collectionId);
@@ -196,7 +194,7 @@ export const useCollectionStore = create<CollectionState>()(
         });
 
         try {
-          const { error } = await supabase
+          const { error } = await (supabase as any)
             .from('user_collection')
             .update({ notes })
             .eq('id', collectionId);
@@ -220,7 +218,7 @@ export const useCollectionStore = create<CollectionState>()(
         });
 
         try {
-          const { error } = await supabase
+          const { error } = await (supabase as any)
             .from('user_collection')
             .update({ is_wishlist: false })
             .eq('id', collectionId);
@@ -254,7 +252,7 @@ export const useCollectionStore = create<CollectionState>()(
             ),
           });
 
-          await supabase
+          await (supabase as any)
             .from('user_collection')
             .update({ custom_image_url: url })
             .eq('id', collectionId);
