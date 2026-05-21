@@ -6,6 +6,7 @@ import {
   type Mood,
   type WearRating,
 } from '@/lib/supabase';
+import { fetchLumiOpeningLine, fetchDailySuggestion } from '@/lib/claudeApi';
 
 // ── Types ─────────────────────────────────────────────────────────
 interface WeatherContext {
@@ -139,32 +140,14 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
   fetchLumiOpening: async () => {
     const weather = get().weather;
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 60,
-          system: `You are Lumi, a fragrance intelligence guide. Write one short morning greeting — 
-                         the single line the user sees before selecting their mood. One sentence, 
-                         maximum 15 words. No greeting words like "Good morning", "Hello", "Hi". 
-                         Start with the day, weather, or something sensory. Return plain text only.`,
-          messages: [
-            {
-              role: 'user',
-              content: `Today: ${today}. Weather: ${weather?.condition ?? 'clear'}, ${weather?.temp_c ?? 20}°C.`,
-            },
-          ],
-        }),
+      const line = await fetchLumiOpeningLine({
+        weekday: today,
+        condition: weather?.condition ?? 'clear',
+        tempC: weather?.temp_c ?? 20,
       });
-
-      const data = await res.json();
-      const line = data.content?.[0]?.text?.trim();
       if (line) set({ lumiOpening: line });
     } catch (err) {
-      // Silent fail — fallback shown in UI
       console.error('fetchLumiOpening error:', err);
     }
   },
@@ -186,7 +169,7 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
         }),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('daily_log')
         .upsert(upsertData, { onConflict: 'user_id,log_date' })
         .select()
@@ -210,7 +193,6 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
 
     set({ isLoadingSuggestion: true });
     try {
-      // Fetch user's collection for context
       const { data: collection } = await (supabase as any)
         .from('user_collection')
         .select('*, fragrance:fragrances(*)')
@@ -221,7 +203,6 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
 
       if (!collection?.length) return;
 
-      // Build context for Lumi
       const collectionContext = collection
         .map((item: CollectionItem) => {
           const f = item.fragrance as any;
@@ -233,49 +214,22 @@ export const useTodayStore = create<TodayState>()((set, get) => ({
 
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 200,
-          system: `You are Lumi, a fragrance intelligence guide. Suggest exactly one perfume 
-                         from the user's collection for today. Return JSON only, no preamble, 
-                         no markdown backticks.`,
-          messages: [
-            {
-              role: 'user',
-              content: `TODAY: ${today} | Weather: ${weather?.condition ?? 'clear'}, ${weather?.temp_c ?? 20}°C, humidity ${weather?.humidity ?? 50}% | Mood: ${todayLog.mood}
-
-COLLECTION:
-${collectionContext}
-
-Respond with exactly:
-{
-  "fragrance_id": <number>,
-  "fragrance_house": "<house>",
-  "fragrance_name": "<name>",
-  "lumi_line": "<one sentence max 20 words>",
-  "reasoning_tags": ["<tag1>", "<tag2>"]
-}`,
-            },
-          ],
-        }),
+      const result = await fetchDailySuggestion({
+        weekday: today,
+        mood: todayLog.mood,
+        condition: weather?.condition ?? 'clear',
+        tempC: weather?.temp_c ?? 20,
+        humidity: weather?.humidity ?? 50,
+        collectionLines: collectionContext,
       });
 
-      const apiData = await res.json();
-      const text = apiData.content?.[0]?.text?.trim();
-      if (!text) return;
+      set({ suggestion: result });
 
-      const parsed: Suggestion = JSON.parse(text);
-      set({ suggestion: parsed });
-
-      // Cache Lumi's line in the daily log
       await (supabase as any)
         .from('daily_log')
         .update({
-          suggested_fragrance_id: parsed.fragrance_id,
-          lumi_suggestion_text: parsed.lumi_line,
+          suggested_fragrance_id: result.fragrance_id,
+          lumi_suggestion_text: result.lumi_line,
         })
         .eq('id', todayLog.id);
     } catch (err) {

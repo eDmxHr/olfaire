@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase, type CollectionItem, type Signature, type LayeringCache } from '@/lib/supabase';
+import { fetchLayeringAnalysis } from '@/lib/claudeApi';
 
 // ── Types ─────────────────────────────────────────────────────────
 interface NoteInteraction {
@@ -68,17 +69,6 @@ interface LayeringState {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────
-
-/** Build the note context string for a fragrance */
-function buildFragranceContext(item: CollectionItem, label: string): string {
-  const f = item.fragrance as any;
-  if (!f) return '';
-  return `${label}: ${f.house} ${f.name}
-  Top: ${f.notes_top?.join(', ') ?? 'unknown'}
-  Heart: ${f.notes_heart?.join(', ') ?? 'unknown'}
-  Base: ${f.notes_base?.join(', ') ?? 'unknown'}
-  Concentration: ${f.concentration ?? 'unknown'} | Family: ${f.family ?? 'unknown'}`;
-}
 
 /** Check layering_cache for an existing analysis of this pair */ async function checkCache(
   idA: number,
@@ -188,68 +178,31 @@ export const useLayeringStore = create<LayeringState>()((set, get) => ({
       }
 
       // 2. Cache miss → call Claude
-      const contextA = buildFragranceContext(itemA, 'BOTTLE A');
-      const contextB = buildFragranceContext(itemB, 'BOTTLE B');
-
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: `You are Lumi, a fragrance intelligence guide with deep knowledge of 
-                         perfume chemistry. Analyse layering combinations with precision and 
-                         poetry. Return JSON only, no preamble, no markdown backticks.`,
-          messages: [
-            {
-              role: 'user',
-              content: `Analyse the chemistry of layering these two perfumes and detect any conflicts.
-
-${contextA}
-
-${contextB}
-
-Respond with exactly this JSON structure:
-{
-  "compatibility_score": <0-100>,
-  "lumi_summary": "<1-2 sentences in your voice>",
-  "conflicts": <true|false>,
-  "severity": <"mild"|"moderate"|"strong"|null>,
-  "lumi_warning": "<one sentence if conflicts, else null>",
-  "reasons": ["<conflict reason 1>"],
-  "interactions": [
-    {
-      "note_a": "<note>",
-      "note_b": "<note>",
-      "type": "<anchor|amplify|contrast|neutral>",
-      "explanation": "<one sentence>"
-    }
-  ],
-  "application": {
-    "first": "<bottle name>",
-    "wait_seconds": <30-120>,
-    "second": "<bottle name>",
-    "ratio": "<e.g. 2 sprays A, 1 spray B>",
-    "placement_first": "<body placement>",
-    "placement_second": "<body placement>"
-  },
-  "overall_character": "<4-6 words>",
-  "alternative_suggestion": null
-}`,
-            },
-          ],
-        }),
+      const result = await fetchLayeringAnalysis({
+        bottleA: {
+          house: fragA.house,
+          name: fragA.name,
+          concentration: fragA.concentration ?? '',
+          family: fragA.family ?? '',
+          notes_top: fragA.notes_top ?? [],
+          notes_heart: fragA.notes_heart ?? [],
+          notes_base: fragA.notes_base ?? [],
+        },
+        bottleB: {
+          house: fragB.house,
+          name: fragB.name,
+          concentration: fragB.concentration ?? '',
+          family: fragB.family ?? '',
+          notes_top: fragB.notes_top ?? [],
+          notes_heart: fragB.notes_heart ?? [],
+          notes_base: fragB.notes_base ?? [],
+        },
       });
 
-      const apiData = await res.json();
-      const text = apiData.content?.[0]?.text?.trim();
-      if (!text) return;
-
-      const parsed: LayeringAnalysis = JSON.parse(text);
-      set({ analysis: parsed });
+      set({ analysis: result as LayeringAnalysis });
 
       // 3. Write result to cache
-      const newCacheId = await writeCache(fragA.id, fragB.id, parsed);
+      const newCacheId = await writeCache(fragA.id, fragB.id, result as LayeringAnalysis);
       if (newCacheId) set({ cacheId: newCacheId });
     } catch (err) {
       console.error('analyse error:', err);
