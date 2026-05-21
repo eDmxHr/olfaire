@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { EditScreenInfo } from './EditScreenInfo';
 
@@ -9,19 +9,11 @@ interface ScreenContentProps {
   children?: React.ReactNode;
 }
 
-export const ScreenContent: React.FC<ScreenContentProps> = ({ title, path, children }) => {
+export const ScreenContent: React.FC<ScreenContentProps> = ({ path, children }) => {
   return (
-    <View className={styles.container}>
-      <Text className={styles.title}>{title}</Text>
-      <View className={styles.separator} />
+    <View className="flex-1 bg-background">
       <EditScreenInfo path={path} />
       {children}
     </View>
   );
-};
-
-const styles = {
-  container: `items-center flex-1 justify-center bg-background`,
-  separator: `h-[1px] my-7 w-4/5 bg-border`,
-  title: `text-xl font-bold`,
 };

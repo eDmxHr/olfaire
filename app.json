@@ -26,6 +26,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "fonts": [
+      "./assets/fonts/CormorantGaramond-Light.ttf",
+      "./assets/fonts/CormorantGaramond-LightItalic.ttf",
+      "./assets/fonts/CormorantGaramond-Regular.ttf",
+      "./assets/fonts/CormorantGaramond-Italic.ttf",
+      "./assets/fonts/CormorantGaramond-Medium.ttf",
+      "./assets/fonts/DMSans-Light.ttf",
+      "./assets/fonts/DMSans-Regular.ttf",
+      "./assets/fonts/DMSans-Medium.ttf"
+    ],
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true

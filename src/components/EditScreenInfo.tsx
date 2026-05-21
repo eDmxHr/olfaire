@@ -1,60 +1,151 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 
 import { Lumi } from './Lumi';
+import { FONTS } from '@/lib/theme';
 
-const swatches: { label: string; bg: string; text: string }[] = [
-  { label: 'background', bg: 'bg-background', text: 'text-foreground' },
-  { label: 'card', bg: 'bg-card', text: 'text-card-foreground' },
-  { label: 'primary', bg: 'bg-primary', text: 'text-primary-foreground' },
-  { label: 'secondary', bg: 'bg-secondary', text: 'text-secondary-foreground' },
-  { label: 'muted', bg: 'bg-muted', text: 'text-muted-foreground' },
-  { label: 'accent', bg: 'bg-accent', text: 'text-accent-foreground' },
-  { label: 'destructive', bg: 'bg-destructive', text: 'text-primary-foreground' },
-  { label: 'border', bg: 'bg-border', text: 'text-foreground' },
-  { label: 'ring (amber)', bg: 'bg-ring', text: 'text-primary-foreground' },
-  { label: 'amber', bg: 'bg-[#B07D2A]', text: 'text-[#FAF9F6]' },
+const MOODS = ['soft', 'bold', 'cosy', 'sharp', 'mysterious'] as const;
+const ACTIVE_MOOD = 'cosy';
+
+const MOCK_BOTTLES = [
+  { house: 'Le Labo', name: 'Santal 33', family: 'Woody' },
+  { house: 'Chloé', name: 'Eau de Parfum', family: 'Floral' },
+  { house: 'Encre Noire', name: 'Lalique', family: 'Woody' },
 ];
 
 export const EditScreenInfo: React.FC<{ path: string }> = () => {
   return (
-    <ScrollView className="w-full px-4">
-      <Text className="text-foreground mb-3 text-center text-base font-semibold">
-        Theme Swatches
-      </Text>
-      {swatches.map((s) => (
-        <View key={s.label} className={`${s.bg} border-border mb-2 rounded-lg border px-4 py-3`}>
-          <Text className={`${s.text} text-sm font-medium`}>{s.label}</Text>
-        </View>
-      ))}
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingBottom: 48 }}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Hero */}
+      <View className="items-center px-8 pt-16 pb-8">
+        <Lumi size={72} />
+        <Text
+          style={{ fontFamily: FONTS.displayLight, fontSize: 36, letterSpacing: 0.5 }}
+          className="text-foreground mt-6 text-center"
+        >
+          Olfaire
+        </Text>
+        <Text
+          style={{ fontFamily: FONTS.displayLightItalic, fontSize: 18 }}
+          className="text-muted-foreground mt-1 text-center"
+        >
+          Your Scent Intelligence
+        </Text>
+      </View>
 
-      <Text className="text-foreground mb-3 mt-5 text-center text-base font-semibold">Lumi</Text>
-      <View className="bg-card border-border mb-2 flex-row items-end justify-around rounded-lg border px-4 py-5">
-        <View className="items-center gap-1">
-          <Lumi size={72} />
-          <Text className="text-muted-foreground text-xs">72 splash</Text>
-        </View>
-        <View className="items-center gap-1">
-          <Lumi size={48} />
-          <Text className="text-muted-foreground text-xs">48 default</Text>
-        </View>
-        <View className="items-center gap-1">
-          <Lumi size={32} />
-          <Text className="text-muted-foreground text-xs">32 avatar</Text>
-        </View>
-        <View className="items-center gap-1">
-          <Lumi size={20} />
-          <Text className="text-muted-foreground text-xs">20 nav</Text>
+      {/* Divider */}
+      <View className="bg-border mx-8 h-px" />
+
+      {/* Lumi voice line */}
+      <View className="px-8 pt-8 pb-6">
+        <Text
+          style={{ fontFamily: FONTS.displayItalic, fontSize: 20, lineHeight: 30, color: '#B07D2A' }}
+          className="text-center"
+        >
+          "Rain is coming. Vetiver knows how to stay."
+        </Text>
+      </View>
+
+      {/* Mood section */}
+      <View className="px-6 pb-6">
+        <Text
+          style={{
+            fontFamily: FONTS.ui,
+            fontSize: 9,
+            letterSpacing: 3.5,
+            textTransform: 'uppercase',
+          }}
+          className="text-muted-foreground mb-3"
+        >
+          Today's Mood
+        </Text>
+        <View className="flex-row flex-wrap gap-2">
+          {MOODS.map((mood) => {
+            const active = mood === ACTIVE_MOOD;
+            return (
+              <View
+                key={mood}
+                className={`rounded-full border px-4 py-2 ${
+                  active ? 'bg-ring border-ring' : 'bg-card border-border'
+                }`}
+              >
+                <Text
+                  style={{ fontFamily: FONTS.uiMedium, fontSize: 13 }}
+                  className={active ? 'text-primary-foreground' : 'text-foreground'}
+                >
+                  {mood}
+                </Text>
+              </View>
+            );
+          })}
         </View>
       </View>
-      <View className="bg-primary border-border mb-2 flex-row items-center justify-around rounded-lg border px-4 py-5">
-        <View className="items-center gap-1">
+
+      {/* Collection card */}
+      <View className="bg-card border-border mx-6 rounded-2xl border p-5">
+        <Text
+          style={{
+            fontFamily: FONTS.ui,
+            fontSize: 9,
+            letterSpacing: 3.5,
+            textTransform: 'uppercase',
+          }}
+          className="text-muted-foreground mb-4"
+        >
+          Your Collection
+        </Text>
+        {MOCK_BOTTLES.map((bottle, i) => (
+          <View
+            key={bottle.name}
+            className={`flex-row items-center justify-between py-3 ${
+              i < MOCK_BOTTLES.length - 1 ? 'border-b border-border' : ''
+            }`}
+          >
+            <View>
+              <Text
+                style={{ fontFamily: FONTS.uiMedium, fontSize: 13 }}
+                className="text-foreground"
+              >
+                {bottle.name}
+              </Text>
+              <Text
+                style={{ fontFamily: FONTS.ui, fontSize: 11 }}
+                className="text-muted-foreground mt-0.5"
+              >
+                {bottle.house}
+              </Text>
+            </View>
+            <Text
+              style={{ fontFamily: FONTS.ui, fontSize: 11, color: '#B07D2A' }}
+            >
+              {bottle.family}
+            </Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Dark card variant */}
+      <View className="bg-primary mx-6 mt-4 rounded-2xl p-5">
+        <View className="flex-row items-center gap-4">
           <Lumi size={48} wingColor="#FAF9F6" veinColor="#1C1A18" />
-          <Text className="text-primary-foreground text-xs">light wings</Text>
-        </View>
-        <View className="items-center gap-1">
-          <Lumi size={48} wingColor="#B07D2A" bodyColor="#1C1A18" />
-          <Text className="text-primary-foreground text-xs">amber mono</Text>
+          <View className="flex-1">
+            <Text
+              style={{ fontFamily: FONTS.displayItalic, fontSize: 18, lineHeight: 26 }}
+              className="text-primary-foreground"
+            >
+              The vetiver gives Chloé's rose a shadow it doesn't have alone.
+            </Text>
+            <Text
+              style={{ fontFamily: FONTS.ui, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' }}
+              className="text-muted-foreground mt-2"
+            >
+              Layering Insight
+            </Text>
+          </View>
         </View>
       </View>
     </ScrollView>
