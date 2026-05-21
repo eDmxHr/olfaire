@@ -2,8 +2,8 @@ import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { Screen } from '@/components/Screen';
-import { Lumi } from '@/components/Lumi';
+import { Screen } from '@/components/screen-wrapper';
+import { Lumi } from '@/components/lumi';
 import { FONTS } from '@/lib/theme';
 
 export default function SplashScreen() {

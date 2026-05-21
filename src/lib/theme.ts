@@ -80,6 +80,16 @@ export const NAV_THEME: Record<'light' | 'dark', Theme> = {
   },
 };
 
+export const COLORS = {
+  parchment: '#FAF9F6',
+  linen: '#EDEAE3',
+  ink: '#1C1A18',
+  amber: '#B07D2A',
+  ash: '#8C8680',
+  dust: '#D4CFC8',
+  red: '#C4503A',
+} as const;
+
 export const FONTS = {
   display: 'CormorantGaramond-Regular',
   displayLight: 'CormorantGaramond-Light',

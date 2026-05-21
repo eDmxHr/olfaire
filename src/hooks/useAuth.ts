@@ -26,9 +26,10 @@ export function useAuth() {
       const result = await WebBrowser.openAuthSessionAsync(data.url, 'olfaire://auth/callback');
 
       if (result.type === 'success') {
-        const url = new URL(result.url);
-        const accessToken = url.searchParams.get('access_token');
-        const refreshToken = url.searchParams.get('refresh_token');
+        const hash = new URL(result.url).hash.slice(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
         if (accessToken) {
           await supabase.auth.setSession({
             access_token: accessToken,

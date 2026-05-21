@@ -26,7 +26,8 @@ function useAuthRedirect() {
   const resetCollection = useCollectionStore((s) => s.reset);
   const resetLayering = useLayeringStore((s) => s.reset);
   const resetToday = useTodayStore((s) => s.reset);
-  const [ready, setReady] = useState(false);
+  // profileReady: true once we've fetched a fresh profile from the server for the current session
+  const [profileReady, setProfileReady] = useState(false);
 
   const { fetchProfile } = useProfile();
   const { fetchCollection } = useCollection();
@@ -42,18 +43,25 @@ function useAuthRedirect() {
       setSession(newSession);
 
       if (event === 'INITIAL_SESSION') {
-        // Supabase has confirmed the initial auth state — safe to redirect now
-        if (newSession) await fetchProfile();
-        setReady(true);
+        if (newSession) {
+          await fetchProfile();
+          setProfileReady(true);
+        } else {
+          // No session — nothing to fetch, safe to redirect to auth
+          setProfileReady(true);
+        }
       }
 
       if (event === 'SIGNED_IN' && newSession) {
+        setProfileReady(false);
         await fetchProfile();
+        setProfileReady(true);
         await fetchCollection();
         await fetchTodayLog();
       }
 
       if (event === 'SIGNED_OUT') {
+        setProfileReady(false);
         clearAuth();
         resetCollection();
         resetToday();
@@ -64,9 +72,9 @@ function useAuthRedirect() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect based on auth + onboarding state — only after Supabase confirms session
+  // Redirect based on auth + onboarding state
   useEffect(() => {
-    if (!ready) return;
+    if (!profileReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
@@ -86,7 +94,7 @@ function useAuthRedirect() {
     if (inAuthGroup || inOnboardingGroup) {
       router.replace('/(tabs)/today');
     }
-  }, [ready, session, profile, segments]);
+  }, [profileReady, session, profile, segments]);
 
   // Bootstrap data once signed in and onboarded
   useEffect(() => {

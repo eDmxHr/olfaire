@@ -1,4 +1,5 @@
 import Svg, { Circle, Line, Path } from 'react-native-svg';
+import { COLORS } from '@/lib/theme';
 
 interface LumiProps {
   size?: number;
@@ -9,9 +10,9 @@ interface LumiProps {
 
 export function Lumi({
   size = 48,
-  wingColor = '#1C1A18',
-  bodyColor = '#B07D2A',
-  veinColor = '#FAF9F6',
+  wingColor = COLORS.ink,
+  bodyColor = COLORS.amber,
+  veinColor = COLORS.parchment,
 }: LumiProps) {
   const h = size * (88 / 100);
   const showVeins = size > 20;

@@ -1,6 +1,5 @@
-import { View } from 'react-native';
+import { Redirect } from 'expo-router';
 
-// Blank holding screen — useAuthRedirect in _layout.tsx immediately replaces this
 export default function Index() {
-  return <View className="flex-1 bg-background" />;
+  return <Redirect href="/(auth)/splash" />;
 }

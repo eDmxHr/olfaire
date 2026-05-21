@@ -1,14 +1,14 @@
 import { View, Platform, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { Screen } from '@/components/Screen';
-import { GoogleLogo } from '@/components/GoogleLogo';
+import { Screen } from '@/components/screen-wrapper';
+import { GoogleLogo } from '@/components/google-logo';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/hooks/useAuth';
 import { FONTS } from '@/lib/theme';
-import { IconChevronLeft, IconLoader3 } from '@tabler/icons-react-native';
+import { IconChevronLeft, IconLoader } from '@tabler/icons-react-native';
 
 export default function SignInScreen() {
   const { signInWithGoogle, signInWithApple, loading, error } = useAuth();
@@ -61,11 +61,7 @@ export default function SignInScreen() {
             className="w-full flex-row gap-3"
             onPress={signInWithGoogle}
             disabled={loading !== null}>
-            {loading === 'google' ? (
-              <Icon icon={IconLoader3} size={18} />
-            ) : (
-              <GoogleLogo size={18} />
-            )}
+            {loading === 'google' ? <Icon icon={IconLoader} size={18} /> : <GoogleLogo size={18} />}
             <Text style={{ fontFamily: FONTS.uiMedium }} className="text-base text-foreground">
               Continue with Google
             </Text>
