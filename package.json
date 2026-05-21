@@ -19,6 +19,7 @@
     "@rn-primitives/portal": "^1.4.0",
     "@rn-primitives/slot": "^1.4.0",
     "@supabase/supabase-js": "^2.106.1",
+    "@tabler/icons-react-native": "^3.44.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "^54.0.0",

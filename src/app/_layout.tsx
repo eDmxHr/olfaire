@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments } from 'expo-router';
@@ -26,6 +26,7 @@ function useAuthRedirect() {
   const resetCollection = useCollectionStore((s) => s.reset);
   const resetLayering = useLayeringStore((s) => s.reset);
   const resetToday = useTodayStore((s) => s.reset);
+  const [ready, setReady] = useState(false);
 
   const { fetchProfile } = useProfile();
   const { fetchCollection } = useCollection();
@@ -39,6 +40,12 @@ function useAuthRedirect() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
+
+      if (event === 'INITIAL_SESSION') {
+        // Supabase has confirmed the initial auth state — safe to redirect now
+        if (newSession) await fetchProfile();
+        setReady(true);
+      }
 
       if (event === 'SIGNED_IN' && newSession) {
         await fetchProfile();
@@ -57,8 +64,10 @@ function useAuthRedirect() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect based on auth + onboarding state
+  // Redirect based on auth + onboarding state — only after Supabase confirms session
   useEffect(() => {
+    if (!ready) return;
+
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
@@ -77,7 +86,7 @@ function useAuthRedirect() {
     if (inAuthGroup || inOnboardingGroup) {
       router.replace('/(tabs)/today');
     }
-  }, [session, profile, segments]);
+  }, [ready, session, profile, segments]);
 
   // Bootstrap data once signed in and onboarded
   useEffect(() => {
@@ -96,29 +105,12 @@ function useAuthRedirect() {
   }, [session, profile?.onboarding_completed]);
 }
 
-// ── Root layout ───────────────────────────────────────────────────
-export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    'CormorantGaramond-Light': require('../../assets/fonts/CormorantGaramond-Light.ttf'),
-    'CormorantGaramond-LightItalic': require('../../assets/fonts/CormorantGaramond-LightItalic.ttf'),
-    'CormorantGaramond-Regular': require('../../assets/fonts/CormorantGaramond-Regular.ttf'),
-    'CormorantGaramond-Italic': require('../../assets/fonts/CormorantGaramond-Italic.ttf'),
-    'CormorantGaramond-Medium': require('../../assets/fonts/CormorantGaramond-Medium.ttf'),
-    'DMSans-Light': require('../../assets/fonts/DMSans-Light.ttf'),
-    'DMSans-Regular': require('../../assets/fonts/DMSans-Regular.ttf'),
-    'DMSans-Medium': require('../../assets/fonts/DMSans-Medium.ttf'),
-  });
-
-  useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
-
+// ── Navigator (needs to be a child so router is available to useAuthRedirect) ──
+function Navigator() {
   useAuthRedirect();
 
-  if (!fontsLoaded) return null;
-
   return (
-    <SafeAreaProvider>
+    <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(onboarding)" />
@@ -142,6 +134,32 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
       <PortalHost />
+    </>
+  );
+}
+
+// ── Root layout ───────────────────────────────────────────────────
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    'CormorantGaramond-Light': require('../../assets/fonts/CormorantGaramond-Light.ttf'),
+    'CormorantGaramond-LightItalic': require('../../assets/fonts/CormorantGaramond-LightItalic.ttf'),
+    'CormorantGaramond-Regular': require('../../assets/fonts/CormorantGaramond-Regular.ttf'),
+    'CormorantGaramond-Italic': require('../../assets/fonts/CormorantGaramond-Italic.ttf'),
+    'CormorantGaramond-Medium': require('../../assets/fonts/CormorantGaramond-Medium.ttf'),
+    'DMSans-Light': require('../../assets/fonts/DMSans-Light.ttf'),
+    'DMSans-Regular': require('../../assets/fonts/DMSans-Regular.ttf'),
+    'DMSans-Medium': require('../../assets/fonts/DMSans-Medium.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  return (
+    <SafeAreaProvider>
+      <Navigator />
     </SafeAreaProvider>
   );
 }
