@@ -63,3 +63,36 @@ export const FRAGRANCE_FAMILIES = [
 ] as const;
 
 export type FragranceFamily = (typeof FRAGRANCE_FAMILIES)[number];
+
+export const FAMILY_COLORS: Record<string, string> = {
+  Floral:    '#E8A4B8',
+  Woody:     '#8B6F47',
+  Oriental:  '#C4783A',
+  Fresh:     '#7EC8C8',
+  Gourmand:  '#D4956A',
+  Musky:     '#B8A9C9',
+  Citrus:    '#F0C040',
+  Aquatic:   '#5B9BD5',
+  Amber:     '#B07D2A',
+  Fruity:    '#E87040',
+  Spicy:     '#C43A3A',
+  Green:     '#6B8F5E',
+  Powdery:   '#D4B8C8',
+  Leather:   '#7A5C3A',
+  Aromatic:  '#8B9B6A',
+  Chypre:    '#9B7A5A',
+  Fougère:   '#6A8B7A',
+  Vanilla:   '#D4B88A',
+  Smoky:     '#6A6A6A',
+  Earthy:    '#8B7355',
+  Herbal:    '#7A9B6A',
+  Resinous:  '#9B6A3A',
+  Sweet:     '#E8A4D4',
+  Marine:    '#4A7FA5',
+  Aldehydic: '#D4D4B8',
+  Oud:       '#4A2A1A',
+  Balsamic:  '#8B5A2A',
+  Metallic:  '#9B9B9B',
+  Tobacco:   '#6A4A2A',
+  Animalic:  '#7A5A4A',
+};
