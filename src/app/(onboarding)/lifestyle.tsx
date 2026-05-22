@@ -11,20 +11,8 @@ import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { useProfile } from '@/hooks/useProfile';
 import { FONTS, COLORS } from '@/lib/theme';
+import { LIFESTYLE_CHIPS, SKIN_CHIPS } from '@/data/onboarding';
 import type { Lifestyle, SkinType } from '@/lib/supabase';
-
-const LIFESTYLE_CHIPS = [
-  { value: 'office', label: 'Office' },
-  { value: 'outdoor', label: 'Outdoors' },
-  { value: 'creative', label: 'Creative' },
-  { value: 'home', label: 'Home' },
-];
-
-const SKIN_CHIPS = [
-  { value: 'dry', label: 'Dry' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'oily', label: 'Oily' },
-];
 
 export default function LifestyleScreen() {
   const [lifestyle, setLifestyle] = useState<Lifestyle | null>(null);

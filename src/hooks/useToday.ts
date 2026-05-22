@@ -1,6 +1,8 @@
 import { supabase, type CollectionItem, type Mood, type WearRating } from '@/lib/supabase';
 import { fetchLumiOpeningLine, fetchDailySuggestion } from '@/lib/claudeApi';
 import { useTodayStore } from '@/store/TodayStore';
+import { useAuthStore } from '@/store/authStore';
+import { useCollectionStore } from '@/store/Collectionstore';
 
 function todayDate(): string {
   return new Date().toISOString().split('T')[0];
@@ -8,6 +10,8 @@ function todayDate(): string {
 
 export function useToday() {
   const store = useTodayStore();
+  const profile = useAuthStore((s) => s.profile);
+  const dna = useCollectionStore((s) => s.dna);
 
   async function fetchTodayLog() {
     store.setLoadingLog(true);
@@ -108,6 +112,16 @@ export function useToday() {
 
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
+      // Build computed DNA string from dna_profiles.families — top 3 by score
+      let computedDNA: string | null = null;
+      if (collection.length >= 3 && dna?.families && Object.keys(dna.families).length > 0) {
+        computedDNA = Object.entries(dna.families)
+          .sort(([, a], [, b]) => (b as number) - (a as number))
+          .slice(0, 3)
+          .map(([family, score]) => `${family} ${Math.round(score as number)}%`)
+          .join(', ');
+      }
+
       const result = await fetchDailySuggestion({
         weekday: today,
         mood: todayLog.mood,
@@ -115,6 +129,11 @@ export function useToday() {
         tempC: weather?.temp_c ?? 20,
         humidity: weather?.humidity ?? 50,
         collectionLines: collectionContext,
+        skinType: profile?.skin_type ?? 'normal',
+        lifestyle: profile?.lifestyle ?? 'casual',
+        preferredFamilies: profile?.preferred_families ?? [],
+        computedDNA,
+        calendarEvent: todayLog.calendar_event ?? null,
       });
 
       store.setSuggestion(result);

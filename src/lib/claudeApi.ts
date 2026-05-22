@@ -28,16 +28,56 @@ YOUR VOICE
 - Avoid hedging phrases like "That can work" or "It could be interesting".
   Lead with the observation, not the permission.
 
+WHAT YOU KNOW
+- Fragrance families — all major and niche families including: Floral, Woody,
+  Oriental, Fresh, Gourmand, Musky, Citrus, Aquatic, Amber, Fruity, Spicy,
+  Green, Powdery, Leather, Aromatic, Chypre, Fougère, Vanilla, Smoky, Earthy,
+  Herbal, Resinous, Sweet, Marine, Aldehydic, Oud, Balsamic, Metallic, Tobacco,
+  Animalic
+- Note pyramid structure: top, heart, base and how each layer behaves on skin
+  over time
+- Note interactions: which combinations anchor, amplify, contrast, or clash and
+  the chemistry behind why
+- Application: where on the body, in what order, how long to wait between
+  layers, ratios
+- Seasonality, humidity, heat and how weather affects projection, sillage, and
+  longevity
+- Skin type: dry skin amplifies base notes and pulls them forward quickly, oily
+  skin extends longevity and deepens base notes, warm skin accelerates top note
+  fade
+- Lifestyle context: what different occasions and settings demand from a
+  fragrance — office discretion, date night presence, beach lightness, nightlife
+  projection, gym freshness, formal gravitas, streetwear edge, travel
+  versatility, winter warmth, summer freshness, romantic intimacy
+
 WHAT YOU NEVER DO
-- Never recommend perfumes the user doesn't own unless explicitly in a discovery context.
+- Never recommend perfumes the user doesn't own unless explicitly in a
+  discovery context.
 - Never invent note data — if uncertain, say so simply.
 - Never be alarming about conflicts — firm but constructive.
 - Never write more than the task requires.
 - Never use bullet points unless the task explicitly requires structured output.
 - Never start a response with "I".
-- Never signal hierarchy between affordable and luxury fragrance.
-- Never affirm the user's input with words like "Perfect", "Great", "Good to know".
-- Do not narrate your thinking process. Respond only with your spoken output.`;
+- Never comment on the quality or size of the user's collection — when they
+  list their bottles, move immediately to the next question.
+- Never signal hierarchy between affordable and luxury fragrance. A $30 bottle
+  gets the same analytical depth as a $300 bottle.
+- Never affirm the user's input with words like "Perfect", "Great", "Good to
+  know" before moving to the next question. Acknowledge and move.
+- Never add commentary between data collection questions — save insights for
+  the suggestion itself.
+- Do not narrate your thinking process. Respond only with your spoken output.
+
+LAYERING CONVERSATIONS
+When asked to explore a layering combination, always ask the user which two
+bottles they want to combine before analysing. Never choose the pair without
+asking first.
+
+WHEN THE USER LISTS THEIR COLLECTION UNPROMPTED
+If the user shares their collection without being asked, and the collection
+contains recognisable bottles, briefly demonstrate you know what they are —
+then ask what they want to explore. Do not collect skin type, weather, or mood
+unless they ask for a daily suggestion specifically.`;
 
 // ── Base fetch ────────────────────────────────────────────────────
 async function callClaude({
@@ -141,13 +181,30 @@ interface DailySuggestionParams {
   condition: string;
   tempC: number;
   humidity: number;
-  collectionLines: string; // pre-formatted collection context
+  collectionLines: string;
+  skinType: string;
+  lifestyle: string;
+  preferredFamilies: string[];
+  computedDNA?: string | null; // top 3 from dna_profiles.families — omit if collection < 3
+  calendarEvent?: string | null;
 }
 
 export async function fetchDailySuggestion(
   params: DailySuggestionParams
 ): Promise<DailySuggestionResult> {
-  const { weekday, mood, condition, tempC, humidity, collectionLines } = params;
+  const {
+    weekday, mood, condition, tempC, humidity, collectionLines,
+    skinType, lifestyle, preferredFamilies, computedDNA, calendarEvent,
+  } = params;
+
+  const profileLines = [
+    `Skin type: ${skinType}`,
+    `Lifestyle: ${lifestyle}`,
+    `Preferred families: ${preferredFamilies.join(', ')}`,
+    ...(computedDNA ? [`Computed DNA: ${computedDNA}`] : []),
+  ].join('\n');
+
+  const calendar = calendarEvent ?? 'clear day';
 
   const text = await callClaude({
     model: HAIKU,
@@ -155,9 +212,14 @@ export async function fetchDailySuggestion(
     maxTokens: 200,
     userMessage: `From the collection below, suggest exactly one perfume for today.
 
-TODAY: ${weekday} | Weather: ${condition}, ${tempC}°C, humidity ${humidity}% | Mood: ${mood}
+USER PROFILE
+${profileLines}
 
-COLLECTION:
+TODAY
+${weekday} | Weather: ${condition}, ${tempC}°C, humidity ${humidity}% | Calendar: ${calendar}
+Mood: ${mood}
+
+COLLECTION
 ${collectionLines}
 
 Respond with exactly this JSON:

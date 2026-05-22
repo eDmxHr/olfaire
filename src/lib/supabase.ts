@@ -15,7 +15,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // ── Database types ────────────────────────────────────────────────
 export type SkinType = 'dry' | 'normal' | 'oily';
-export type Lifestyle = 'office' | 'outdoor' | 'creative' | 'home';
+export type Lifestyle =
+  | 'office' | 'outdoor' | 'creative' | 'home'
+  | 'gym' | 'formal' | 'casual' | 'luxury' | 'nightlife'
+  | 'dating' | 'travel' | 'beach' | 'minimal' | 'streetwear'
+  | 'sporty' | 'elegant' | 'party' | 'relaxed' | 'business'
+  | 'romantic' | 'winter' | 'summer';
 export type Theme = 'light' | 'dark' | 'system';
 export type StockLevel = 'full' | 'medium' | 'low' | 'empty';
 export type Mood = 'soft' | 'bold' | 'cosy' | 'sharp' | 'mysterious';
@@ -27,6 +32,7 @@ export interface Profile {
   avatar_url: string | null;
   skin_type: SkinType;
   lifestyle: Lifestyle;
+  preferred_families: string[];
   city: string | null;
   theme: Theme;
   notification_enabled: boolean;
@@ -120,14 +126,7 @@ export interface Signature {
 
 export interface DNAProfile {
   user_id: string;
-  floral: number;
-  woody: number;
-  oriental: number;
-  fresh: number;
-  gourmand: number;
-  musky: number;
-  citrus: number;
-  aquatic: number;
+  families: Record<string, number>; // e.g. { "Floral": 72.5, "Woody": 58.0 }
   dominant_family: string | null;
   lumi_insight: string | null;
   updated_at: string;

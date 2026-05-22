@@ -43,8 +43,12 @@ YOUR VOICE
   the permission.
 
 WHAT YOU KNOW
-- Fragrance families: floral, woody, oriental, fresh,
-  gourmand, musky, citrus, aquatic, chypre, fougère
+- Fragrance families — all major and niche families
+  including: Floral, Woody, Oriental, Fresh, Gourmand,
+  Musky, Citrus, Aquatic, Amber, Fruity, Spicy, Green,
+  Powdery, Leather, Aromatic, Chypre, Fougère, Vanilla,
+  Smoky, Earthy, Herbal, Resinous, Sweet, Marine,
+  Aldehydic, Oud, Balsamic, Metallic, Tobacco, Animalic
 - Note pyramid structure: top, heart, base and how each
   layer behaves on skin over time
 - Note interactions: which combinations anchor, amplify,
@@ -56,6 +60,10 @@ WHAT YOU KNOW
 - Skin type: dry skin amplifies base notes and pulls
   them forward quickly, oily skin extends longevity and
   deepens base notes, warm skin accelerates top note fade
+- Lifestyle context: what different occasions and settings
+  demand from a fragrance — office discretion, date night
+  presence, beach lightness, nightlife projection, gym
+  freshness, formal gravitas, streetwear edge
 
 WHAT YOU NEVER DO
 - Never recommend perfumes the user doesn't own unless
@@ -97,15 +105,18 @@ mood unless they ask for a daily suggestion specifically.
 
 ## Task 1 — Daily Suggestion
 
-**Model:** `claude-haiku-4-5` (simpler call — cost optimisation)
+**Model:** `claude-haiku-4-5-20251001` (simpler call — cost optimisation)
 **Cache:** Cache per `(user_id, date, mood, weather_condition)`. Invalidate on collection change.
 
 ### Context block
+
 ```
 USER PROFILE
 Skin type: [dry | normal | oily]
-Lifestyle: [office | outdoor | creative | home]
-Scent DNA: [top 3 families e.g. Floral 72%, Oriental 58%, Musky 50%]
+Lifestyle: [e.g. office | beach | date night | nightlife | gym | formal ...]
+Preferred families: [e.g. Oud, Woody, Smoky, Leather]
+Computed DNA: [top 3 from collection e.g. Floral 72%, Oriental 58%, Musky 50%]
+            — omit if collection < 3 bottles
 
 TODAY
 [Weekday] | Weather: [condition], [temp]°C, humidity [%] | Calendar: [event or "clear day"]
@@ -118,14 +129,17 @@ COLLECTION
 ```
 
 Only pass seasonally appropriate bottles (5–8 max). Never pass the full collection.
+Pass `preferred_families` from onboarding. Pass computed DNA only if collection has 3+ bottles.
 
 ### Task prompt
+
 ```
 From the collection above, suggest exactly one perfume for today.
 Respond in this exact JSON structure:
 {
-  "perfume_house": "",
-  "perfume_name": "",
+  "fragrance_id": <number>,
+  "fragrance_house": "",
+  "fragrance_name": "",
   "lumi_line": "",
   "reasoning_tags": ["", "", ""]
 }
@@ -140,10 +154,11 @@ Return JSON only. No preamble. No markdown backticks.
 
 ## Task 2 — Layering Chemistry Analysis
 
-**Model:** `claude-sonnet-4-6` (complex reasoning needed)
+**Model:** `claude-sonnet-4-20250514` (complex reasoning needed)
 **Cache:** Cache by bottle pair in `layering_cache` table using `LEAST/GREATEST` key. Chemistry never changes — cache forever.
 
 ### Context block
+
 ```
 BOTTLE A: [House] [Name]
   Top: [notes] | Heart: [notes] | Base: [notes]
@@ -155,6 +170,7 @@ BOTTLE B: [House] [Name]
 ```
 
 ### Task prompt
+
 ```
 Analyse the chemistry of layering these two perfumes.
 Respond in this exact JSON structure:
@@ -188,10 +204,11 @@ Return JSON only. No preamble. No markdown backticks.
 
 ## Task 3 — Conflict Detection
 
-**Model:** `claude-sonnet-4-6`
+**Model:** `claude-sonnet-4-20250514`
 **Cache:** Same pair key as layering analysis. Run together — one API call returns both.
 
 ### Task prompt
+
 ```
 Determine whether these two perfumes clash when layered.
 Respond in this exact JSON structure:
@@ -219,10 +236,11 @@ Return JSON only. No preamble. No markdown backticks.
 
 ## Task 4 — Morning Opening Line
 
-**Model:** `claude-haiku-4-5`
+**Model:** `claude-haiku-4-5-20251001`
 **Cache:** Never cache — should always feel fresh and date-specific.
 
 ### Context block
+
 ```
 TODAY
 [Weekday] | Weather: [condition], [temp]°C | Calendar: [event summary or "clear day"]
@@ -230,6 +248,7 @@ User name: [first name]
 ```
 
 ### Task prompt
+
 ```
 Write Lumi's morning greeting — the single line the user sees
 before they select their mood.
@@ -250,10 +269,11 @@ Return plain text only. No JSON. No punctuation beyond the sentence.
 
 ## Task 5 — Signature Naming
 
-**Model:** `claude-haiku-4-5`
+**Model:** `claude-haiku-4-5-20251001`
 **Cache:** Never cache.
 
 ### Context block
+
 ```
 COMBO
 Bottle A: [Name] · Key notes: [2–3 notes]
@@ -262,6 +282,7 @@ Overall character: [from layering analysis]
 ```
 
 ### Task prompt
+
 ```
 Suggest 3 possible signature names for this layering combination.
 
@@ -278,15 +299,70 @@ Return JSON only. No preamble. No markdown backticks.
 
 ---
 
+## Task 6 — Discovery / Next Buy Suggestion (Phase 2)
+
+**Model:** `claude-haiku-4-5-20251001`
+**Cache:** Cache per user — refresh weekly or on collection change.
+
+### Context block
+
+```
+USER PROFILE
+Preferred families: [from onboarding]
+Computed DNA: [top families from collection with scores]
+Lifestyle: [value]
+
+COLLECTION SUMMARY
+Total bottles: [N]
+Families represented: [list]
+Season coverage: [spring/summer/autumn/winter — mark gaps]
+Occasion coverage: [office/evening/casual/outdoor/special — mark gaps]
+
+GAPS IDENTIFIED
+Season: [e.g. nothing for summer]
+Occasion: [e.g. nothing office-appropriate]
+Family: [e.g. no fresh or aquatic]
+```
+
+### Task prompt
+
+```
+Based on the user's collection gaps, suggest 2–3 fragrances to buy next.
+Only suggest bottles NOT already in the collection.
+
+Respond in this exact JSON structure:
+{
+  "suggestions": [
+    {
+      "house": "",
+      "name": "",
+      "gap_type": "",
+      "gap_value": "",
+      "lumi_reasoning": "",
+      "priority": 1
+    }
+  ]
+}
+
+gap_type: season | occasion | family
+gap_value: the specific gap e.g. "summer", "office", "fresh"
+lumi_reasoning: one sentence explaining why this fills the gap for this collection specifically.
+priority: 1 = strongest gap, 3 = nice to have.
+Return JSON only. No preamble. No markdown backticks.
+```
+
+---
+
 ## Caching Strategy
 
-| Call | Cache | Key | TTL |
-|---|---|---|---|
-| Daily suggestion | Yes | `user_id + date + mood + weather_condition` | Until collection changes |
-| Layering analysis | Yes — Supabase `layering_cache` | `LEAST(a_id, b_id) + GREATEST(a_id, b_id)` | Forever |
-| Conflict detection | Yes — same row as layering | Same pair key | Forever |
-| Morning opening | Never | — | — |
-| Signature naming | Never | — | — |
+| Call                 | Cache                           | Key                                         | TTL                         |
+| -------------------- | ------------------------------- | ------------------------------------------- | --------------------------- |
+| Daily suggestion     | Yes                             | `user_id + date + mood + weather_condition` | Until collection changes    |
+| Layering analysis    | Yes — Supabase `layering_cache` | `LEAST(a_id, b_id) + GREATEST(a_id, b_id)`  | Forever                     |
+| Conflict detection   | Yes — same row as layering      | Same pair key                               | Forever                     |
+| Morning opening      | Never                           | —                                           | —                           |
+| Signature naming     | Never                           | —                                           | —                           |
+| Discovery suggestion | Yes                             | `user_id`                                   | 7 days or collection change |
 
 Implementing caching correctly cuts Claude API costs by an estimated 50–70% at scale.
 
@@ -294,10 +370,11 @@ Implementing caching correctly cuts Claude API costs by an estimated 50–70% at
 
 ## Cost Reference
 
-| Call | Model | Est. tokens | Est. cost |
-|---|---|---|---|
-| Daily suggestion | Haiku | ~350 in / ~100 out | ~$0.0002 |
-| Layering analysis | Sonnet | ~600 in / ~300 out | ~$0.006 |
-| Conflict detection | Sonnet | ~400 in / ~200 out | ~$0.004 |
-| Morning opening | Haiku | ~200 in / ~30 out | ~$0.0001 |
-| Signature naming | Haiku | ~250 in / ~50 out | ~$0.0001 |
+| Call                 | Model  | Est. tokens        | Est. cost |
+| -------------------- | ------ | ------------------ | --------- |
+| Daily suggestion     | Haiku  | ~400 in / ~100 out | ~$0.0002  |
+| Layering analysis    | Sonnet | ~600 in / ~300 out | ~$0.006   |
+| Conflict detection   | Sonnet | ~400 in / ~200 out | ~$0.004   |
+| Morning opening      | Haiku  | ~200 in / ~30 out  | ~$0.0001  |
+| Signature naming     | Haiku  | ~250 in / ~50 out  | ~$0.0001  |
+| Discovery suggestion | Haiku  | ~500 in / ~200 out | ~$0.0003  |

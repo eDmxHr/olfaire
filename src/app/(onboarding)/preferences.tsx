@@ -10,19 +10,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { FONTS, COLORS } from '@/lib/theme';
-
-const FAMILIES = [
-  'Floral',
-  'Woody',
-  'Oriental',
-  'Fresh',
-  'Gourmand',
-  'Musky',
-  'Citrus',
-  'Aquatic',
-] as const;
-
-type Family = (typeof FAMILIES)[number];
+import { FRAGRANCE_FAMILIES, type FragranceFamily } from '@/data/onboarding';
+import { useProfile } from '@/hooks/useProfile';
 
 function DNABar({ label, value }: { label: string; value: number }) {
   const animatedStyle = useAnimatedStyle(() => ({
@@ -49,15 +38,17 @@ function DNABar({ label, value }: { label: string; value: number }) {
 }
 
 export default function PreferencesScreen() {
-  const [selected, setSelected] = useState<Set<Family>>(new Set());
+  const [selected, setSelected] = useState<Set<FragranceFamily>>(new Set());
+  const [saving, setSaving] = useState(false);
+  const { updateProfile } = useProfile();
 
   function toggle(family: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(family as Family)) {
-        next.delete(family as Family);
+      if (next.has(family as FragranceFamily)) {
+        next.delete(family as FragranceFamily);
       } else {
-        next.add(family as Family);
+        next.add(family as FragranceFamily);
       }
       return next;
     });
@@ -65,14 +56,21 @@ export default function PreferencesScreen() {
 
   const canContinue = selected.size > 0;
 
+  async function handleContinue() {
+    setSaving(true);
+    await updateProfile({ preferred_families: Array.from(selected) });
+    setSaving(false);
+    router.push('/(onboarding)/add-perfume');
+  }
+
   return (
     <OnboardingScreen
       action={
         <Button
           size="lg"
           className="w-full"
-          disabled={!canContinue}
-          onPress={() => router.push('/(onboarding)/add-perfume')}>
+          disabled={!canContinue || saving}
+          onPress={handleContinue}>
           <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
         </Button>
       }>
@@ -84,7 +82,7 @@ export default function PreferencesScreen() {
       />
 
       <SelectionChips
-        chips={FAMILIES.map((f) => ({ value: f, label: f }))}
+        chips={FRAGRANCE_FAMILIES.map((f) => ({ value: f, label: f }))}
         multiSelect
         selected={selected as Set<string>}
         onSelect={toggle}
@@ -98,7 +96,7 @@ export default function PreferencesScreen() {
             Your DNA preview
           </Text>
           <View className="gap-2.5">
-            {FAMILIES.map((family) => (
+            {FRAGRANCE_FAMILIES.map((family) => (
               <DNABar
                 key={family}
                 label={family}

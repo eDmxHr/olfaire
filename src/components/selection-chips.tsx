@@ -8,14 +8,14 @@ interface Chip {
 }
 
 interface SingleProps {
-  chips: Chip[];
+  chips: readonly Chip[];
   multiSelect?: false;
   selected: string | null;
   onSelect: (value: string) => void;
 }
 
 interface MultiProps {
-  chips: Chip[];
+  chips: readonly Chip[];
   multiSelect: true;
   selected: Set<string>;
   onSelect: (value: string) => void;
