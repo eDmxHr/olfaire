@@ -7,8 +7,8 @@ import Animated, {
   withTiming,
   withDelay,
 } from 'react-native-reanimated';
-import { OnboardingScreen } from '@/components/onboarding-screen';
-import { TasteProfileChart } from '@/components/taste-profile-chart';
+import { OnboardingScreen } from '@/components/onboarding/screen';
+import { TasteProfileChart } from '@/components/onboarding/taste-profile-chart';
 import { Lumi } from '@/components/lumi';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';

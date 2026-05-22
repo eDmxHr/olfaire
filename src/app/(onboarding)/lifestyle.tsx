@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import { SpinningLoader } from '@/components/spinning-loader';
-import { OnboardingScreen } from '@/components/onboarding-screen';
-import { ProgressDots } from '@/components/progress-dots';
-import { OnboardingHeader } from '@/components/onboarding-header';
-import { SelectionChips } from '@/components/selection-chips';
+import { OnboardingScreen } from '@/components/onboarding/screen';
+import { ProgressDots } from '@/components/onboarding/progress-dots';
+import { OnboardingHeader } from '@/components/onboarding/header';
+import { SelectionChips } from '@/components/onboarding/selection-chips';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 

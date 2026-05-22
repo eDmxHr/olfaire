@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { SpinningLoader } from '@/components/spinning-loader';
-import { OnboardingScreen } from '@/components/onboarding-screen';
-import { ProgressDots } from '@/components/progress-dots';
-import { OnboardingHeader } from '@/components/onboarding-header';
-import { SelectionChips } from '@/components/selection-chips';
-import { TasteProfileChart } from '@/components/taste-profile-chart';
+import { OnboardingScreen } from '@/components/onboarding/screen';
+import { ProgressDots } from '@/components/onboarding/progress-dots';
+import { OnboardingHeader } from '@/components/onboarding/header';
+import { SelectionChips } from '@/components/onboarding/selection-chips';
+import { TasteProfileChart } from '@/components/onboarding/taste-profile-chart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';

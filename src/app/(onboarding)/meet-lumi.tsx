@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { OnboardingScreen } from '@/components/onboarding-screen';
+import { OnboardingScreen } from '@/components/onboarding/screen';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
