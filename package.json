@@ -19,6 +19,7 @@
     "@rn-primitives/avatar": "^1.4.0",
     "@rn-primitives/portal": "^1.4.0",
     "@rn-primitives/progress": "^1.4.0",
+    "@rn-primitives/separator": "^1.4.0",
     "@rn-primitives/slot": "^1.4.0",
     "@supabase/supabase-js": "^2.106.1",
     "@tabler/icons-react-native": "^3.44.0",

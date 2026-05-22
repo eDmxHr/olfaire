@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
+import { SpinningLoader } from '@/components/spinning-loader';
 import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ProgressDots } from '@/components/progress-dots';
 import { OnboardingHeader } from '@/components/onboarding-header';
@@ -8,7 +9,7 @@ import { TasteProfileChart } from '@/components/taste-profile-chart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { FONTS } from '@/lib/theme';
+import { FONTS, COLORS } from '@/lib/theme';
 import { FRAGRANCE_FAMILIES, type FragranceFamily } from '@/data/onboarding';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -44,7 +45,11 @@ export default function PreferencesScreen() {
           className="w-full"
           disabled={selected.size === 0 || saving}
           onPress={handleContinue}>
-          <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
+          {saving ? (
+            <SpinningLoader size={18} color={COLORS.parchment} />
+          ) : (
+            <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
+          )}
         </Button>
       }>
       <ProgressDots current={2} />

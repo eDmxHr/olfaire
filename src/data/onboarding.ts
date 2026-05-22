@@ -64,6 +64,20 @@ export const FRAGRANCE_FAMILIES = [
 
 export type FragranceFamily = (typeof FRAGRANCE_FAMILIES)[number];
 
+export const LUMI_COLLECTION_QUOTES: Record<number, string> = {
+  0:  '"Every collection starts as a blank shelf."',
+  1:  '"One bottle is a decision. That matters."',
+  2:  '"Two is already a choice about contrast."',
+  3:  '"Three bottles means a rotation is forming."',
+  4:  '"Four — enough to meet most moods."',
+  5:  '"Five bottles. The shape of a real collection."',
+  6:  '"Six. You\'re starting to cover serious ground."',
+  7:  '"Seven bottles, seven versions of you."',
+  8:  '"Eight is where curation becomes instinct."',
+  9:  '"Nine. Most people stop here. Some don\'t."',
+  10: '"Ten bottles. Now the layering gets interesting."',
+};
+
 export const FAMILY_COLORS: Record<string, string> = {
   Floral:    '#E8A4B8',
   Woody:     '#8B6F47',

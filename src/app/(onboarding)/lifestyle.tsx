@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { IconLoader3 } from '@tabler/icons-react-native';
+import { SpinningLoader } from '@/components/spinning-loader';
 import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ProgressDots } from '@/components/progress-dots';
 import { OnboardingHeader } from '@/components/onboarding-header';
 import { SelectionChips } from '@/components/selection-chips';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { Icon } from '@/components/ui/icon';
+
 import { useProfile } from '@/hooks/useProfile';
 import { FONTS, COLORS } from '@/lib/theme';
 import { LIFESTYLE_CHIPS, SKIN_CHIPS } from '@/data/onboarding';
@@ -39,7 +39,7 @@ export default function LifestyleScreen() {
           disabled={!canContinue || saving}
           onPress={handleContinue}>
           {saving ? (
-            <Icon icon={IconLoader3} size={18} color={COLORS.parchment} />
+            <SpinningLoader size={18} color={COLORS.parchment} />
           ) : (
             <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
           )}
