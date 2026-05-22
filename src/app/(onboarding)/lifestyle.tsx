@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
 import { IconLoader3 } from '@tabler/icons-react-native';
-import { Screen } from '@/components/screen-wrapper';
+import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ProgressDots } from '@/components/progress-dots';
 import { OnboardingHeader } from '@/components/onboarding-header';
 import { SelectionChips } from '@/components/selection-chips';
@@ -43,55 +43,52 @@ export default function LifestyleScreen() {
   }
 
   return (
-    <Screen>
-      <View className="flex-1 gap-8 py-6">
-        <ProgressDots current={1} />
+    <OnboardingScreen
+      action={
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={!canContinue || saving}
+          onPress={handleContinue}>
+          {saving ? (
+            <Icon icon={IconLoader3} size={18} color={COLORS.parchment} />
+          ) : (
+            <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
+          )}
+        </Button>
+      }>
+      <ProgressDots current={1} />
 
-        <OnboardingHeader
-          title="Tell me about you"
-          subtitle="This helps Lumi pick the right intensity and longevity."
+      <OnboardingHeader
+        title="Tell me about you"
+        subtitle="This helps Lumi pick the right intensity and longevity."
+      />
+
+      <View className="gap-4">
+        <Text
+          style={{ fontFamily: FONTS.uiMedium }}
+          className="text-xs uppercase tracking-widest text-muted-foreground">
+          Your day
+        </Text>
+        <SelectionChips
+          chips={LIFESTYLE_CHIPS}
+          selected={lifestyle}
+          onSelect={(v) => setLifestyle(v as Lifestyle)}
         />
-
-        <View className="gap-4">
-          <Text
-            style={{ fontFamily: FONTS.uiMedium }}
-            className="text-xs uppercase tracking-widest text-muted-foreground">
-            Your day
-          </Text>
-          <SelectionChips
-            chips={LIFESTYLE_CHIPS}
-            selected={lifestyle}
-            onSelect={(v) => setLifestyle(v as Lifestyle)}
-          />
-        </View>
-
-        <View className="gap-4">
-          <Text
-            style={{ fontFamily: FONTS.uiMedium }}
-            className="text-xs uppercase tracking-widest text-muted-foreground">
-            Skin type
-          </Text>
-          <SelectionChips
-            chips={SKIN_CHIPS}
-            selected={skinType}
-            onSelect={(v) => setSkinType(v as SkinType)}
-          />
-        </View>
-
-        <View className="mt-auto">
-          <Button
-            size="lg"
-            className="w-full"
-            disabled={!canContinue || saving}
-            onPress={handleContinue}>
-            {saving ? (
-              <Icon icon={IconLoader3} size={18} color={COLORS.parchment} />
-            ) : (
-              <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
-            )}
-          </Button>
-        </View>
       </View>
-    </Screen>
+
+      <View className="gap-4">
+        <Text
+          style={{ fontFamily: FONTS.uiMedium }}
+          className="text-xs uppercase tracking-widest text-muted-foreground">
+          Skin type
+        </Text>
+        <SelectionChips
+          chips={SKIN_CHIPS}
+          selected={skinType}
+          onSelect={(v) => setSkinType(v as SkinType)}
+        />
+      </View>
+    </OnboardingScreen>
   );
 }

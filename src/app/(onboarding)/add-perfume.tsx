@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, FlatList, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { IconSearch, IconCheck, IconLoader3 } from '@tabler/icons-react-native';
-import { Screen } from '@/components/screen-wrapper';
+import { IconCheck, IconLoader3, IconSearchOff } from '@tabler/icons-react-native';
+import { OnboardingScreen } from '@/components/onboarding-screen';
 import { ProgressDots } from '@/components/progress-dots';
+import { OnboardingHeader } from '@/components/onboarding-header';
 import { Lumi } from '@/components/lumi';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ export default function AddPerfumeScreen() {
   const [query, setQuery] = useState('');
   const [addedId, setAddedId] = useState<number | null>(null);
   const [addingId, setAddingId] = useState<number | null>(null);
+  const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { searchFragrances, addBottle, clearSearch } = useCollection();
@@ -26,8 +28,14 @@ export default function AddPerfumeScreen() {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      searchFragrances(query);
+    if (query.trim().length < 2) {
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    debounceRef.current = setTimeout(async () => {
+      await searchFragrances(query);
+      setSearching(false);
     }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -57,52 +65,73 @@ export default function AddPerfumeScreen() {
   }
 
   return (
-    <Screen noPadding>
-      <View className="flex-1 gap-6 px-4 py-6">
-        <ProgressDots current={3} />
-
-        <View className="flex-row items-start gap-3">
-          <Lumi size={32} />
-          <Card className="flex-1 rounded-tl-sm px-4 py-3">
-            <Text style={{ fontFamily: FONTS.displayItalic }} className="text-base leading-relaxed text-ring">
-              "A collection without bottles is just a wish list."
+    <OnboardingScreen
+      action={
+        <>
+          {addedId !== null && (
+            <View className="flex-row items-center justify-center gap-1.5">
+              <Icon icon={IconCheck} size={13} color={COLORS.amber} />
+              <Text style={{ fontFamily: FONTS.ui }} className="text-xs text-muted-foreground">
+                Added to your collection
+              </Text>
+            </View>
+          )}
+          <Button size="lg" className="w-full" disabled={addedId === null} onPress={handleContinue}>
+            <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
+          </Button>
+          <Pressable onPress={handleSkip} className="items-center py-2">
+            <Text
+              style={{ fontFamily: FONTS.ui }}
+              className="text-sm text-muted-foreground underline">
+              I'll add my collection later
             </Text>
-          </Card>
-        </View>
+          </Pressable>
+        </>
+      }>
+      <ProgressDots current={3} />
 
-        <Input
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search by name or house…"
-          placeholderTextColor={COLORS.ash}
-          style={{ fontFamily: FONTS.ui }}
-          autoFocus
-        />
+      <OnboardingHeader
+        title="Add your first bottle"
+        subtitle="Search by name or house to start your collection."
+      />
 
-        {addedId !== null && (
-          <View className="flex-row items-center gap-2 rounded-xl border border-ring/30 bg-ring/5 px-4 py-3">
-            <Icon icon={IconCheck} size={16} color={COLORS.amber} />
-            <Text style={{ fontFamily: FONTS.uiMedium }} className="text-sm text-ring">
-              Added to your collection
-            </Text>
-          </View>
-        )}
+      <View className="flex-row items-start gap-3">
+        <Lumi size={28} />
+        <Card className="flex-1 rounded-tl-sm px-4 py-3">
+          <Text
+            style={{ fontFamily: FONTS.displayItalic }}
+            className="text-sm leading-relaxed text-ring">
+            "A collection without bottles is just a wishlist."
+          </Text>
+        </Card>
+      </View>
 
-        <FlatList
-          data={results}
-          keyExtractor={(item) => String(item.id)}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View className="h-px bg-border" />}
-          renderItem={({ item }) => {
-            const isAdded = addedId === item.id;
-            const isAdding = addingId === item.id;
-            return (
+      <Input
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search by name or house…"
+        placeholderTextColor={COLORS.ash}
+        style={{ fontFamily: FONTS.ui }}
+        autoFocus
+      />
+
+      <View>
+        {results.map((item, index) => {
+          const isAdded = addedId === item.id;
+          const isAdding = addingId === item.id;
+          return (
+            <View key={item.id}>
+              {index > 0 && <View className="h-px bg-border" />}
               <View className="flex-row items-center gap-3 py-3">
                 <View className="flex-1 gap-0.5">
-                  <Text style={{ fontFamily: FONTS.uiMedium }} className="text-sm text-foreground">
+                  <Text
+                    style={{ fontFamily: FONTS.uiMedium }}
+                    className="text-sm text-foreground">
                     {item.name}
                   </Text>
-                  <Text style={{ fontFamily: FONTS.ui }} className="text-xs text-muted-foreground">
+                  <Text
+                    style={{ fontFamily: FONTS.ui }}
+                    className="text-xs text-muted-foreground">
                     {item.house}
                     {item.family ? ` · ${item.family}` : ''}
                   </Text>
@@ -118,34 +147,27 @@ export default function AddPerfumeScreen() {
                   ) : isAdded ? (
                     <Icon icon={IconCheck} size={14} color={COLORS.amber} />
                   ) : (
-                    <Text style={{ fontFamily: FONTS.uiMedium }} className="text-xs text-foreground">
+                    <Text
+                      style={{ fontFamily: FONTS.uiMedium }}
+                      className="text-xs text-foreground">
                       Add
                     </Text>
                   )}
                 </Pressable>
               </View>
-            );
-          }}
-          ListEmptyComponent={
-            query.length >= 2 ? (
-              <Text style={{ fontFamily: FONTS.ui }} className="py-4 text-center text-sm text-muted-foreground">
-                No results for "{query}"
-              </Text>
-            ) : null
-          }
-        />
-
-        <View className="gap-3 pb-2">
-          <Button size="lg" className="w-full" disabled={addedId === null} onPress={handleContinue}>
-            <Text style={{ fontFamily: FONTS.uiMedium }}>Continue</Text>
-          </Button>
-          <Pressable onPress={handleSkip} className="items-center py-2">
-            <Text style={{ fontFamily: FONTS.ui }} className="text-sm text-muted-foreground underline">
-              I'll add my collection later
-            </Text>
-          </Pressable>
-        </View>
+            </View>
+          );
+        })}
+        {results.length === 0 && query.length >= 2 && (
+          <View className="items-center py-4">
+            {searching ? (
+              <Icon icon={IconLoader3} size={20} color={COLORS.ash} />
+            ) : (
+              <Icon icon={IconSearchOff} size={20} color={COLORS.ash} />
+            )}
+          </View>
+        )}
       </View>
-    </Screen>
+    </OnboardingScreen>
   );
 }

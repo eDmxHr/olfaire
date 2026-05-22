@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
   withDelay,
 } from 'react-native-reanimated';
-import { Screen } from '@/components/screen-wrapper';
+import { OnboardingScreen } from '@/components/onboarding-screen';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -33,9 +33,15 @@ export default function ReadyScreen() {
   }, []);
 
   return (
-    <Screen>
+    <OnboardingScreen
+      scrollable={false}
+      action={
+        <Button size="lg" className="w-full" onPress={completeOnboarding}>
+          <Text style={{ fontFamily: FONTS.uiMedium }}>Start exploring</Text>
+        </Button>
+      }>
       <Animated.View style={animatedStyle} className="flex-1 items-center justify-center gap-10">
-        <Lumi size={48} />
+        <Lumi size={65} />
 
         <View className="w-full gap-6">
           <Text
@@ -54,11 +60,7 @@ export default function ReadyScreen() {
             </Text>
           </View>
         </View>
-
-        <Button size="lg" className="w-full" onPress={completeOnboarding}>
-          <Text style={{ fontFamily: FONTS.uiMedium }}>Start exploring</Text>
-        </Button>
       </Animated.View>
-    </Screen>
+    </OnboardingScreen>
   );
 }

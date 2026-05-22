@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { Screen } from '@/components/screen-wrapper';
+import { OnboardingScreen } from '@/components/onboarding-screen';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -8,7 +8,13 @@ import { FONTS } from '@/lib/theme';
 
 export default function MeetLumiScreen() {
   return (
-    <Screen>
+    <OnboardingScreen
+      scrollable={false}
+      action={
+        <Button size="lg" className="w-full" onPress={() => router.push('/(onboarding)/lifestyle')}>
+          <Text style={{ fontFamily: FONTS.uiMedium }}>Get started</Text>
+        </Button>
+      }>
       <View className="flex-1 items-center justify-center gap-10">
         <Lumi size={65} />
 
@@ -27,11 +33,7 @@ export default function MeetLumiScreen() {
             Three quick questions. That's all.
           </Text>
         </View>
-
-        <Button size="lg" className="w-full" onPress={() => router.push('/(onboarding)/lifestyle')}>
-          <Text style={{ fontFamily: FONTS.uiMedium }}>Get started</Text>
-        </Button>
       </View>
-    </Screen>
+    </OnboardingScreen>
   );
 }

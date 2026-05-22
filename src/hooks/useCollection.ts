@@ -173,13 +173,12 @@ export function useCollection() {
       const { data, error } = await supabase
         .from('fragrances')
         .select('*')
-        .textSearch('search_vector', query.trim(), { type: 'websearch', config: 'english' })
+        .or(`name.ilike.%${query.trim()}%,house.ilike.%${query.trim()}%`)
         .limit(10);
 
       if (error) throw error;
       store.setSearchResults(data ?? []);
     } catch (err) {
-      console.error('searchFragrances error:', err);
       store.clearSearch();
     }
   }
