@@ -32,11 +32,8 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             }}
             onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
             style={styles.tab}>
-            <tab.Icon size={24} color={color} strokeWidth={focused ? 1.5 : 1} />
-            <Text
-              style={[styles.label, { color, fontFamily: focused ? FONTS.uiMedium : FONTS.ui }]}>
-              {tab.label}
-            </Text>
+            <tab.Icon size={24} color={color} strokeWidth={1} />
+            <Text style={[styles.label, { color, fontFamily: FONTS.ui }]}>{tab.label}</Text>
           </Pressable>
         );
       })}
