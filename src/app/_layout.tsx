@@ -111,7 +111,7 @@ function useAuthRedirect() {
       if (profile.city) await fetchWeather(profile.city);
       await fetchLumiOpening();
     })();
-  }, [session, profile?.onboarding_completed]);
+  }, [session, profile?.onboarding_completed, profile?.city]);
 }
 
 // ── Navigator (needs to be a child so router is available to useAuthRedirect) ──

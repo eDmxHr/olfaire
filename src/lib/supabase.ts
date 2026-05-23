@@ -23,7 +23,7 @@ export type Lifestyle =
   | 'romantic' | 'winter' | 'summer';
 export type Theme = 'light' | 'dark' | 'system';
 export type StockLevel = 'full' | 'medium' | 'low' | 'empty';
-export type Mood = 'soft' | 'bold' | 'cosy' | 'sharp' | 'mysterious';
+export type Mood = 'soft' | 'bold' | 'cosy' | 'sharp' | 'mysterious' | 'fresh' | 'dark' | 'romantic';
 export type WearRating = 'loved' | 'neutral' | 'disliked';
 
 export interface Profile {

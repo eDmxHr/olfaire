@@ -65,8 +65,31 @@ export function useToday() {
         temp_c: Math.round(data.main?.temp ?? 20),
         humidity: data.main?.humidity ?? 50,
       });
+      await backfillWeather();
     } catch (err) {
       console.error('fetchWeather error:', err);
+    }
+  }
+
+  async function backfillWeather() {
+    const { todayLog, weather } = useTodayStore.getState();
+    if (!todayLog?.id || !weather || todayLog.weather_condition) return;
+    try {
+      await (supabase as any)
+        .from('daily_log')
+        .update({
+          weather_condition: weather.condition,
+          weather_temp_c: weather.temp_c,
+          weather_humidity: weather.humidity,
+        })
+        .eq('id', todayLog.id);
+      store.patchTodayLog({
+        weather_condition: weather.condition,
+        weather_temp_c: weather.temp_c,
+        weather_humidity: weather.humidity,
+      });
+    } catch (err) {
+      console.error('backfillWeather error:', err);
     }
   }
 

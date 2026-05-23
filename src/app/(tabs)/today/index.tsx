@@ -8,10 +8,11 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import { Lumi } from '@/components/lumi';
-import { SpinningLoader } from '@/components/spinning-loader';
+import { LumiThinking } from '@/components/lumi-thinking';
 import { Text } from '@/components/ui/text';
 import { ShimmerLine } from '@/components/today/shimmer-line';
 import { MoodGrid } from '@/components/today/mood-grid';
+import { SuggestionCard } from '@/components/today/suggestion-card';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { COLORS, FONTS } from '@/lib/theme';
@@ -19,7 +20,7 @@ import type { Mood } from '@/lib/supabase';
 
 export default function TodayScreen() {
   const store = useTodayStore();
-  const { selectMood, fetchSuggestion } = useToday();
+  const { selectMood, fetchSuggestion, confirmWearing, submitRating, requestAnother } = useToday();
   const [hasError, setHasError] = useState(false);
 
   const opacity = useSharedValue(0);
@@ -58,7 +59,7 @@ export default function TodayScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View style={animStyle}>
           {/* Header — Lumi + weekday */}
-          <View className="flex-row justify-between items-center mt-5">
+          <View className="mt-5 flex-row items-center justify-between">
             <Lumi size={32} />
             <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ash }}>
               {weekday}
@@ -68,7 +69,13 @@ export default function TodayScreen() {
           {/* Lumi greeting */}
           <View className="mt-6 min-h-[60px]">
             {store.lumiOpening ? (
-              <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 22, color: COLORS.ink, lineHeight: 30 }}>
+              <Text
+                style={{
+                  fontFamily: FONTS.displayLightItalic,
+                  fontSize: 22,
+                  color: COLORS.ink,
+                  lineHeight: 30,
+                }}>
                 {store.lumiOpening}
               </Text>
             ) : (
@@ -81,7 +88,7 @@ export default function TodayScreen() {
 
           {/* Mood section label */}
           <Text
-            className="text-xs uppercase tracking-widest mt-9 mb-3.5"
+            className="mb-3.5 mt-4 text-xs uppercase tracking-widest"
             style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash, letterSpacing: 0.8 }}>
             How are you feeling?
           </Text>
@@ -95,12 +102,22 @@ export default function TodayScreen() {
 
           {/* Loading state */}
           {store.isLoadingSuggestion && (
-            <View className="items-center mt-7 gap-2.5">
-              <SpinningLoader size={20} color={COLORS.amber} />
-              <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-                Lumi is thinking...
-              </Text>
+            <View className="mt-10">
+              <LumiThinking />
             </View>
+          )}
+
+          {/* Suggestion card */}
+          {store.suggestion && !store.isLoadingSuggestion && (
+            <SuggestionCard
+              suggestion={store.suggestion}
+              isWearing={store.isWearing()}
+              hasRated={store.hasRated()}
+              wearRating={store.todayLog?.wear_rating ?? null}
+              onConfirmWearing={confirmWearing}
+              onRating={submitRating}
+              onRequestAnother={requestAnother}
+            />
           )}
 
           {/* Error state */}
