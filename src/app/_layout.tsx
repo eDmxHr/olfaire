@@ -107,10 +107,10 @@ function useAuthRedirect() {
 
     fetchCollection();
     fetchTodayLog();
-    if (profile.city) {
-      fetchWeather(profile.city);
-      fetchLumiOpening();
-    }
+    (async () => {
+      if (profile.city) await fetchWeather(profile.city);
+      await fetchLumiOpening();
+    })();
   }, [session, profile?.onboarding_completed]);
 }
 

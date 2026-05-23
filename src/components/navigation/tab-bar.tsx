@@ -10,7 +10,8 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       {state.routes.map((route, index) => {
-        const tab = TABS.find((t) => t.name === route.name) ?? TABS[index];
+        const routeKey = route.name.replace('/index', '');
+        const tab = TABS.find((t) => t.name === routeKey) ?? TABS[index];
         const focused = state.index === index;
         const color = focused ? COLORS.amber : COLORS.ash;
 

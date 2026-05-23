@@ -158,6 +158,7 @@ export function useToday() {
 
     try {
       const upsertData: any = {
+        user_id: profile?.id,
         log_date: today,
         mood,
         ...(occasion && { occasion }),

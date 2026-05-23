@@ -7,6 +7,7 @@ import { ProgressDots } from '@/components/onboarding/progress-dots';
 import { OnboardingHeader } from '@/components/onboarding/header';
 import { SelectionChips } from '@/components/onboarding/selection-chips';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 
 import { useProfile } from '@/hooks/useProfile';
@@ -17,6 +18,7 @@ import type { Lifestyle, SkinType } from '@/lib/supabase';
 export default function LifestyleScreen() {
   const [lifestyle, setLifestyle] = useState<Lifestyle | null>(null);
   const [skinType, setSkinType] = useState<SkinType | null>(null);
+  const [city, setCity] = useState('');
   const [saving, setSaving] = useState(false);
   const { updateProfile } = useProfile();
 
@@ -25,7 +27,7 @@ export default function LifestyleScreen() {
   async function handleContinue() {
     if (!canContinue) return;
     setSaving(true);
-    await updateProfile({ lifestyle, skin_type: skinType });
+    await updateProfile({ lifestyle, skin_type: skinType, city: city.trim() || null });
     setSaving(false);
     router.push('/(onboarding)/preferences');
   }
@@ -76,6 +78,24 @@ export default function LifestyleScreen() {
           selected={skinType}
           onSelect={(v) => setSkinType(v as SkinType)}
         />
+      </View>
+
+      <View className="gap-2">
+        <Text
+          style={{ fontFamily: FONTS.uiMedium }}
+          className="text-xs uppercase tracking-widest text-muted-foreground">
+          Your city
+        </Text>
+        <Input
+          placeholder="e.g. London"
+          value={city}
+          onChangeText={setCity}
+          autoCapitalize="words"
+          returnKeyType="done"
+        />
+        <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+          Helps Lumi factor in weather when choosing your scent.
+        </Text>
       </View>
     </OnboardingScreen>
   );

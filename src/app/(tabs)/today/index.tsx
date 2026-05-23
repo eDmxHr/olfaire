@@ -1,55 +1,22 @@
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withDelay,
-  withRepeat,
 } from 'react-native-reanimated';
 import { Lumi } from '@/components/lumi';
 import { SpinningLoader } from '@/components/spinning-loader';
 import { Text } from '@/components/ui/text';
+import { ShimmerLine } from '@/components/today/shimmer-line';
+import { MoodGrid } from '@/components/today/mood-grid';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Mood } from '@/lib/supabase';
 
-// ── Mood config ────────────────────────────────────────────────────
-const MOODS: { key: Mood; label: string; emoji: string; tint: string }[] = [
-  { key: 'soft', label: 'Soft', emoji: '🌸', tint: '#F5EDE8' },
-  { key: 'bold', label: 'Bold', emoji: '🔥', tint: '#F0E8DC' },
-  { key: 'cosy', label: 'Cosy', emoji: '☁️', tint: '#EAE8E0' },
-  { key: 'sharp', label: 'Sharp', emoji: '⚡', tint: '#E8EAEC' },
-  { key: 'mysterious', label: 'Mysterious', emoji: '🌙', tint: '#E5E0EA' },
-];
-
-// ── Shimmer ────────────────────────────────────────────────────────
-function ShimmerLine({ width }: { width: `${number}%` | number }) {
-  const opacity = useSharedValue(0.5);
-  const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-  useEffect(() => {
-    opacity.value = withRepeat(withTiming(0.2, { duration: 900 }), -1, true);
-  }, []);
-
-  return (
-    <Animated.View
-      style={[
-        animStyle,
-        {
-          height: 26,
-          width,
-          borderRadius: 6,
-          backgroundColor: COLORS.linen,
-        },
-      ]}
-    />
-  );
-}
-
-// ── Main screen ────────────────────────────────────────────────────
 export default function TodayScreen() {
   const store = useTodayStore();
   const { selectMood, fetchSuggestion } = useToday();
@@ -69,7 +36,6 @@ export default function TodayScreen() {
     translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
   }, []);
 
-  // Rehydrate suggestion if mood was set but suggestion lost (e.g. app reopen)
   useEffect(() => {
     if (store.hasMoodToday() && !store.suggestion && !store.isLoadingSuggestion) {
       fetchSuggestion();
@@ -90,15 +56,9 @@ export default function TodayScreen() {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
-        <Animated.View style={[animStyle, { gap: 0 }]}>
+        <Animated.View style={animStyle}>
           {/* Header — Lumi + weekday */}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: 20,
-            }}>
+          <View className="flex-row justify-between items-center mt-5">
             <Lumi size={32} />
             <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ash }}>
               {weekday}
@@ -106,19 +66,13 @@ export default function TodayScreen() {
           </View>
 
           {/* Lumi greeting */}
-          <View style={{ marginTop: 24, minHeight: 60 }}>
+          <View className="mt-6 min-h-[60px]">
             {store.lumiOpening ? (
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 22,
-                  color: COLORS.ink,
-                  lineHeight: 30,
-                }}>
+              <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 22, color: COLORS.ink, lineHeight: 30 }}>
                 {store.lumiOpening}
               </Text>
             ) : (
-              <View style={{ gap: 10 }}>
+              <View className="gap-2.5">
                 <ShimmerLine width="80%" />
                 <ShimmerLine width="55%" />
               </View>
@@ -127,19 +81,12 @@ export default function TodayScreen() {
 
           {/* Mood section label */}
           <Text
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 11,
-              color: COLORS.ash,
-              letterSpacing: 0.8,
-              textTransform: 'uppercase',
-              marginTop: 36,
-              marginBottom: 14,
-            }}>
+            className="text-xs uppercase tracking-widest mt-9 mb-3.5"
+            style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash, letterSpacing: 0.8 }}>
             How are you feeling?
           </Text>
 
-          {/* Mood grid — 2 + 3 layout */}
+          {/* Mood grid */}
           <MoodGrid
             onSelect={handleMoodSelect}
             disabled={store.isLoadingSuggestion}
@@ -148,7 +95,7 @@ export default function TodayScreen() {
 
           {/* Loading state */}
           {store.isLoadingSuggestion && (
-            <View style={{ alignItems: 'center', marginTop: 28, gap: 10 }}>
+            <View className="items-center mt-7 gap-2.5">
               <SpinningLoader size={20} color={COLORS.amber} />
               <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
                 Lumi is thinking...
@@ -159,113 +106,13 @@ export default function TodayScreen() {
           {/* Error state */}
           {hasError && !store.isLoadingSuggestion && (
             <Text
-              style={{
-                fontFamily: FONTS.ui,
-                fontSize: 13,
-                color: COLORS.red,
-                marginTop: 16,
-                textAlign: 'center',
-              }}>
+              className="mt-4 text-center"
+              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
               Lumi couldn't find a match. Try a different mood.
             </Text>
           )}
         </Animated.View>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-// ── MoodGrid ───────────────────────────────────────────────────────
-function MoodGrid({
-  onSelect,
-  disabled,
-  selected,
-}: {
-  onSelect: (mood: Mood) => void;
-  disabled: boolean;
-  selected: Mood | null;
-}) {
-  const row1 = MOODS.slice(0, 2);
-  const row2 = MOODS.slice(2);
-
-  return (
-    <View style={{ gap: 10 }}>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        {row1.map((m) => (
-          <MoodCard
-            key={m.key}
-            mood={m}
-            onSelect={onSelect}
-            disabled={disabled}
-            selected={selected === m.key}
-          />
-        ))}
-      </View>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        {row2.map((m) => (
-          <MoodCard
-            key={m.key}
-            mood={m}
-            onSelect={onSelect}
-            disabled={disabled}
-            selected={selected === m.key}
-          />
-        ))}
-      </View>
-    </View>
-  );
-}
-
-// ── MoodCard ───────────────────────────────────────────────────────
-function MoodCard({
-  mood,
-  onSelect,
-  disabled,
-  selected,
-}: {
-  mood: (typeof MOODS)[number];
-  onSelect: (mood: Mood) => void;
-  disabled: boolean;
-  selected: boolean;
-}) {
-  const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  function handlePressIn() {
-    scale.value = withTiming(0.97, { duration: 100 });
-  }
-  function handlePressOut() {
-    scale.value = withTiming(1, { duration: 120 });
-  }
-
-  return (
-    <Animated.View style={[animStyle, { flex: 1 }]}>
-      <Pressable
-        onPress={() => !disabled && onSelect(mood.key)}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={{
-          backgroundColor: mood.tint,
-          borderRadius: 12,
-          padding: 16,
-          alignItems: 'center',
-          gap: 6,
-          borderWidth: 1.5,
-          borderColor: selected ? COLORS.amber : 'transparent',
-          opacity: disabled && !selected ? 0.5 : 1,
-        }}>
-        <Text style={{ fontSize: 22 }}>{mood.emoji}</Text>
-        <Text
-          style={{
-            fontFamily: selected ? FONTS.uiMedium : FONTS.ui,
-            fontSize: 13,
-            color: COLORS.ink,
-          }}>
-          {mood.label}
-        </Text>
-      </Pressable>
-    </Animated.View>
   );
 }
