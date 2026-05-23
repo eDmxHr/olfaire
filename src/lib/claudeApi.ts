@@ -224,7 +224,7 @@ ${collectionLines}
 
 Respond with exactly this JSON:
 {
-  "fragrance_id": <number>,
+  "fragrance_id": <the numeric ID from [ID:X] in the collection list>,
   "fragrance_house": "<house>",
   "fragrance_name": "<name>",
   "lumi_line": "<one sentence max 20 words in your voice>",

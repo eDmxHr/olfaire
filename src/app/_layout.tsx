@@ -72,6 +72,7 @@ function useAuthRedirect() {
         resetLayering();
       } else if (session) {
         setSession(session);
+        fetchProfile();
       }
     });
 

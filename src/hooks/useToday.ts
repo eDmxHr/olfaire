@@ -71,6 +71,14 @@ export function useToday() {
     }
   }
 
+  async function waitForWeather(timeoutMs = 3000): Promise<void> {
+    const start = Date.now();
+    while (!useTodayStore.getState().weather) {
+      if (Date.now() - start > timeoutMs) return;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+
   async function backfillWeather() {
     const { todayLog, weather } = useTodayStore.getState();
     if (!todayLog?.id || !weather || todayLog.weather_condition) return;
@@ -127,7 +135,7 @@ export function useToday() {
       const collectionContext = collection
         .map((item: CollectionItem) => {
           const f = item.fragrance as any;
-          return `- ${f.house} ${f.name} | ${f.family} ${f.concentration}
+          return `- [ID:${item.fragrance_id}] ${f.house} ${f.name} | ${f.family} ${f.concentration}
   Top: ${f.notes_top?.join(', ')} | Heart: ${f.notes_heart?.join(', ')} | Base: ${f.notes_base?.join(', ')}
   Rating: ${item.personal_rating ?? 'unrated'}/5 | Worn: ${item.wear_count}x | Low stock: ${item.stock_level === 'low'}`;
         })
@@ -199,9 +207,13 @@ export function useToday() {
         .single();
 
       if (error) throw error;
-      if (data) store.setTodayLog(data);
-
-      await fetchSuggestion();
+      if (data) {
+        store.setTodayLog(data);
+        store.setLoadingSuggestion(true);
+        void backfillWeather();
+        await waitForWeather(3000);
+        await fetchSuggestion();
+      }
     } catch (err) {
       console.error('selectMood error:', err);
     }
