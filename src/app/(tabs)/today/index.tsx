@@ -18,10 +18,10 @@ import type { Mood } from '@/lib/supabase';
 
 // ── Mood config ────────────────────────────────────────────────────
 const MOODS: { key: Mood; label: string; emoji: string; tint: string }[] = [
-  { key: 'soft',       label: 'Soft',       emoji: '🌸', tint: '#F5EDE8' },
-  { key: 'bold',       label: 'Bold',       emoji: '🔥', tint: '#F0E8DC' },
-  { key: 'cosy',       label: 'Cosy',       emoji: '☁️', tint: '#EAE8E0' },
-  { key: 'sharp',      label: 'Sharp',      emoji: '⚡', tint: '#E8EAEC' },
+  { key: 'soft', label: 'Soft', emoji: '🌸', tint: '#F5EDE8' },
+  { key: 'bold', label: 'Bold', emoji: '🔥', tint: '#F0E8DC' },
+  { key: 'cosy', label: 'Cosy', emoji: '☁️', tint: '#EAE8E0' },
+  { key: 'sharp', label: 'Sharp', emoji: '⚡', tint: '#E8EAEC' },
   { key: 'mysterious', label: 'Mysterious', emoji: '🌙', tint: '#E5E0EA' },
 ];
 
@@ -91,7 +91,6 @@ export default function TodayScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
         <Animated.View style={[animStyle, { gap: 0 }]}>
-
           {/* Header — Lumi + weekday */}
           <View
             style={{
@@ -170,7 +169,6 @@ export default function TodayScreen() {
               Lumi couldn't find a match. Try a different mood.
             </Text>
           )}
-
         </Animated.View>
       </ScrollView>
     </SafeAreaView>

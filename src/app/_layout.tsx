@@ -26,8 +26,6 @@ function useAuthRedirect() {
   const resetCollection = useCollectionStore((s) => s.reset);
   const resetLayering = useLayeringStore((s) => s.reset);
   const resetToday = useTodayStore((s) => s.reset);
-  // profileReady: true once we've fetched a fresh profile from the server for the current session
-  const [profileReady, setProfileReady] = useState(false);
 
   const { fetchProfile } = useProfile();
   const { fetchCollection } = useCollection();
@@ -35,33 +33,30 @@ function useAuthRedirect() {
 
   const segments = useSegments();
 
-  // Listen for Supabase auth events
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    return () => unsub();
+  }, []);
+
+  // Auth state listener
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (event === 'INITIAL_SESSION') return; // handled by hydration
+
       setSession(newSession);
 
-      if (event === 'INITIAL_SESSION') {
-        if (newSession) {
-          await fetchProfile();
-          setProfileReady(true);
-        } else {
-          // No session — nothing to fetch, safe to redirect to auth
-          setProfileReady(true);
-        }
-      }
-
       if (event === 'SIGNED_IN' && newSession) {
-        setProfileReady(false);
         await fetchProfile();
-        setProfileReady(true);
         await fetchCollection();
         await fetchTodayLog();
       }
 
       if (event === 'SIGNED_OUT') {
-        setProfileReady(false);
         clearAuth();
         resetCollection();
         resetToday();
@@ -69,15 +64,26 @@ function useAuthRedirect() {
       }
     });
 
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session && useAuthStore.getState().session) {
+        clearAuth();
+        resetCollection();
+        resetToday();
+        resetLayering();
+      } else if (session) {
+        setSession(session);
+      }
+    });
+
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect based on auth + onboarding state
   useEffect(() => {
-    if (!profileReady) return;
+    if (!hydrated) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
+    const inTabsGroup = segments[0] === '(tabs)';
 
     if (!session) {
       if (!inAuthGroup) router.replace('/(auth)/splash');
@@ -91,25 +97,20 @@ function useAuthRedirect() {
       return;
     }
 
-    if (inAuthGroup || inOnboardingGroup) {
+    if (!inTabsGroup) {
       router.replace('/(tabs)/today');
     }
-  }, [profileReady, session, profile, segments]);
+  }, [hydrated, session, profile, segments]);
 
-  // Bootstrap data once signed in and onboarded
   useEffect(() => {
     if (!session || !profile?.onboarding_completed) return;
 
-    const bootstrap = async () => {
-      await fetchCollection();
-      await fetchTodayLog();
-      if (profile.city) {
-        await fetchWeather(profile.city);
-        await fetchLumiOpening();
-      }
-    };
-
-    bootstrap();
+    fetchCollection();
+    fetchTodayLog();
+    if (profile.city) {
+      fetchWeather(profile.city);
+      fetchLumiOpening();
+    }
   }, [session, profile?.onboarding_completed]);
 }
 

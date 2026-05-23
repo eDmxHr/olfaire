@@ -30,9 +30,7 @@ export default function ReadyScreen() {
   const items = useCollectionStore((s) => s.items);
 
   const lifestyleLabel =
-    LIFESTYLE_CHIPS.find((c) => c.value === profile?.lifestyle)?.label ??
-    profile?.lifestyle ??
-    '—';
+    LIFESTYLE_CHIPS.find((c) => c.value === profile?.lifestyle)?.label ?? profile?.lifestyle ?? '—';
   const skinLabel =
     SKIN_CHIPS.find((c) => c.value === profile?.skin_type)?.label ?? profile?.skin_type ?? '—';
 
