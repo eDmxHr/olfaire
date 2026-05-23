@@ -28,6 +28,7 @@ interface Props {
   onConfirmWearing: (fragranceId: number) => void;
   onRating: (rating: WearRating) => void;
   onRequestAnother: () => void;
+  previewOnly?: boolean;
 }
 
 export function SuggestionCard({
@@ -38,6 +39,7 @@ export function SuggestionCard({
   onConfirmWearing,
   onRating,
   onRequestAnother,
+  previewOnly = false,
 }: Props) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(12);
@@ -103,7 +105,7 @@ export function SuggestionCard({
         )}
 
         {/* CTA — pre-wearing */}
-        {!isWearing && !hasRated && (
+        {!previewOnly && !isWearing && !hasRated && (
           <View style={{ gap: 10 }}>
             <Pressable
               onPress={() => onConfirmWearing(suggestion.fragrance_id)}
@@ -129,7 +131,7 @@ export function SuggestionCard({
         )}
 
         {/* Rating — post-wearing, pre-rated */}
-        {isWearing && !hasRated && (
+        {!previewOnly && isWearing && !hasRated && (
           <View style={{ gap: 10 }}>
             <Text
               className="uppercase tracking-widest"
@@ -154,7 +156,7 @@ export function SuggestionCard({
         )}
 
         {/* Done state */}
-        {hasRated && wearRating && (
+        {!previewOnly && hasRated && wearRating && (
           <View className="flex-row items-center gap-2">
             {wearRating === 'loved' && (
               <IconHeart size={15} color={COLORS.amber} strokeWidth={1.5} />

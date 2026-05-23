@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,7 +21,7 @@ import type { Mood } from '@/lib/supabase';
 
 export default function TodayScreen() {
   const store = useTodayStore();
-  const { selectMood, fetchSuggestion, confirmWearing, submitRating, requestAnother } = useToday();
+  const { selectMood, fetchSuggestion, submitRating } = useToday();
   const [hasError, setHasError] = useState(false);
 
   const opacity = useSharedValue(0);
@@ -107,17 +108,32 @@ export default function TodayScreen() {
             </View>
           )}
 
-          {/* Suggestion card */}
+          {/* Suggestion card — tap to open full detail */}
           {store.suggestion && !store.isLoadingSuggestion && (
-            <SuggestionCard
-              suggestion={store.suggestion}
-              isWearing={store.isWearing()}
-              hasRated={store.hasRated()}
-              wearRating={store.todayLog?.wear_rating ?? null}
-              onConfirmWearing={confirmWearing}
-              onRating={submitRating}
-              onRequestAnother={requestAnother}
-            />
+            <Pressable onPress={() => router.push('/(tabs)/today/pick')}>
+              <SuggestionCard
+                suggestion={store.suggestion}
+                isWearing={store.isWearing()}
+                hasRated={store.hasRated()}
+                wearRating={store.todayLog?.wear_rating ?? null}
+                onConfirmWearing={() => router.push('/(tabs)/today/pick')}
+                onRating={submitRating}
+                onRequestAnother={() => router.push('/(tabs)/today/pick')}
+                previewOnly
+              />
+            </Pressable>
+          )}
+
+          {/* This week link */}
+          {store.todayLog && (
+            <Pressable
+              onPress={() => router.push('/(tabs)/today/week')}
+              style={{ alignItems: 'center', marginTop: 20, paddingVertical: 8 }}>
+              <Text
+                style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
+                This week →
+              </Text>
+            </Pressable>
           )}
 
           {/* Error state */}

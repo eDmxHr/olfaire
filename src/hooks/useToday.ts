@@ -187,11 +187,17 @@ export function useToday() {
     const { weather } = store;
     const today = todayDate();
 
+    store.setSuggestion(null);
+
     try {
       const upsertData: any = {
         user_id: profile?.id,
         log_date: today,
         mood,
+        worn_fragrance_id: null,
+        wear_rating: null,
+        suggested_fragrance_id: null,
+        lumi_suggestion_text: null,
         ...(occasion && { occasion }),
         ...(weather && {
           weather_condition: weather.condition,

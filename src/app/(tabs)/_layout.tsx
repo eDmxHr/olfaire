@@ -7,7 +7,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{ headerShown: false }}
       tabBar={(props: BottomTabBarProps) => <TabBar {...props} />}>
-      <Tabs.Screen name="today/index" />
+      <Tabs.Screen name="today" />
       <Tabs.Screen name="layer/index" />
       <Tabs.Screen name="collection/index" />
       <Tabs.Screen name="profile/index" />
