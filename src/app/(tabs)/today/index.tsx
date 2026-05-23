@@ -59,11 +59,13 @@ export default function TodayScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
         <Animated.View style={animStyle}>
-          {/* Header — Lumi + weekday */}
+          {/* Header — Lumi + weekday + weather */}
           <View className="mt-5 flex-row items-center justify-between">
             <Lumi size={32} />
             <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ash }}>
-              {weekday}
+              {store.weather
+                ? `${store.weather.temp_c}° ${store.weather.condition} · ${weekday}`
+                : weekday}
             </Text>
           </View>
 

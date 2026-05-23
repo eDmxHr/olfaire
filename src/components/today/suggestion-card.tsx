@@ -6,7 +6,7 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { IconHeart, IconMinus, IconThumbDown, IconRefresh } from '@tabler/icons-react-native';
+import { IconHeart, IconMinus, IconThumbDown, IconRefresh, IconChevronRight } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Suggestion } from '@/store/TodayStore';
@@ -56,27 +56,32 @@ export function SuggestionCard({
   return (
     <Animated.View style={[animStyle, { marginTop: 24 }]}>
       <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20, gap: 16 }}>
-        {/* Fragrance name */}
-        <View style={{ gap: 2 }}>
-          <Text
-            className="uppercase"
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 1,
-            }}>
-            {suggestion.fragrance_house}
-          </Text>
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 20,
-              color: COLORS.parchment,
-              lineHeight: 26,
-            }}>
-            {suggestion.fragrance_name}
-          </Text>
+        {/* Fragrance name + tap hint */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <View style={{ gap: 2, flex: 1 }}>
+            <Text
+              className="uppercase"
+              style={{
+                fontFamily: FONTS.uiMedium,
+                fontSize: 10,
+                color: COLORS.ash,
+                letterSpacing: 1,
+              }}>
+              {suggestion.fragrance_house}
+            </Text>
+            <Text
+              style={{
+                fontFamily: FONTS.displayLightItalic,
+                fontSize: 20,
+                color: COLORS.parchment,
+                lineHeight: 26,
+              }}>
+              {suggestion.fragrance_name}
+            </Text>
+          </View>
+          {previewOnly && (
+            <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} style={{ marginTop: 4 }} />
+          )}
         </View>
 
         {/* Lumi's line */}

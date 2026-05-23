@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { IconRefresh } from '@tabler/icons-react-native';
@@ -49,10 +49,7 @@ export default function PickScreen() {
   if (!suggestion) return null;
 
   async function handleWearThis() {
-    setNavigatedBack(true);
-    sheetRef.current?.close();
     await confirmWearing(suggestion!.fragrance_id);
-    router.back();
   }
 
   async function handleSuggestAnother() {
@@ -75,10 +72,7 @@ export default function PickScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       {/* Tappable backdrop */}
-      <Pressable
-        style={{ flex: 1 }}
-        onPress={() => sheetRef.current?.close()}
-      />
+      <Pressable style={{ flex: 1 }} onPress={() => sheetRef.current?.close()} />
       <BottomSheet
         ref={sheetRef}
         snapPoints={snapPoints}
@@ -88,8 +82,7 @@ export default function PickScreen() {
         handleIndicatorStyle={{ backgroundColor: COLORS.ash }}>
         <BottomSheetScrollView
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48, paddingTop: 8 }}>
-
-          {/* House + Name */}
+          {/* House + Name + Identity metadata */}
           <View style={{ gap: 4, marginBottom: 16 }}>
             <Text
               style={{
@@ -110,6 +103,39 @@ export default function PickScreen() {
               }}>
               {suggestion.fragrance_name}
             </Text>
+
+            {/* Family · concentration · longevity · sillage */}
+            {fragrance && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginTop: 6,
+                  flexWrap: 'wrap',
+                }}>
+                {[fragrance.family, fragrance.concentration].filter(Boolean).map((item, i) => (
+                  <Text
+                    key={item}
+                    style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                    {i > 0 ? `· ${item}` : item}
+                  </Text>
+                ))}
+                {(fragrance.longevity || fragrance.sillage) && (
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>·</Text>
+                )}
+                {fragrance.longevity != null && (
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                    Longevity {fragrance.longevity}/5
+                  </Text>
+                )}
+                {fragrance.sillage != null && (
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                    · Sillage {fragrance.sillage}/5
+                  </Text>
+                )}
+              </View>
+            )}
           </View>
 
           {/* Lumi's line */}
@@ -157,32 +183,6 @@ export default function PickScreen() {
                 heart={fragrance.notes_heart ?? []}
                 base={fragrance.notes_base ?? []}
               />
-
-              {/* Metadata row */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 24 }}>
-                {[
-                  fragrance.family,
-                  fragrance.concentration,
-                  fragrance.longevity ? `Longevity ${fragrance.longevity}/5` : null,
-                  fragrance.sillage ? `Sillage ${fragrance.sillage}/5` : null,
-                ]
-                  .filter(Boolean)
-                  .map((item) => (
-                    <View
-                      key={item}
-                      style={{
-                        borderWidth: 1,
-                        borderColor: '#2A2724',
-                        borderRadius: 6,
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                      }}>
-                      <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                        {item}
-                      </Text>
-                    </View>
-                  ))}
-              </View>
             </>
           ) : null}
 
@@ -204,7 +204,13 @@ export default function PickScreen() {
                 </Pressable>
                 <Pressable
                   onPress={handleSuggestAnother}
-                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10 }}>
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    paddingVertical: 10,
+                  }}>
                   <IconRefresh size={14} color={COLORS.ash} strokeWidth={1.5} />
                   <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                     Show me another
@@ -247,7 +253,13 @@ export default function PickScreen() {
             )}
 
             {hasRated && wearRating && (
-              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, textAlign: 'center' }}>
+              <Text
+                style={{
+                  fontFamily: FONTS.ui,
+                  fontSize: 13,
+                  color: COLORS.ash,
+                  textAlign: 'center',
+                }}>
                 {wearRating === 'loved'
                   ? '♥ Logged as a favourite'
                   : wearRating === 'neutral'
