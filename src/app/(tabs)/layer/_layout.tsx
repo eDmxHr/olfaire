@@ -4,7 +4,7 @@ export default function LayerLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="application" />
+      <Stack.Screen name="application" options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
       <Stack.Screen name="signature" />
       <Stack.Screen name="analysis" options={{ presentation: 'transparentModal', animation: 'fade' }} />
     </Stack>

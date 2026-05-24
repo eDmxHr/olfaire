@@ -16,14 +16,30 @@ export function useToday() {
   async function fetchTodayLog() {
     store.setLoadingLog(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('daily_log')
-        .select('*')
+        .select('*, suggested_fragrance:suggested_fragrance_id ( id, house, name, family )')
         .eq('log_date', todayDate())
         .maybeSingle();
 
       if (error) throw error;
-      store.setTodayLog(data ?? null);
+      if (data) {
+        const { suggested_fragrance, ...log } = data;
+        store.setTodayLog(log ?? null);
+
+        // Rehydrate suggestion from persisted log so we never re-fetch on reload
+        if (log.suggested_fragrance_id && log.lumi_suggestion_text && suggested_fragrance) {
+          store.setSuggestion({
+            fragrance_id: log.suggested_fragrance_id,
+            fragrance_house: suggested_fragrance.house,
+            fragrance_name: suggested_fragrance.name,
+            lumi_line: log.lumi_suggestion_text,
+            reasoning_tags: [],
+          });
+        }
+      } else {
+        store.setTodayLog(null);
+      }
     } catch (err) {
       console.error('fetchTodayLog error:', err);
     } finally {

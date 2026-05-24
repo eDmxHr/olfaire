@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -21,7 +20,7 @@ function parseRatio(ratio: string): [number, number] {
 
 export default function ApplicationScreen() {
   const { analysis, selectedItems } = useLayeringStore();
-  const { bottom: bottomInset } = useSafeAreaInsets();
+  const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
 
   useEffect(() => {
     if (!analysis) router.back();
@@ -39,29 +38,32 @@ export default function ApplicationScreen() {
 
   const STEPS = [
     { num: 1, title: `Apply ${application.first}`, detail: application.placement_first },
-    { num: 2, title: `Wait ${waitLabel}`, detail: 'Let the base settle before adding the next layer.' },
+    {
+      num: 2,
+      title: `Wait ${waitLabel}`,
+      detail: 'Let the base settle before adding the next layer.',
+    },
     { num: 3, title: `Apply ${application.second}`, detail: application.placement_second },
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }} edges={['top']}>
+    <View
+      className="flex-1 overflow-hidden"
+      style={{
+        backgroundColor: COLORS.ink,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        paddingTop: topInset,
+      }}>
       <ScreenHeader title="Application guide" tint={COLORS.parchment} />
 
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 + bottomInset }}
         showsVerticalScrollIndicator={false}>
-
         {/* ── Section A: Body map ── */}
         <Text
-          style={{
-            fontFamily: FONTS.uiMedium,
-            fontSize: 10,
-            color: COLORS.ash,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            marginBottom: 16,
-            marginTop: 8,
-          }}>
+          className="mb-4 mt-2 uppercase tracking-widest"
+          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
           Where to apply
         </Text>
 
@@ -71,58 +73,45 @@ export default function ApplicationScreen() {
         />
 
         {/* Legend */}
-        <View style={{ flexDirection: 'row', gap: 20, justifyContent: 'center', marginTop: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.amber }} />
+        <View className="items-center justify-center gap-1">
+          <View className="flex-row items-center gap-1.5">
+            <View className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS.amber }} />
             <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.parchment }}>
               {application.first}
             </Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.ash }} />
+          <View className="flex-row items-center gap-1.5">
+            <View className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS.ash }} />
             <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
               {application.second}
             </Text>
           </View>
         </View>
 
-        <View style={{ height: 1, backgroundColor: INK_RAISED, marginVertical: 20 }} />
+        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
 
         {/* ── Section B: Ratio bar ── */}
         <Text
-          style={{
-            fontFamily: FONTS.uiMedium,
-            fontSize: 10,
-            color: COLORS.ash,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            marginBottom: 6,
-          }}>
+          className="mb-1.5 uppercase tracking-widest"
+          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
           Ratio
         </Text>
-        <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash, marginBottom: 10 }}>
+        <Text className="mb-2.5" style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
           {application.ratio}
         </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            height: 8,
-            borderRadius: 4,
-            overflow: 'hidden',
-            gap: 2,
-          }}>
-          <View style={{ flex: r1, backgroundColor: COLORS.amber, borderRadius: 4 }} />
-          <View style={{ flex: r2, backgroundColor: INK_RAISED, borderRadius: 4 }} />
+        <View className="h-2 flex-row gap-0.5 overflow-hidden rounded">
+          <View className="rounded" style={{ flex: r1, backgroundColor: COLORS.amber }} />
+          <View className="rounded" style={{ flex: r2, backgroundColor: INK_RAISED }} />
         </View>
-        <View style={{ flexDirection: 'row', marginTop: 6 }}>
-          <View style={{ flex: r1 }}>
+        <View className="mt-1.5 flex-row">
+          <View className="flex-1" style={{ flex: r1 }}>
             <Text
               style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.parchment }}
               numberOfLines={1}>
               {application.first}
             </Text>
           </View>
-          <View style={{ flex: r2, alignItems: 'flex-end' }}>
+          <View className="items-end" style={{ flex: r2 }}>
             <Text
               style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.ash }}
               numberOfLines={1}>
@@ -131,59 +120,34 @@ export default function ApplicationScreen() {
           </View>
         </View>
 
-        <View style={{ height: 1, backgroundColor: INK_RAISED, marginVertical: 20 }} />
+        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
 
         {/* ── Section C: Steps ── */}
         <Text
-          style={{
-            fontFamily: FONTS.uiMedium,
-            fontSize: 10,
-            color: COLORS.ash,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            marginBottom: 12,
-          }}>
+          className="mb-3 uppercase tracking-widest"
+          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
           How to apply
         </Text>
-        <View style={{ gap: 10 }}>
+        <View className="gap-2.5">
           {STEPS.map((step) => (
             <View
               key={step.num}
-              style={{
-                backgroundColor: INK_RAISED,
-                borderRadius: 12,
-                padding: 16,
-                flexDirection: 'row',
-                gap: 12,
-                alignItems: 'flex-start',
-              }}>
+              className="flex-row items-start gap-3 rounded-xl p-4"
+              style={{ backgroundColor: INK_RAISED }}>
               <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 12,
-                  backgroundColor: COLORS.amber,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  marginTop: 1,
-                }}>
+                className="mt-0.5 h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                style={{ backgroundColor: COLORS.amber }}>
                 <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ink }}>
                   {step.num}
                 </Text>
               </View>
-              <View style={{ flex: 1 }}>
+              <View className="flex-1">
                 <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.parchment }}>
                   {step.title}
                 </Text>
                 <Text
-                  style={{
-                    fontFamily: FONTS.ui,
-                    fontSize: 13,
-                    color: COLORS.ash,
-                    marginTop: 3,
-                    lineHeight: 18,
-                  }}>
+                  className="mt-0.5"
+                  style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, lineHeight: 18 }}>
                   {step.detail}
                 </Text>
               </View>
@@ -191,17 +155,17 @@ export default function ApplicationScreen() {
           ))}
         </View>
 
-        <View style={{ height: 1, backgroundColor: INK_RAISED, marginVertical: 20 }} />
+        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
 
         {/* ── Section D: Lumi tip ── */}
-        <View style={{ backgroundColor: INK_RAISED, borderRadius: 16, padding: 16, gap: 6 }}>
+        <View className="gap-1.5 rounded-2xl p-4" style={{ backgroundColor: INK_RAISED }}>
           <Text
+            className="uppercase tracking-widest"
             style={{
               fontFamily: FONTS.uiMedium,
               fontSize: 10,
               color: COLORS.ash,
               letterSpacing: 1,
-              textTransform: 'uppercase',
             }}>
             Lumi says
           </Text>
@@ -218,26 +182,16 @@ export default function ApplicationScreen() {
       </ScrollView>
 
       {/* ── Absolute CTA ── */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 6 + bottomInset,
-          left: 24,
-          right: 24,
-        }}>
+      <View className="absolute left-6 right-6" style={{ bottom: 6 + bottomInset }}>
         <Pressable
           onPress={() => router.push('/(tabs)/layer/signature')}
-          style={{
-            backgroundColor: COLORS.amber,
-            borderRadius: 10,
-            paddingVertical: 14,
-            alignItems: 'center',
-          }}>
+          className="items-center rounded-xl py-3.5"
+          style={{ backgroundColor: COLORS.amber }}>
           <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>
             Save as signature
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -265,6 +265,24 @@ export async function uploadBottleImage(
   }
 }
 
+export async function uploadSignatureCardImage(
+  userId: string,
+  signatureId: string,
+  fileUri: string
+): Promise<string | null> {
+  try {
+    const response = await fetch(fileUri);
+    const blob = await response.blob();
+    const { error } = await supabase.storage
+      .from('signature-cards')
+      .upload(`${userId}/${signatureId}.jpg`, blob, { upsert: true, contentType: 'image/jpeg' });
+    if (error) return null;
+    return getSignatureCardUrl(userId, signatureId);
+  } catch {
+    return null;
+  }
+}
+
 // ── Auth helpers ──────────────────────────────────────────────────
 
 /**

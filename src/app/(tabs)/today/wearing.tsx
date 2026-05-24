@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Button } from '@/components/ui/button';
+import { Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { IconArrowRight } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
@@ -36,8 +35,8 @@ export default function WearingScreen() {
         className="flex-1"
         contentContainerClassName="px-5 pb-12"
         showsVerticalScrollIndicator={false}>
-        {/* Fragrance */}
-        <View className="mb-4 gap-1">
+        {/* Fragrance name */}
+        <View className="mb-6 gap-1">
           {house ? (
             <Text
               className="text-xs uppercase tracking-widest"
@@ -56,9 +55,9 @@ export default function WearingScreen() {
           </Text>
         </View>
 
-        {/* Lumi tip card */}
+        {/* Lumi tip — wearing context */}
         {lumiLine ? (
-          <View className="mb-7 gap-2 rounded-2xl p-5" style={{ backgroundColor: COLORS.ink }}>
+          <View className="mb-6 gap-2 rounded-2xl p-5" style={{ backgroundColor: COLORS.ink }}>
             <Text
               className="text-xs uppercase tracking-widest"
               style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
@@ -76,67 +75,65 @@ export default function WearingScreen() {
           </View>
         ) : null}
 
-        {/* Micro-rating buttons */}
-        {!hasRated && (
-          <View className="mb-7 gap-2.5">
-            <Text
-              className="text-[10px] uppercase tracking-widest"
-              style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
-              How did it wear?
-            </Text>
+        {/* Rating — hero element */}
+        <View className="mb-6 gap-3">
+          <Text
+            className="text-[10px] uppercase tracking-widest"
+            style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
+            How did it wear?
+          </Text>
+          {!hasRated ? (
             <View className="flex-row gap-2">
-              {RATINGS.map(({ key, label }) => (
+              {RATINGS.map(({ key, label, Icon }) => (
                 <Pressable
                   key={key}
                   onPress={() => submitRating(key)}
-                  className="flex-1 items-center rounded-[10px] py-3 active:opacity-60"
+                  className="flex-1 items-center gap-2 rounded-2xl py-5 active:opacity-60"
                   style={{ backgroundColor: COLORS.linen }}>
-                  <Text className="text-xs" style={{ fontFamily: FONTS.ui, color: COLORS.ink }}>
+                  <Icon size={20} color={COLORS.ink} strokeWidth={1.5} />
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>
                     {label}
                   </Text>
                 </Pressable>
               ))}
             </View>
-          </View>
-        )}
+          ) : ratingConfig ? (
+            <View
+              className="flex-row items-center justify-center gap-2.5 rounded-2xl px-4 py-5"
+              style={{ backgroundColor: COLORS.linen }}>
+              <ratingConfig.Icon size={18} color={ratingConfig.color} strokeWidth={1.5} />
+              <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ink }}>
+                {ratingConfig.label}
+              </Text>
+            </View>
+          ) : null}
+        </View>
 
-        {/* Rating confirmation */}
-        {ratingConfig ? (
-          <View className="flex-row items-center gap-2 border-t border-border py-4">
-            <ratingConfig.Icon size={16} color={ratingConfig.color} strokeWidth={1.5} />
-            <Text className="text-[13px]" style={{ fontFamily: FONTS.ui, color: COLORS.ash }}>
-              {ratingConfig.label}
-            </Text>
-          </View>
-        ) : null}
-
-        {/* Layering teaser — only shown after rating */}
-        {hasRated && (
-          <Pressable
-            onPress={() => router.push('/(tabs)/layer')}
-            className="mt-2 gap-1.5 rounded-2xl p-4 active:opacity-70"
-            style={{ backgroundColor: COLORS.linen }}>
-            <Text
-              className="text-[10px] uppercase tracking-widest"
-              style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
-              Layer it
-            </Text>
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 17,
-                color: COLORS.ink,
-                lineHeight: 24,
-              }}>
-              Curious how this pairs with something else?
-            </Text>
-            <Text
-              className="mt-0.5 text-[13px]"
-              style={{ fontFamily: FONTS.ui, color: COLORS.amber }}>
-              Open Layer
-            </Text>
-          </Pressable>
-        )}
+        {/* Layering teaser */}
+        <Pressable
+          onPress={() => router.push('/(tabs)/layer')}
+          className="gap-1.5 rounded-2xl p-4 active:opacity-70"
+          style={{ backgroundColor: COLORS.linen }}>
+          <Text
+            className="text-[10px] uppercase tracking-widest"
+            style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
+            Layer it
+          </Text>
+          <Text
+            style={{
+              fontFamily: FONTS.displayLightItalic,
+              fontSize: 17,
+              color: COLORS.ink,
+              lineHeight: 24,
+            }}>
+            Curious how this pairs with something else?
+          </Text>
+          <Text
+            className="mt-0.5 text-[13px]"
+            style={{ fontFamily: FONTS.ui, color: COLORS.amber }}>
+            Open Layer
+          </Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

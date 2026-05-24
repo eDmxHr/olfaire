@@ -123,9 +123,9 @@ export function useLayering() {
     }
   }
 
-  async function saveSignature(name: string, tags: string[]) {
+  async function saveSignature(name: string, tags: string[]): Promise<string | null> {
     const { cacheId, analysis } = store;
-    if (!cacheId || !analysis) return;
+    if (!cacheId || !analysis) return null;
 
     store.setSaving(true);
     try {
@@ -137,8 +137,10 @@ export function useLayering() {
 
       if (error) throw error;
       if (data) store.prependSignature(data);
+      return (data as { id: string })?.id ?? null;
     } catch (err) {
       console.error('saveSignature error:', err);
+      return null;
     } finally {
       store.setSaving(false);
     }

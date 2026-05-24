@@ -27,6 +27,7 @@ export default function SignatureScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isFetchingNames, setIsFetchingNames] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!analysis || !cacheId) {
@@ -63,9 +64,21 @@ export default function SignatureScreen() {
     );
   }
 
+  async function getOrSave(): Promise<string | null> {
+    if (savedId) return savedId;
+    const id = await saveSignature(name.trim() || 'Untitled', selectedTags);
+    if (id) setSavedId(id);
+    return id;
+  }
+
   async function handleSave() {
-    await saveSignature(name.trim() || 'Untitled', selectedTags);
+    await getOrSave();
     router.back();
+  }
+
+  async function handleShare() {
+    const id = await getOrSave();
+    if (id) router.push(`/modals/signature-share?signatureId=${id}`);
   }
 
   return (
@@ -233,7 +246,7 @@ export default function SignatureScreen() {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push('/modals/signature-share')}
+          onPress={handleShare}
           style={{
             backgroundColor: COLORS.linen,
             borderRadius: 10,
