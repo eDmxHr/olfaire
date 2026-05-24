@@ -15,9 +15,16 @@ import { LUMI_THINKING_PHRASES } from '@/data/lumi-phrases';
 interface Props {
   phrases?: string[];
   size?: number;
+  wingColor?: string;
+  veinColor?: string;
 }
 
-export function LumiThinking({ phrases = LUMI_THINKING_PHRASES, size = 36 }: Props) {
+export function LumiThinking({
+  phrases = LUMI_THINKING_PHRASES,
+  size = 36,
+  wingColor = COLORS.ink,
+  veinColor = COLORS.parchment,
+}: Props) {
   const [phraseIndex, setPhraseIndex] = useState(() => Math.floor(Math.random() * phrases.length));
   const textOpacity = useSharedValue(1);
   const lumiScale = useSharedValue(1);
@@ -46,10 +53,10 @@ export function LumiThinking({ phrases = LUMI_THINKING_PHRASES, size = 36 }: Pro
   return (
     <View className="items-center gap-3">
       <Animated.View style={lumiStyle}>
-        <Lumi size={size} wingColor={COLORS.ink} bodyColor={COLORS.amber} />
+        <Lumi size={size} wingColor={wingColor} veinColor={veinColor} bodyColor={COLORS.amber} />
       </Animated.View>
       <Animated.View style={textStyle}>
-        <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 15, color: COLORS.ash }}>
+        <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 16, color: COLORS.ash }}>
           {phrases[phraseIndex]}
         </Text>
       </Animated.View>

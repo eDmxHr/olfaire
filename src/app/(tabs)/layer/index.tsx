@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated, {
   useSharedValue,
@@ -11,6 +11,7 @@ import Animated, {
 import { IconX, IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
+
 import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
@@ -91,6 +92,7 @@ export default function LayerScreen() {
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
   const [isGateChecking, setIsGateChecking] = useState(false);
+  const { bottom: bottomInset } = useSafeAreaInsets();
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(16);
@@ -158,7 +160,7 @@ export default function LayerScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 + bottomInset }}
         showsVerticalScrollIndicator={false}>
         <Animated.View style={animStyle}>
           {/* Header */}
@@ -236,18 +238,23 @@ export default function LayerScreen() {
               );
             })}
           </View>
-
-          {/* Analyse CTA */}
-          <Button
-            className="mt-6"
-            disabled={!canAnalyse() || isGateChecking}
-            onPress={handleAnalyse}>
-            <Text style={{ fontFamily: FONTS.uiMedium }}>
-              {isGateChecking ? 'Checking…' : 'Analyse'}
-            </Text>
-          </Button>
         </Animated.View>
       </ScrollView>
+
+      {/* Floating Analyse button */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 6,
+          left: 20,
+          right: 20,
+        }}>
+        <Button disabled={!canAnalyse() || isGateChecking} onPress={handleAnalyse}>
+          <Text style={{ fontFamily: FONTS.uiMedium }}>
+            {isGateChecking ? 'Analysing...' : 'Analyse'}
+          </Text>
+        </Button>
+      </View>
     </SafeAreaView>
   );
 }
