@@ -33,7 +33,6 @@ function formatDate(dateStr: string): { day: string; date: string } {
 
 export function WeekDayRow({ log, fragranceName, isToday }: Props) {
   const { day, date } = formatDate(log.log_date);
-  const moodTint = log.mood ? MOODS.find((m) => m.key === (log.mood as Mood))?.tint : null;
   const RatingIcon = log.wear_rating ? RATING_ICON[log.wear_rating] : null;
 
   return (
