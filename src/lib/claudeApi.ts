@@ -7,7 +7,7 @@ const API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_KEY;
 
 // ── Models ────────────────────────────────────────────────────────
 const HAIKU = 'claude-haiku-4-5-20251001';
-const SONNET = 'claude-sonnet-4-20250514';
+const SONNET = 'claude-sonnet-4-6';
 
 // ── System prompt ─────────────────────────────────────────────────
 const LUMI_SYSTEM = `You are Lumi, the fragrance intelligence behind Olfaire —
@@ -121,12 +121,14 @@ async function callClaude({
 
 // ── Helper: safe JSON parse ───────────────────────────────────────
 function parseJSON<T>(text: string): T {
-  // Strip any accidental markdown backticks
-  const clean = text
-    .replace(/^```(?:json)?\n?/, '')
-    .replace(/\n?```$/, '')
-    .trim();
-  return JSON.parse(clean) as T;
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error(`No JSON object found in response: ${text.slice(0, 200)}`);
+  try {
+    return JSON.parse(match[0]) as T;
+  } catch (e) {
+    console.log('[claudeApi] raw response:', text);
+    throw e;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -299,7 +301,7 @@ export async function fetchLayeringAnalysis(params: LayeringParams): Promise<Lay
   const text = await callClaude({
     model: SONNET,
     system: LUMI_SYSTEM,
-    maxTokens: 1000,
+    maxTokens: 2000,
     userMessage: `Analyse the chemistry of layering these two perfumes and detect any conflicts.
 
 BOTTLE A: ${bottleA.house} ${bottleA.name}
@@ -313,6 +315,8 @@ BOTTLE B: ${bottleB.house} ${bottleB.name}
   Heart: ${bottleB.notes_heart.join(', ')}
   Base: ${bottleB.notes_base.join(', ')}
   Concentration: ${bottleB.concentration} | Family: ${bottleB.family}
+
+Include 2–4 interactions only — the most meaningful pairings. Keep explanations to one short sentence each.
 
 Respond with exactly this JSON:
 {

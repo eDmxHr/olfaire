@@ -10,11 +10,14 @@ interface Props {
   title: string;
   onBack?: () => void;
   right?: React.ReactNode;
+  tint?: string;
 }
 
 const SIDE_WIDTH = 40;
 
-export function ScreenHeader({ title, onBack, right }: Props) {
+export function ScreenHeader({ title, onBack, right, tint }: Props) {
+  const color = tint ?? COLORS.ink;
+
   return (
     <View className="flex-row items-center px-2.5 pb-6 pt-3">
       {/* Left */}
@@ -22,7 +25,7 @@ export function ScreenHeader({ title, onBack, right }: Props) {
         <Pressable
           onPress={onBack ?? (() => router.back())}
           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
-          <IconChevronLeft size={22} color={COLORS.ink} strokeWidth={1.5} />
+          <IconChevronLeft size={22} color={color} strokeWidth={1.5} />
         </Pressable>
       </View>
 
@@ -33,7 +36,7 @@ export function ScreenHeader({ title, onBack, right }: Props) {
           style={{
             fontFamily: FONTS.displayLightItalic,
             fontSize: 24,
-            color: COLORS.ink,
+            color,
           }}>
           {title}
         </Text>

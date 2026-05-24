@@ -37,7 +37,7 @@ export default function WearingScreen() {
         contentContainerClassName="px-5 pb-12"
         showsVerticalScrollIndicator={false}>
         {/* Fragrance */}
-        <View className="mb-7 gap-1">
+        <View className="mb-4 gap-1">
           {house ? (
             <Text
               className="text-xs uppercase tracking-widest"
@@ -114,7 +114,7 @@ export default function WearingScreen() {
         {hasRated && (
           <Pressable
             onPress={() => router.push('/(tabs)/layer')}
-            className="mt-6 gap-1.5 rounded-2xl p-4 active:opacity-70"
+            className="mt-2 gap-1.5 rounded-2xl p-4 active:opacity-70"
             style={{ backgroundColor: COLORS.linen }}>
             <Text
               className="text-[10px] uppercase tracking-widest"
@@ -133,19 +133,10 @@ export default function WearingScreen() {
             <Text
               className="mt-0.5 text-[13px]"
               style={{ fontFamily: FONTS.ui, color: COLORS.amber }}>
-              Open Layer →
+              Open Layer
             </Text>
           </Pressable>
         )}
-
-        {/* This week link */}
-        <Button
-          variant="outline"
-          className="mt-6"
-          onPress={() => router.push('/(tabs)/today/week')}>
-          <Text style={{ fontFamily: FONTS.ui }}>This week</Text>
-          <IconArrowRight size={16} color={COLORS.ink} strokeWidth={1.5} />
-        </Button>
       </ScrollView>
     </SafeAreaView>
   );

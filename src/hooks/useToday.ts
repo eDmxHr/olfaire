@@ -127,7 +127,7 @@ export function useToday() {
         .select('*, fragrance:fragrances(*)')
         .eq('is_wishlist', false)
         .neq('stock_level', 'empty')
-        .order('personal_rating', { ascending: false })
+        .order('personal_rating', { ascending: false, nullsFirst: false })
         .limit(8);
 
       if (!collection?.length) return;
