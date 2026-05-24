@@ -353,7 +353,40 @@ Return JSON only. No preamble. No markdown backticks.`,
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Task 4 — Signature Naming
+// Task 4 — DNA Insight
+// Model: Haiku · Generated once when DNA is computed, cached in DB
+// ─────────────────────────────────────────────────────────────────
+export async function fetchDNAInsight(params: {
+  dominantFamily: string;
+  topFamilies: string[];
+  bottleCount: number;
+}): Promise<string> {
+  const { dominantFamily, topFamilies, bottleCount } = params;
+
+  const text = await callClaude({
+    model: HAIKU,
+    system: LUMI_SYSTEM,
+    maxTokens: 60,
+    userMessage: `Write one short sentence (max 18 words) that describes this user's fragrance DNA.
+It should feel like a portrait, not a summary.
+
+Dominant family: ${dominantFamily}
+Top families: ${topFamilies.join(', ')}
+Collection size: ${bottleCount} bottles
+
+Examples:
+- "You reach for the dark, the warm, and the ones that leave a room remembering you."
+- "Fresh and precise — you prefer clarity over complexity."
+- "Your collection suggests someone who dresses for a room before entering it."
+
+Return plain text only. No JSON. No quotes. No punctuation beyond the sentence.`,
+  });
+
+  return text.replace(/^["']|["']$/g, '');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Task 5 — Signature Naming
 // Model: Haiku · Never cached
 // ─────────────────────────────────────────────────────────────────
 export interface SignatureNamesResult {

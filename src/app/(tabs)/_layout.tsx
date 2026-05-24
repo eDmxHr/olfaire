@@ -10,7 +10,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="today" />
       <Tabs.Screen name="layer" />
       <Tabs.Screen name="collection/index" />
-      <Tabs.Screen name="profile/index" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }

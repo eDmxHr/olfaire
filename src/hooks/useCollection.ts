@@ -1,5 +1,6 @@
-import { supabase, uploadBottleImage, type CollectionItem, type StockLevel } from '@/lib/supabase';
+import { supabase, getCurrentUserId, uploadBottleImage, type CollectionItem, type StockLevel } from '@/lib/supabase';
 import { useCollectionStore } from '@/store/Collectionstore';
+import { fetchDNAInsight } from '@/lib/claudeApi';
 
 export function useCollection() {
   const store = useCollectionStore();
@@ -33,6 +34,58 @@ export function useCollection() {
       if (data) store.setDNA(data);
     } catch (err) {
       console.error('fetchDNA error:', err);
+    }
+  }
+
+  async function computeAndSaveDNA() {
+    const owned = store.items.filter((i) => !i.is_wishlist);
+    if (owned.length === 0) return;
+
+    // Tally family counts from each bottle's fragrance.family string
+    const counts: Record<string, number> = {};
+    for (const item of owned) {
+      const family = (item.fragrance as any)?.family as string | undefined;
+      if (family) counts[family] = (counts[family] ?? 0) + 1;
+    }
+
+    // Convert counts to 0–100 scores relative to the max count
+    const maxCount = Math.max(...Object.values(counts));
+    const families: Record<string, number> = {};
+    for (const [family, count] of Object.entries(counts)) {
+      families[family] = Math.round((count / maxCount) * 100);
+    }
+
+    const dominant_family =
+      Object.entries(counts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? null;
+
+    const user_id = await getCurrentUserId();
+    if (!user_id) return;
+
+    const topFamilies = Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([f]) => f);
+
+    let lumi_insight: string | null = null;
+    try {
+      lumi_insight = await fetchDNAInsight({
+        dominantFamily: dominant_family ?? topFamilies[0],
+        topFamilies,
+        bottleCount: owned.length,
+      });
+    } catch {
+      // insight is optional — upsert proceeds without it
+    }
+
+    try {
+      const { error } = await (supabase as any).from('dna_profiles').upsert(
+        { user_id, families, dominant_family, lumi_insight, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id' }
+      );
+      if (error) throw error;
+      store.setDNA({ user_id, families, dominant_family, lumi_insight, updated_at: new Date().toISOString() });
+    } catch (err) {
+      console.error('computeAndSaveDNA error:', err);
     }
   }
 
@@ -186,6 +239,7 @@ export function useCollection() {
   return {
     fetchCollection,
     fetchDNA,
+    computeAndSaveDNA,
     addBottle,
     removeBottle,
     updateStock,
