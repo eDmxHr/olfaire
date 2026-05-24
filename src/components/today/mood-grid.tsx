@@ -57,7 +57,7 @@ function MoodCard({
         className="rounded-[10px] py-3.5 items-center gap-1.5 border-[1.5px]"
         style={{
           backgroundColor: mood.tint,
-          borderColor: selected ? COLORS.amber : 'transparent',
+          borderColor: selected ? mood.activeBorder : 'transparent',
           opacity: disabled && !selected ? 0.5 : 1,
         }}>
         <Icon size={20} color={COLORS.ink} strokeWidth={1.5} />

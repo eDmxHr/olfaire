@@ -18,12 +18,16 @@ import { MoodGrid } from '@/components/today/mood-grid';
 import { SuggestionCard } from '@/components/today/suggestion-card';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
+import { useLayeringStore } from '@/store/LayeringStore';
+import { useLayering } from '@/hooks/useLayering';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Mood } from '@/lib/supabase';
 
 export default function TodayScreen() {
   const store = useTodayStore();
   const { selectMood, fetchSuggestion, submitRating } = useToday();
+  const { fetchSignatures } = useLayering();
+  const signatures = useLayeringStore((s) => s.signatures);
   const [hasError, setHasError] = useState(false);
 
   const opacity = useSharedValue(0);
@@ -38,6 +42,7 @@ export default function TodayScreen() {
   useEffect(() => {
     opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
     translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    fetchSignatures();
   }, []);
 
   useEffect(() => {
@@ -137,6 +142,62 @@ export default function TodayScreen() {
               <Text style={{ fontFamily: FONTS.ui }}>This week</Text>
               <IconArrowRight size={16} color={COLORS.ink} strokeWidth={1.5} />
             </Button>
+          )}
+
+          {/* Recent layers */}
+          {signatures.length > 0 && (
+            <View className="mt-6">
+              <Text
+                className="mb-2 uppercase tracking-widest"
+                style={{
+                  fontFamily: FONTS.uiMedium,
+                  fontSize: 10,
+                  color: COLORS.ash,
+                  letterSpacing: 1,
+                }}>
+                Recent layers
+              </Text>
+              {signatures.slice(0, 3).map((sig) => {
+                const date = new Date(sig.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+                return (
+                  <Pressable
+                    key={sig.id}
+                    onPress={() => router.push('/(tabs)/profile')}
+                    className="mb-2 rounded-[10px] px-3.5 py-3"
+                    style={{ backgroundColor: COLORS.linen }}>
+                    <View className="flex-row items-start justify-between">
+                      <Text
+                        className="flex-1"
+                        style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ink }}>
+                        {sig.name}
+                      </Text>
+                      <Text
+                        className="ml-2"
+                        style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+                        {date}
+                      </Text>
+                    </View>
+                    {sig.tags.length > 0 && (
+                      <View className="mt-1.5 flex-row flex-wrap gap-1.5">
+                        {sig.tags.map((tag) => (
+                          <View
+                            key={tag}
+                            className="rounded-full px-2 py-0.5"
+                            style={{ backgroundColor: COLORS.parchment }}>
+                            <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+                              {tag}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
           )}
 
           {/* Error state */}

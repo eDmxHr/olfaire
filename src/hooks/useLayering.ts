@@ -1,4 +1,5 @@
 import { supabase, type LayeringCache } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 import { fetchLayeringAnalysis } from '@/lib/claudeApi';
 import { useLayeringStore, type LayeringAnalysis } from '@/store/LayeringStore';
 
@@ -55,6 +56,7 @@ async function writeCache(
 
 export function useLayering() {
   const store = useLayeringStore();
+  const profile = useAuthStore((s) => s.profile);
 
   async function analyse() {
     const { selectedItems } = store;
@@ -129,7 +131,7 @@ export function useLayering() {
     try {
       const { data, error } = await (supabase as any)
         .from('signatures')
-        .insert({ layering_cache_id: cacheId, name, tags })
+        .insert({ layering_cache_id: cacheId, name, tags, user_id: profile?.id })
         .select()
         .single();
 

@@ -47,7 +47,7 @@ Active state: change `color` to `colors.amber`. Never change `stroke`.
 /layer              ← pick bottles (index)
 /layer/analysis     ← chemistry analysis
 /layer/application  ← application guide
-/layer/conflict     ← conflict warning
+/layer/conflict     ← conflict warni
 /layer/signature    ← save signature
 ```
 
