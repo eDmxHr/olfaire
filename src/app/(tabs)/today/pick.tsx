@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable, ActivityIndicator } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { IconRefresh } from '@tabler/icons-react-native';
@@ -9,6 +9,8 @@ import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { supabase } from '@/lib/supabase';
 import { COLORS, FONTS } from '@/lib/theme';
+import { RATINGS } from '@/data/ratings';
+import { SpinningLoader } from '@/components/spinning-loader';
 import type { Fragrance } from '@/lib/supabase';
 
 export default function PickScreen() {
@@ -62,12 +64,6 @@ export default function PickScreen() {
   const isWearing = useTodayStore((s) => s.isWearing());
   const hasRated = useTodayStore((s) => s.hasRated());
   const wearRating = useTodayStore((s) => s.todayLog?.wear_rating ?? null);
-
-  const RATINGS = [
-    { key: 'loved' as const, label: 'Loved it' },
-    { key: 'neutral' as const, label: 'Neutral' },
-    { key: 'disliked' as const, label: 'Not today' },
-  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -175,7 +171,9 @@ export default function PickScreen() {
 
           {/* Notes pyramid */}
           {loading ? (
-            <ActivityIndicator color={COLORS.ash} style={{ marginVertical: 24 }} />
+            <View style={{ alignItems: 'center', marginVertical: 24 }}>
+              <SpinningLoader size={20} color={COLORS.ash} />
+            </View>
           ) : fragrance ? (
             <>
               <NotesPyramid
@@ -235,7 +233,12 @@ export default function PickScreen() {
                   {RATINGS.map(({ key, label }) => (
                     <Pressable
                       key={key}
-                      onPress={() => submitRating(key)}
+                      onPress={async () => {
+                        await submitRating(key);
+                        setNavigatedBack(true);
+                        sheetRef.current?.close();
+                        router.replace('/(tabs)/today/wearing');
+                      }}
                       style={{
                         flex: 1,
                         alignItems: 'center',
@@ -261,7 +264,7 @@ export default function PickScreen() {
                   textAlign: 'center',
                 }}>
                 {wearRating === 'loved'
-                  ? '♥ Logged as a favourite'
+                  ? 'Logged as a favourite'
                   : wearRating === 'neutral'
                     ? 'Logged as neutral'
                     : 'Noted for next time'}

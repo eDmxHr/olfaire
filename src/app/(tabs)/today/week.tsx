@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { IconChevronLeft } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { WeekDayRow } from '@/components/today/week-day-row';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
@@ -15,11 +14,10 @@ function todayDate(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-// Build the full 7-day range (today + 6 prior days), filling gaps with empty slots
 function buildWeekRange(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
-    d.setDate(d.getDate() - i);
+    d.setDate(d.getDate() - (6 - i));
     return d.toISOString().split('T')[0];
   });
 }
@@ -34,20 +32,14 @@ export default function WeekScreen() {
     fetchWeekLogs();
   }, []);
 
-  // Resolve all worn_fragrance_ids to names in one query
   useEffect(() => {
-    const ids = weekLogs
-      .map((l) => l.worn_fragrance_id)
-      .filter((id): id is number => id != null);
-
+    const ids = weekLogs.map((l) => l.worn_fragrance_id).filter((id): id is number => id != null);
     if (!ids.length) return;
-
     (async () => {
       const { data } = await (supabase as any)
         .from('fragrances')
         .select('id, house, name')
         .in('id', ids);
-
       if (data) {
         const map: Record<number, string> = {};
         for (const f of data) map[f.id] = `${f.house} ${f.name}`;
@@ -60,65 +52,40 @@ export default function WeekScreen() {
   const days = buildWeekRange();
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <ScreenHeader title="This week" />
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
+        className="flex-1"
+        contentContainerClassName="px-5 pb-12"
         showsVerticalScrollIndicator={false}>
-
-        {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 28, gap: 8 }}>
-          <Pressable onPress={() => router.back()} style={{ padding: 4 }}>
-            <IconChevronLeft size={22} color={COLORS.ink} strokeWidth={1.5} />
-          </Pressable>
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 24,
-              color: COLORS.ink,
-            }}>
-            This week
-          </Text>
-        </View>
-
         {/* Day rows */}
         {days.map((date) => {
           const log = logsByDate[date] as DailyLog | undefined;
+          const isToday = date === today;
 
           if (!log) {
-            // Empty day placeholder
             const d = new Date(date + 'T00:00:00');
             const day = d.toLocaleDateString('en-US', { weekday: 'short' });
             const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const isToday = date === today;
 
             return (
               <View
                 key={date}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingVertical: 14,
-                  borderBottomWidth: 1,
-                  borderBottomColor: COLORS.dust,
-                  gap: 14,
-                }}>
-                <View style={{ width: 42 }}>
-                  <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: isToday ? COLORS.amber : COLORS.ink }}>
+                className="flex-row items-center gap-3.5 border-b border-border py-3.5">
+                <View className="w-10">
+                  <Text
+                    style={{
+                      fontFamily: FONTS.uiMedium,
+                      fontSize: 12,
+                      color: isToday ? COLORS.amber : COLORS.ink,
+                    }}>
                     {day}
                   </Text>
                   <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
                     {dateLabel}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    borderWidth: 1,
-                    borderColor: COLORS.dust,
-                  }}
-                />
+                <View className="h-2.5 w-2.5 rounded-full border border-border" />
                 <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                   Nothing logged
                 </Text>
@@ -130,8 +97,10 @@ export default function WeekScreen() {
             <WeekDayRow
               key={date}
               log={log}
-              fragranceName={log.worn_fragrance_id ? (fragranceNames[log.worn_fragrance_id] ?? null) : null}
-              isToday={date === today}
+              fragranceName={
+                log.worn_fragrance_id ? (fragranceNames[log.worn_fragrance_id] ?? null) : null
+              }
+              isToday={isToday}
             />
           );
         })}

@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native';
+import { Pressable, ScrollView } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { MOODS } from '@/data/moods';
@@ -14,24 +14,21 @@ export function MoodGrid({
   disabled: boolean;
   selected: Mood | null;
 }) {
-  const rows = [MOODS.slice(0, 2), MOODS.slice(2, 4), MOODS.slice(4, 6), MOODS.slice(6, 8)];
-
   return (
-    <View className="gap-2">
-      {rows.map((row, i) => (
-        <View key={i} className="flex-row gap-2">
-          {row.map((m) => (
-            <MoodCard
-              key={m.key}
-              mood={m}
-              onSelect={onSelect}
-              disabled={disabled}
-              selected={selected === m.key}
-            />
-          ))}
-        </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ gap: 8, paddingRight: 4 }}>
+      {MOODS.map((m) => (
+        <MoodCard
+          key={m.key}
+          mood={m}
+          onSelect={onSelect}
+          disabled={disabled}
+          selected={selected === m.key}
+        />
       ))}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -52,7 +49,7 @@ function MoodCard({
   const Icon = mood.icon;
 
   return (
-    <Animated.View style={animStyle} className="flex-1">
+    <Animated.View style={[animStyle, { width: 80 }]}>
       <Pressable
         onPress={() => !disabled && onSelect(mood.key)}
         onPressIn={() => { scale.value = withTiming(0.97, { duration: 100 }); }}

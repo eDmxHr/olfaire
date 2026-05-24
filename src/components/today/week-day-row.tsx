@@ -3,8 +3,7 @@ import { IconHeart, IconMinus, IconThumbDown } from '@tabler/icons-react-native'
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 import { MOODS } from '@/data/moods';
-import type { DailyLog, WearRating } from '@/lib/supabase';
-import type { Mood } from '@/lib/supabase';
+import type { DailyLog, WearRating, Mood } from '@/lib/supabase';
 
 interface Props {
   log: DailyLog;
@@ -38,17 +37,9 @@ export function WeekDayRow({ log, fragranceName, isToday }: Props) {
   const RatingIcon = log.wear_rating ? RATING_ICON[log.wear_rating] : null;
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.dust,
-        gap: 14,
-      }}>
+    <View className="flex-row items-center gap-3.5 border-b border-border py-3.5">
       {/* Date column */}
-      <View style={{ width: 42 }}>
+      <View className="w-10">
         <Text
           style={{
             fontFamily: FONTS.uiMedium,
@@ -57,25 +48,11 @@ export function WeekDayRow({ log, fragranceName, isToday }: Props) {
           }}>
           {day}
         </Text>
-        <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-          {date}
-        </Text>
+        <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>{date}</Text>
       </View>
 
-      {/* Mood dot */}
-      <View
-        style={{
-          width: 10,
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: moodTint ?? COLORS.dust,
-          borderWidth: moodTint ? 0 : 1,
-          borderColor: COLORS.dust,
-        }}
-      />
-
-      {/* Fragrance name */}
-      <View style={{ flex: 1 }}>
+      {/* Fragrance + mood label */}
+      <View className="flex-1">
         {fragranceName ? (
           <Text
             style={{ fontFamily: FONTS.displayLightItalic, fontSize: 15, color: COLORS.ink }}
@@ -88,7 +65,9 @@ export function WeekDayRow({ log, fragranceName, isToday }: Props) {
           </Text>
         )}
         {log.mood && (
-          <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash, marginTop: 1 }}>
+          <Text
+            style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}
+            className="mt-0.5">
             {log.mood.charAt(0).toUpperCase() + log.mood.slice(1)}
           </Text>
         )}
@@ -96,11 +75,7 @@ export function WeekDayRow({ log, fragranceName, isToday }: Props) {
 
       {/* Rating icon */}
       {RatingIcon && (
-        <RatingIcon
-          size={15}
-          color={RATING_COLOR[log.wear_rating!]}
-          strokeWidth={1.5}
-        />
+        <RatingIcon size={15} color={RATING_COLOR[log.wear_rating!]} strokeWidth={1.5} />
       )}
     </View>
   );

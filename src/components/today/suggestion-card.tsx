@@ -11,14 +11,9 @@ import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Suggestion } from '@/store/TodayStore';
 import type { WearRating } from '@/lib/supabase';
+import { RATINGS } from '@/data/ratings';
 
 const INK_RAISED = '#2A2724';
-
-const RATINGS: { key: WearRating; label: string; Icon: typeof IconHeart }[] = [
-  { key: 'loved', label: 'Loved it', Icon: IconHeart },
-  { key: 'neutral', label: 'Neutral', Icon: IconMinus },
-  { key: 'disliked', label: 'Not today', Icon: IconThumbDown },
-];
 
 interface Props {
   suggestion: Suggestion;
