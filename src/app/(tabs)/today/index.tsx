@@ -10,7 +10,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Lumi } from '@/components/lumi';
 import { LumiThinking } from '@/components/lumi-thinking';
+import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { IconArrowRight } from '@tabler/icons-react-native';
 import { ShimmerLine } from '@/components/today/shimmer-line';
 import { MoodGrid } from '@/components/today/mood-grid';
 import { SuggestionCard } from '@/components/today/suggestion-card';
@@ -128,14 +130,13 @@ export default function TodayScreen() {
 
           {/* This week link */}
           {store.todayLog && (
-            <Pressable
-              onPress={() => router.push('/(tabs)/today/week')}
-              style={{ alignItems: 'center', marginTop: 20, paddingVertical: 8 }}>
-              <Text
-                style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
-                This week →
-              </Text>
-            </Pressable>
+            <Button
+              variant="outline"
+              className="mt-5"
+              onPress={() => router.push('/(tabs)/today/week')}>
+              <Text style={{ fontFamily: FONTS.ui }}>This week</Text>
+              <IconArrowRight size={16} color={COLORS.ink} strokeWidth={1.5} />
+            </Button>
           )}
 
           {/* Error state */}

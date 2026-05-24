@@ -1,6 +1,8 @@
+import React from 'react';
 import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { IconChevronLeft } from '@tabler/icons-react-native';
+
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 
@@ -10,27 +12,37 @@ interface Props {
   right?: React.ReactNode;
 }
 
+const SIDE_WIDTH = 40;
+
 export function ScreenHeader({ title, onBack, right }: Props) {
   return (
-    <View className="px-5 pb-6 pt-3" style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <Pressable
-        onPress={onBack ?? (() => router.back())}
-        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-        <IconChevronLeft size={22} color={COLORS.ink} strokeWidth={1.5} />
-      </Pressable>
-      <Text
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontFamily: FONTS.displayLightItalic,
-          fontSize: 24,
-          color: COLORS.ink,
-        }}>
-        {title}
-      </Text>
-      {right ? <View style={{ marginLeft: 'auto' }}>{right}</View> : null}
+    <View className="flex-row items-center px-2.5 pb-6 pt-3">
+      {/* Left */}
+      <View style={{ width: SIDE_WIDTH }}>
+        <Pressable
+          onPress={onBack ?? (() => router.back())}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
+          <IconChevronLeft size={22} color={COLORS.ink} strokeWidth={1.5} />
+        </Pressable>
+      </View>
+
+      {/* Center */}
+      <View className="flex-1 items-center">
+        <Text
+          numberOfLines={1}
+          style={{
+            fontFamily: FONTS.displayLightItalic,
+            fontSize: 24,
+            color: COLORS.ink,
+          }}>
+          {title}
+        </Text>
+      </View>
+
+      {/* Right */}
+      <View style={{ width: SIDE_WIDTH }} className="items-end">
+        {right}
+      </View>
     </View>
   );
 }
