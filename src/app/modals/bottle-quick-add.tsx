@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TextInput,
   FlatList,
+  ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -13,11 +14,31 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSearch, IconX, IconCheck } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type Option,
+} from '@/components/ui/select';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
-import { supabase } from '@/lib/supabase';
+import { supabase, getCurrentUserId } from '@/lib/supabase';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
+
+const GENDER_OPTIONS: Option[] = [
+  { value: 'Unisex', label: 'Unisex' },
+  { value: 'Women', label: 'Women' },
+  { value: 'Men', label: 'Men' },
+];
+
+const CONCENTRATION_OPTIONS: Option[] = [
+  { value: 'Eau de Toilette', label: 'Eau de Toilette' },
+  { value: 'Eau de Parfum', label: 'Eau de Parfum' },
+  { value: 'Parfum', label: 'Parfum' },
+];
 
 const STOCK_LEVELS: { value: StockLevel; label: string }[] = [
   { value: 'full', label: 'Full' },
@@ -38,8 +59,18 @@ export default function BottleQuickAddModal() {
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<Fragrance | null>(null);
   const [manualMode, setManualMode] = useState(false);
+
+  // Manual form fields
   const [manualHouse, setManualHouse] = useState('');
   const [manualName, setManualName] = useState('');
+  const [manualConcentration, setManualConcentration] = useState<Option | undefined>(undefined);
+  const [manualNotesTop, setManualNotesTop] = useState('');
+  const [manualNotesHeart, setManualNotesHeart] = useState('');
+  const [manualNotesBase, setManualNotesBase] = useState('');
+  const [manualFamily, setManualFamily] = useState('');
+  const [manualYear, setManualYear] = useState('');
+  const [manualGender, setManualGender] = useState<Option | undefined>(undefined);
+
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
   const [saving, setSaving] = useState(false);
 
@@ -78,16 +109,33 @@ export default function BottleQuickAddModal() {
     setSaving(true);
     try {
       if (manualMode) {
-        // Insert as user-contributed fragrance then add to collection
+        const notesTop = manualNotesTop
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const notesHeart = manualNotesHeart
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const notesBase = manualNotesBase
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const house = manualHouse.trim() || 'Unknown';
+        const name = manualName.trim();
+
         const { data: newFrag, error } = await (supabase as any)
           .from('fragrances')
           .insert({
-            house: manualHouse.trim() || 'Unknown',
-            name: manualName.trim(),
-            family: 'Uncategorized',
-            notes_top: [],
-            notes_heart: [],
-            notes_base: [],
+            house,
+            name,
+            concentration: manualConcentration?.value ?? null,
+            family: manualFamily.trim() || 'Uncategorized',
+            year: manualYear ? parseInt(manualYear, 10) : null,
+            gender: manualGender?.value ?? null,
+            notes_top: notesTop,
+            notes_heart: notesHeart,
+            notes_base: notesBase,
             season_tags: [],
             occasion_tags: [],
             is_user_contributed: true,
@@ -97,9 +145,28 @@ export default function BottleQuickAddModal() {
           .single();
 
         if (error) throw error;
-        if (newFrag) {
-          await addBottleWithStock(newFrag.id);
-        }
+
+        // Fire-and-forget contribution record for review queue
+        getCurrentUserId().then((userId) => {
+          if (userId) {
+            (supabase as any).from('fragrance_contributions').insert({
+              submitted_by: userId,
+              house,
+              name,
+              raw_data: {
+                concentration: manualConcentration?.value ?? null,
+                family: manualFamily.trim() || null,
+                year: manualYear ? parseInt(manualYear, 10) : null,
+                gender: manualGender?.value ?? null,
+                notes_top: notesTop,
+                notes_heart: notesHeart,
+                notes_base: notesBase,
+              },
+            });
+          }
+        });
+
+        if (newFrag) await addBottleWithStock(newFrag.id);
       } else if (selected) {
         await addBottleWithStock(selected.id);
       }
@@ -116,7 +183,6 @@ export default function BottleQuickAddModal() {
       await addBottle(fragranceId);
       return;
     }
-    // Insert directly with the chosen stock level (addBottle defaults to 'full')
     const { data, error } = await (supabase as any)
       .from('user_collection')
       .insert({ fragrance_id: fragranceId, stock_level: stockLevel, is_wishlist: false })
@@ -146,7 +212,6 @@ export default function BottleQuickAddModal() {
 
           {step === 'search' && (
             <>
-              {/* Search input */}
               <View style={styles.searchRow}>
                 <IconSearch size={16} color={COLORS.ash} strokeWidth={1.5} />
                 <TextInput
@@ -161,7 +226,6 @@ export default function BottleQuickAddModal() {
                 {searching && <ActivityIndicator size="small" color={COLORS.ash} />}
               </View>
 
-              {/* Results */}
               <FlatList
                 data={results}
                 keyExtractor={(item) => String(item.id)}
@@ -183,7 +247,6 @@ export default function BottleQuickAddModal() {
                 }
               />
 
-              {/* Manual fallback */}
               <Pressable style={styles.manualBtn} onPress={goManual}>
                 <Text style={styles.manualBtnText}>Not in the database? Add manually →</Text>
               </Pressable>
@@ -191,26 +254,80 @@ export default function BottleQuickAddModal() {
           )}
 
           {step === 'stock' && (
-            <>
-              {/* Selected fragrance summary */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 8 }}>
+              {/* Fragrance fields */}
               <View style={styles.selectedCard}>
                 {manualMode ? (
                   <>
-                    <TextInput
-                      style={styles.manualInput}
+                    <Field
                       placeholder="House (e.g. Chanel)"
-                      placeholderTextColor={COLORS.ash}
                       value={manualHouse}
                       onChangeText={setManualHouse}
                     />
-                    <TextInput
-                      style={[styles.manualInput, { marginTop: 8 }]}
-                      placeholder="Fragrance name *"
-                      placeholderTextColor={COLORS.ash}
+                    <Field
+                      placeholder="Fragrance name"
                       value={manualName}
                       onChangeText={setManualName}
                       autoFocus
                     />
+                    <Select
+                      value={manualConcentration}
+                      onValueChange={setManualConcentration}>
+                      <SelectTrigger style={styles.concentrationTrigger}>
+                        <SelectValue placeholder="Concentration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CONCENTRATION_OPTIONS.map((opt) => (
+                          <SelectItem key={opt!.value} label={opt!.label} value={opt!.value} />
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Field
+                      placeholder="Top notes (comma-separated)"
+                      value={manualNotesTop}
+                      onChangeText={setManualNotesTop}
+                    />
+                    <Field
+                      placeholder="Heart notes (comma-separated)"
+                      value={manualNotesHeart}
+                      onChangeText={setManualNotesHeart}
+                    />
+                    <Field
+                      placeholder="Base notes (comma-separated)"
+                      value={manualNotesBase}
+                      onChangeText={setManualNotesBase}
+                    />
+
+                    <Text style={styles.optionalLabel}>Optional</Text>
+
+                    <Field
+                      placeholder="Family (e.g. Floral, Woody)"
+                      value={manualFamily}
+                      onChangeText={setManualFamily}
+                      small
+                    />
+                    <Field
+                      placeholder="Year"
+                      value={manualYear}
+                      onChangeText={setManualYear}
+                      keyboardType="numeric"
+                      small
+                    />
+                    <Select
+                      value={manualGender}
+                      onValueChange={setManualGender}>
+                      <SelectTrigger style={styles.concentrationTrigger}>
+                        <SelectValue placeholder="Gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GENDER_OPTIONS.map((opt) => (
+                          <SelectItem key={opt!.value} label={opt!.label} value={opt!.value} />
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </>
                 ) : (
                   <View>
@@ -257,13 +374,54 @@ export default function BottleQuickAddModal() {
                   )}
                 </Pressable>
               </View>
-            </>
+            </ScrollView>
           )}
         </View>
       </View>
     </KeyboardAvoidingView>
   );
 }
+
+// ── Field helper ──────────────────────────────────────────────────────────────
+
+interface FieldProps {
+  placeholder: string;
+  value: string;
+  onChangeText: (t: string) => void;
+  autoFocus?: boolean;
+  keyboardType?: 'default' | 'numeric';
+  small?: boolean;
+  last?: boolean;
+}
+
+function Field({
+  placeholder,
+  value,
+  onChangeText,
+  autoFocus,
+  keyboardType,
+  small,
+  last,
+}: FieldProps) {
+  return (
+    <TextInput
+      style={[
+        styles.manualInput,
+        small && styles.manualInputSmall,
+        last && { borderBottomWidth: 0, paddingBottom: 0 },
+      ]}
+      placeholder={placeholder}
+      placeholderTextColor={COLORS.ash}
+      value={value}
+      onChangeText={onChangeText}
+      autoFocus={autoFocus}
+      keyboardType={keyboardType ?? 'default'}
+      autoCapitalize="none"
+    />
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   backdrop: {
@@ -277,6 +435,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 24,
     paddingTop: 20,
+    maxHeight: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -353,13 +512,40 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
+  concentrationTrigger: {
+    borderWidth: 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.dust,
+    borderRadius: 0,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    height: 'auto' as any,
+    marginBottom: 10,
+    shadowOpacity: 0,
+  },
   manualInput: {
     fontFamily: FONTS.ui,
     fontSize: 15,
     color: COLORS.ink,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: COLORS.dust,
-    paddingBottom: 6,
+    paddingBottom: 8,
+    marginBottom: 10,
+    padding: 0,
+  },
+  manualInputSmall: {
+    fontSize: 13,
+    color: COLORS.ash,
+  },
+  optionalLabel: {
+    fontFamily: FONTS.uiMedium,
+    fontSize: 11,
+    color: COLORS.ash,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    marginTop: 6,
+    marginBottom: 8,
   },
   sectionLabel: {
     fontFamily: FONTS.uiMedium,
@@ -379,7 +565,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderRadius: 99,
-    backgroundColor: COLORS.linen,
+    backgroundColor: COLORS.dust,
   },
   stockChipActive: {
     backgroundColor: COLORS.amber,

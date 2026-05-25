@@ -67,7 +67,9 @@ export default function CollectionScreen() {
             }}>
             Start your collection.
           </Text>
-          <Button variant="outline" onPress={() => router.navigate('/modals/bottle-quick-add' as any)}>
+          <Button
+            variant="outline"
+            onPress={() => router.navigate('/modals/bottle-quick-add' as any)}>
             <Text style={{ fontFamily: FONTS.ui }}>Add a bottle</Text>
           </Button>
         </View>
