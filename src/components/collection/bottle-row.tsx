@@ -27,11 +27,9 @@ export function BottleRow({ item, onPress }: Props) {
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: COLORS.dust,
       }}
-      className="flex-row items-center py-3.5 pl-4 pr-4">
+      className="flex-row items-center py-3.5">
       <View className="flex-1">
-        {frag?.house ? (
-          <SectionLabel>{frag.house}</SectionLabel>
-        ) : null}
+        {frag?.house ? <SectionLabel>{frag.house}</SectionLabel> : null}
         <Text
           style={{
             fontFamily: FONTS.displayLightItalic,
