@@ -26,6 +26,7 @@ import {
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { supabase, getCurrentUserId } from '@/lib/supabase';
+import { enrichFragrance } from '@/lib/claudeApi';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
 
@@ -50,6 +51,15 @@ const STOCK_LEVELS: { value: StockLevel; label: string }[] = [
 
 type Step = 'search' | 'stock';
 
+function normalizeGender(g: string | null): 'men' | 'women' | 'unisex' | null {
+  if (!g) return null;
+  const v = g.toLowerCase();
+  if (v === 'men' || v === 'masculine' || v === 'male') return 'men';
+  if (v === 'women' || v === 'feminine' || v === 'female') return 'women';
+  if (v === 'unisex') return 'unisex';
+  return null;
+}
+
 export default function BottleQuickAddModal() {
   const insets = useSafeAreaInsets();
   const { addBottle } = useCollection();
@@ -73,6 +83,7 @@ export default function BottleQuickAddModal() {
 
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
   const [saving, setSaving] = useState(false);
+  const [savingLabel, setSavingLabel] = useState<string | null>(null);
 
   const search = useCallback(async (text: string) => {
     setQuery(text);
@@ -105,66 +116,80 @@ export default function BottleQuickAddModal() {
     setStep('stock');
   }
 
+  async function addManualFragrance(
+    house: string,
+    name: string,
+    concentration?: string,
+    family?: string
+  ) {
+    const { data: existing } = await (supabase as any)
+      .from('fragrances')
+      .select('id')
+      .ilike('house', house)
+      .ilike('name', name)
+      .maybeSingle();
+
+    if (existing) {
+      await addBottleWithStock(existing.id);
+      return;
+    }
+
+    setSavingLabel('Lumi is looking this up...');
+    const enriched = await enrichFragrance(house, name, concentration);
+    setSavingLabel(null);
+
+    const { data: newFragrance, error } = await (supabase as any)
+      .from('fragrances')
+      .insert({
+        house,
+        name,
+        concentration: concentration ?? null,
+        family: enriched.family || family || 'Unknown',
+        subfamily: enriched.subfamily,
+        notes_top: enriched.notes_top,
+        notes_heart: enriched.notes_heart,
+        notes_base: enriched.notes_base,
+        longevity: enriched.longevity,
+        sillage: enriched.sillage,
+        season_tags: enriched.season_tags,
+        occasion_tags: enriched.occasion_tags,
+        gender: normalizeGender(enriched.gender),
+        year: enriched.year,
+        is_user_contributed: true,
+        is_verified: false,
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+
+    const userId = await getCurrentUserId();
+    if (userId) {
+      await (supabase as any).from('fragrance_contributions').insert({
+        submitted_by: userId,
+        house,
+        name,
+        raw_data: { concentration, family, confidence: enriched.confidence },
+        status: enriched.confidence === 'low' ? 'pending' : 'verified',
+        merged_into: newFragrance.id,
+      });
+    }
+
+    await addBottleWithStock(newFragrance.id);
+  }
+
   async function confirm() {
     setSaving(true);
     try {
       if (manualMode) {
-        const notesTop = manualNotesTop
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const notesHeart = manualNotesHeart
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const notesBase = manualNotesBase
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
         const house = manualHouse.trim() || 'Unknown';
         const name = manualName.trim();
-
-        const { data: newFrag, error } = await (supabase as any)
-          .from('fragrances')
-          .insert({
-            house,
-            name,
-            concentration: manualConcentration?.value ?? null,
-            family: manualFamily.trim() || 'Uncategorized',
-            year: manualYear ? parseInt(manualYear, 10) : null,
-            gender: manualGender?.value ?? null,
-            notes_top: notesTop,
-            notes_heart: notesHeart,
-            notes_base: notesBase,
-            season_tags: [],
-            occasion_tags: [],
-            is_user_contributed: true,
-            is_verified: false,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        const userId = await getCurrentUserId();
-        if (userId) {
-          await (supabase as any).from('fragrance_contributions').insert({
-            submitted_by: userId,
-            house,
-            name,
-            raw_data: {
-              concentration: manualConcentration?.value ?? null,
-              family: manualFamily.trim() || null,
-              year: manualYear ? parseInt(manualYear, 10) : null,
-              gender: manualGender?.value ?? null,
-              notes_top: notesTop,
-              notes_heart: notesHeart,
-              notes_base: notesBase,
-            },
-          });
-        }
-
-        if (newFrag) await addBottleWithStock(newFrag.id);
+        await addManualFragrance(
+          house,
+          name,
+          manualConcentration?.value,
+          manualFamily.trim() || undefined
+        );
       } else if (selected) {
         await addBottleWithStock(selected.id);
       }
@@ -173,6 +198,7 @@ export default function BottleQuickAddModal() {
       console.error('confirm add bottle error:', err?.message ?? err);
     } finally {
       setSaving(false);
+      setSavingLabel(null);
     }
   }
 
@@ -197,12 +223,8 @@ export default function BottleQuickAddModal() {
     <KeyboardAvoidingView
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BlurView
-        intensity={20}
-        tint="dark"
-        className="flex-1 justify-end"
-        style={StyleSheet.absoluteFill}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
+      <BlurView intensity={20} tint="dark" className="flex-1 justify-end">
+        <Pressable className="flex-1" onPress={() => router.back()} />
 
         <View
           className="max-h-[90%] rounded-t-3xl px-6 pt-5"
@@ -445,7 +467,15 @@ export default function BottleQuickAddModal() {
                   onPress={confirm}
                   disabled={!canConfirm || saving}>
                   {saving ? (
-                    <ActivityIndicator size="small" color={COLORS.parchment} />
+                    <>
+                      <ActivityIndicator size="small" color={COLORS.parchment} />
+                      {savingLabel ? (
+                        <Text
+                          style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.parchment }}>
+                          {savingLabel}
+                        </Text>
+                      ) : null}
+                    </>
                   ) : (
                     <>
                       <IconCheck size={16} color={COLORS.parchment} strokeWidth={2} />

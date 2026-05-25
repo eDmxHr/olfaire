@@ -386,6 +386,64 @@ Return plain text only. No JSON. No quotes. No punctuation beyond the sentence.`
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Task 6 — Fragrance Enrichment
+// Model: Haiku · Called once when a user contributes a new fragrance
+// ─────────────────────────────────────────────────────────────────
+export interface FragranceEnrichmentResult {
+  notes_top:     string[];
+  notes_heart:   string[];
+  notes_base:    string[];
+  family:        string;
+  subfamily:     string | null;
+  longevity:     number | null; // 1–5
+  sillage:       number | null; // 1–5
+  season_tags:   string[];
+  occasion_tags: string[];
+  gender:        string | null;
+  year:          number | null;
+  confidence:    'high' | 'medium' | 'low';
+}
+
+export async function enrichFragrance(
+  house: string,
+  name: string,
+  concentration?: string
+): Promise<FragranceEnrichmentResult> {
+  const text = await callClaude({
+    model: SONNET,
+    maxTokens: 600,
+    userMessage: `You are being asked to provide fragrance data for a perfume database.
+
+Fragrance: ${house} ${name}${concentration ? ` (${concentration})` : ''}
+
+Draw on your training knowledge of this fragrance. Return null only for fields you are
+genuinely uncertain about — do not default to null for well-known data.
+Never invent data you are not confident about.
+Set confidence to "high" if well-known, "medium" if partially known, "low" if uncertain.
+
+Respond with exactly this JSON:
+{
+  "notes_top":     ["<note>"],
+  "notes_heart":   ["<note>"],
+  "notes_base":    ["<note>"],
+  "family":        "<primary family>",
+  "subfamily":     "<subfamily or null>",
+  "longevity":     <1-5 or null>,
+  "sillage":       <1-5 or null>,
+  "season_tags":   ["spring|summer|fall|winter"],
+  "occasion_tags": ["day|night"],
+  "gender":        "<men|women|unisex or null>",
+  "year":          <4-digit release year — include if known, null only if genuinely unknown>,
+  "confidence":    "<high|medium|low>"
+}
+
+Return JSON only. No preamble. No markdown backticks.`,
+  });
+
+  return parseJSON<FragranceEnrichmentResult>(text);
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Task 5 — Signature Naming
 // Model: Haiku · Never cached
 // ─────────────────────────────────────────────────────────────────
