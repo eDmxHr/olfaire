@@ -29,9 +29,9 @@ import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
 
 const GENDER_OPTIONS: Option[] = [
-  { value: 'Unisex', label: 'Unisex' },
-  { value: 'Women', label: 'Women' },
-  { value: 'Men', label: 'Men' },
+  { value: 'unisex', label: 'Unisex' },
+  { value: 'women', label: 'Women' },
+  { value: 'men', label: 'Men' },
 ];
 
 const CONCENTRATION_OPTIONS: Option[] = [
@@ -146,33 +146,31 @@ export default function BottleQuickAddModal() {
 
         if (error) throw error;
 
-        // Fire-and-forget contribution record for review queue
-        getCurrentUserId().then((userId) => {
-          if (userId) {
-            (supabase as any).from('fragrance_contributions').insert({
-              submitted_by: userId,
-              house,
-              name,
-              raw_data: {
-                concentration: manualConcentration?.value ?? null,
-                family: manualFamily.trim() || null,
-                year: manualYear ? parseInt(manualYear, 10) : null,
-                gender: manualGender?.value ?? null,
-                notes_top: notesTop,
-                notes_heart: notesHeart,
-                notes_base: notesBase,
-              },
-            });
-          }
-        });
+        const userId = await getCurrentUserId();
+        if (userId) {
+          await (supabase as any).from('fragrance_contributions').insert({
+            submitted_by: userId,
+            house,
+            name,
+            raw_data: {
+              concentration: manualConcentration?.value ?? null,
+              family: manualFamily.trim() || null,
+              year: manualYear ? parseInt(manualYear, 10) : null,
+              gender: manualGender?.value ?? null,
+              notes_top: notesTop,
+              notes_heart: notesHeart,
+              notes_base: notesBase,
+            },
+          });
+        }
 
         if (newFrag) await addBottleWithStock(newFrag.id);
       } else if (selected) {
         await addBottleWithStock(selected.id);
       }
       router.back();
-    } catch (err) {
-      console.error('confirm add bottle error:', err);
+    } catch (err: any) {
+      console.error('confirm add bottle error:', err?.message ?? err);
     } finally {
       setSaving(false);
     }
@@ -188,6 +186,7 @@ export default function BottleQuickAddModal() {
       .insert({ fragrance_id: fragranceId, stock_level: stockLevel, is_wishlist: false })
       .select('*, fragrance:fragrances(*)')
       .single();
+
     if (error) throw error;
     if (data) useCollectionStore.getState().prependItem(data);
   }
@@ -273,9 +272,7 @@ export default function BottleQuickAddModal() {
                       onChangeText={setManualName}
                       autoFocus
                     />
-                    <Select
-                      value={manualConcentration}
-                      onValueChange={setManualConcentration}>
+                    <Select value={manualConcentration} onValueChange={setManualConcentration}>
                       <SelectTrigger style={styles.concentrationTrigger}>
                         <SelectValue placeholder="Concentration" />
                       </SelectTrigger>
@@ -316,9 +313,7 @@ export default function BottleQuickAddModal() {
                       keyboardType="numeric"
                       small
                     />
-                    <Select
-                      value={manualGender}
-                      onValueChange={setManualGender}>
+                    <Select value={manualGender} onValueChange={setManualGender}>
                       <SelectTrigger style={styles.concentrationTrigger}>
                         <SelectValue placeholder="Gender" />
                       </SelectTrigger>

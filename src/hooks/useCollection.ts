@@ -106,8 +106,6 @@ export function useCollection() {
           store.prependItem(data);
         }
       }
-    } catch (err) {
-      console.error('addBottle error:', err);
     } finally {
       store.setSyncing(false);
     }
