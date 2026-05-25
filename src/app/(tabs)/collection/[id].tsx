@@ -66,6 +66,7 @@ export default function BottleDetailScreen() {
         text: 'Remove',
         style: 'destructive',
         onPress: async () => {
+          if (!item) return;
           await removeBottle(item.id);
           router.back();
         },
@@ -120,9 +121,9 @@ export default function BottleDetailScreen() {
 
             {(frag?.family || frag?.subfamily) ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
-                {[frag.family, frag.subfamily].filter(Boolean).map((tag) => (
+                {[frag.family, frag.subfamily].filter(Boolean).map((tag, i) => (
                   <View
-                    key={tag}
+                    key={i}
                     style={{
                       backgroundColor: COLORS.ash + '30',
                       borderRadius: 99,
