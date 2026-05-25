@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { IconChevronLeft } from '@tabler/icons-react-native';
 
 import { Text } from '@/components/ui/text';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, TYPE } from '@/lib/theme';
 
 interface Props {
   title: string;
@@ -33,11 +33,7 @@ export function ScreenHeader({ title, onBack, right, tint }: Props) {
       <View className="flex-1 items-center">
         <Text
           numberOfLines={1}
-          style={{
-            fontFamily: FONTS.displayLightItalic,
-            fontSize: 24,
-            color,
-          }}>
+          style={[TYPE.screenTitle, { color }]}>
           {title}
         </Text>
       </View>

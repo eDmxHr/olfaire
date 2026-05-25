@@ -110,12 +110,13 @@ export const FONTS = {
 export type FontFamily = (typeof FONTS)[keyof typeof FONTS];
 
 export const TYPE = {
-  displayXL: { fontFamily: FONTS.displayLightItalic, fontSize: 32, lineHeight: 40 },
-  displayL:  { fontFamily: FONTS.displayLightItalic, fontSize: 28, lineHeight: 36 },
-  displayM:  { fontFamily: FONTS.displayLightItalic, fontSize: 22, lineHeight: 28 },
-  displayS:  { fontFamily: FONTS.displayLightItalic, fontSize: 17, lineHeight: 22 },
-  body:      { fontFamily: FONTS.ui, fontSize: 15, lineHeight: 22 },
-  bodyS:     { fontFamily: FONTS.ui, fontSize: 13, lineHeight: 20 },
-  label:     { fontFamily: FONTS.uiMedium, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase' as const },
-  caption:   { fontFamily: FONTS.ui, fontSize: 11 },
+  displayXL:   { fontFamily: FONTS.displayLightItalic, fontSize: 32, lineHeight: 40, letterSpacing: -0.5 },
+  displayL:    { fontFamily: FONTS.displayLightItalic, fontSize: 28, lineHeight: 36, letterSpacing: -0.3 },
+  displayM:    { fontFamily: FONTS.displayLightItalic, fontSize: 22, lineHeight: 28 },
+  screenTitle: { fontFamily: FONTS.displayLightItalic, fontSize: 24, lineHeight: 30 },
+  displayS:    { fontFamily: FONTS.displayLightItalic, fontSize: 17, lineHeight: 22 },
+  body:        { fontFamily: FONTS.ui, fontSize: 15, lineHeight: 22 },
+  bodyS:       { fontFamily: FONTS.ui, fontSize: 13, lineHeight: 20 },
+  label:       { fontFamily: FONTS.uiMedium, fontSize: 11, letterSpacing: 0.8, textTransform: 'uppercase' as const },
+  caption:     { fontFamily: FONTS.ui, fontSize: 11, lineHeight: 16 },
 } as const;
