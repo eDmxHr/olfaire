@@ -71,6 +71,11 @@ export default function AnalysisScreen() {
               <CompatibilityMeter
                 score={analysis.compatibility_score}
                 label={analysis.overall_character}
+                fragNames={
+                  selectedItems[0]?.fragrance && selectedItems[1]?.fragrance
+                    ? `${(selectedItems[0].fragrance as any).name} × ${(selectedItems[1].fragrance as any).name}`
+                    : undefined
+                }
               />
 
               {/* Lumi summary */}

@@ -99,7 +99,9 @@ export default function LowStockScreen() {
                   gap: 12,
                   marginBottom: 20,
                 }}>
-                <Lumi size={20} />
+                <View style={{ transform: [{ rotate: '12deg' }] }}>
+                  <Lumi size={20} />
+                </View>
                 <Text
                   style={{
                     flex: 1,

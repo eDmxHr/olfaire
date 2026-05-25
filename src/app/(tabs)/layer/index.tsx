@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconX, IconCheck } from '@tabler/icons-react-native';
+import { IconX, IconCheck, IconSearch } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 
@@ -49,7 +49,7 @@ function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
         borderBottomColor: COLORS.dust,
         opacity: isDisabled ? 0.35 : 1,
       }}
-      className="flex-row items-center py-3.5 pl-4 pr-4">
+      className="flex-row items-center py-3.5">
       <View className="flex-1">
         <Text
           style={{
@@ -86,12 +86,31 @@ function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
 export default function LayerScreen() {
   const items = useCollectionStore((s) => s.items);
   const getById = useCollectionStore((s) => s.getById);
-  const { selectedItems, selectBottle, deselectBottle, clearSelection, canAnalyse } = useLayeringStore();
+  const { selectedItems, selectBottle, deselectBottle, clearSelection, canAnalyse } =
+    useLayeringStore();
   const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
   const [isGateChecking, setIsGateChecking] = useState(false);
+  const [query, setQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const { bottom: bottomInset } = useSafeAreaInsets();
+
+  const PAGE = 8;
+  const isSearching = query.trim().length > 0;
+
+  const filteredItems = isSearching
+    ? items.filter((item) => {
+        const q = query.toLowerCase();
+        return (
+          item.fragrance?.name?.toLowerCase().includes(q) ||
+          item.fragrance?.house?.toLowerCase().includes(q)
+        );
+      })
+    : items;
+
+  const visibleItems = isSearching || showAll ? filteredItems : filteredItems.slice(0, PAGE);
+  const hasMore = !isSearching && !showAll && filteredItems.length > PAGE;
 
   const { animStyle, trigger } = useScreenAnimation(16);
 
@@ -164,11 +183,18 @@ export default function LayerScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 + bottomInset }}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <Animated.View style={animStyle}>
           {/* Header */}
           <View className="mt-5 items-center">
-            <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 32, lineHeight: 40, color: COLORS.ink }}>
+            <Text
+              style={{
+                fontFamily: FONTS.displayLightItalic,
+                fontSize: 32,
+                lineHeight: 40,
+                color: COLORS.ink,
+              }}>
               Layer
             </Text>
             {selectedItems.length > 0 && (
@@ -205,12 +231,25 @@ export default function LayerScreen() {
 
           {/* Lumi nudge */}
           <View className="mb-2 mt-5 flex-row items-center gap-2.5">
-            <Lumi size={24} />
-            <Text
-              className="flex-1"
-              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, lineHeight: 20 }}>
+            <View style={{ transform: [{ rotate: '12deg' }] }}>
+              <Lumi size={24} />
+            </View>
+            <Text className="flex-1" style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, lineHeight: 20 }}>
               {LUMI_NUDGE[nudgeKey]}
             </Text>
+          </View>
+
+          {/* Search */}
+          <View className="mt-3 flex-row items-center gap-2.5 rounded-[14px] px-3.5 py-2.5" style={{ backgroundColor: COLORS.linen }}>
+            <IconSearch size={18} color={COLORS.ash} strokeWidth={1.5} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search your collection…"
+              placeholderTextColor={COLORS.ash}
+              className="flex-1 p-0"
+              style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}
+            />
           </View>
 
           {/* Section label */}
@@ -218,7 +257,7 @@ export default function LayerScreen() {
 
           {/* Bottle list */}
           <View>
-            {items.map((item) => {
+            {visibleItems.map((item) => {
               const isSelected = selectedItems.some((s) => s.id === item.id);
               const isDisabled = selectedItems.length >= 3 && !isSelected;
               return (
@@ -231,6 +270,16 @@ export default function LayerScreen() {
                 />
               );
             })}
+            {hasMore && (
+              <Pressable
+                onPress={() => setShowAll(true)}
+                className="items-center py-3.5"
+                style={{ borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.dust }}>
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ash }} >
+                  Show {filteredItems.length - PAGE} more
+                </Text>
+              </Pressable>
+            )}
           </View>
         </Animated.View>
       </ScrollView>

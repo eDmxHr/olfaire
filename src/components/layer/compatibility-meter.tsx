@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 const SEGMENTS = 5;
 
 function SegmentBar({ filled, delay }: { filled: boolean; delay: number }) {
@@ -28,16 +28,20 @@ function SegmentBar({ filled, delay }: { filled: boolean; delay: number }) {
   );
 }
 
-export function CompatibilityMeter({ score, label }: { score: number; label: string }) {
+export function CompatibilityMeter({ score, label, fragNames }: { score: number; label: string; fragNames?: string }) {
   return (
     <View className="mb-8 mt-4 items-center gap-3">
-      <Text
-        style={{
-          fontFamily: FONTS.displayLightItalic,
-          fontSize: 80,
-          color: COLORS.parchment,
-          lineHeight: 88,
-        }}>
+      {fragNames && (
+        <View className="items-center gap-1">
+          <Text className="uppercase tracking-widest" style={[TYPE.label, { color: COLORS.ash }]}>
+            Compatibility
+          </Text>
+          <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 18, color: COLORS.parchment, lineHeight: 24 }}>
+            {fragNames}
+          </Text>
+        </View>
+      )}
+      <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 80, color: COLORS.parchment, lineHeight: 88 }}>
         {score}
       </Text>
       <View className="w-full flex-row gap-1.5">
@@ -45,9 +49,7 @@ export function CompatibilityMeter({ score, label }: { score: number; label: str
           <SegmentBar key={i} filled={score >= (i + 1) * 20} delay={i * 80} />
         ))}
       </View>
-      <Text
-        className="uppercase tracking-widest"
-        style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.ash, letterSpacing: 1.2 }}>
+      <Text className="uppercase tracking-widest" style={[TYPE.label, { color: COLORS.ash }]}>
         {label}
       </Text>
     </View>
