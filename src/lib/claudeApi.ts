@@ -195,8 +195,17 @@ export async function fetchDailySuggestion(
   params: DailySuggestionParams
 ): Promise<DailySuggestionResult> {
   const {
-    weekday, mood, condition, tempC, humidity, collectionLines,
-    skinType, lifestyle, preferredFamilies, computedDNA, calendarEvent,
+    weekday,
+    mood,
+    condition,
+    tempC,
+    humidity,
+    collectionLines,
+    skinType,
+    lifestyle,
+    preferredFamilies,
+    computedDNA,
+    calendarEvent,
   } = params;
 
   const profileLines = [
@@ -390,38 +399,61 @@ Return plain text only. No JSON. No quotes. No punctuation beyond the sentence.`
 // Model: Haiku · Called once when a user contributes a new fragrance
 // ─────────────────────────────────────────────────────────────────
 export interface FragranceEnrichmentResult {
-  notes_top:     string[];
-  notes_heart:   string[];
-  notes_base:    string[];
-  family:        string;
-  subfamily:     string | null;
-  longevity:     number | null; // 1–5
-  sillage:       number | null; // 1–5
-  season_tags:   string[];
+  notes_top: string[];
+  notes_heart: string[];
+  notes_base: string[];
+  family: string;
+  subfamily: string | null;
+  longevity: number | null; // 1–5
+  sillage: number | null; // 1–5
+  season_tags: string[];
   occasion_tags: string[];
-  gender:        string | null;
-  year:          number | null;
-  confidence:    'high' | 'medium' | 'low';
+  gender: string | null;
+  year: number | null;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+export interface UserProvidedFragranceData {
+  year?: number;
+  concentration?: string;
+  notesTop?: string[];
+  notesHeart?: string[];
+  notesBase?: string[];
+  family?: string;
+  gender?: string;
 }
 
 export async function enrichFragrance(
   house: string,
   name: string,
-  concentration?: string
+  userProvided: UserProvidedFragranceData = {}
 ): Promise<FragranceEnrichmentResult> {
+  const { year, concentration, notesTop, notesHeart, notesBase, family, gender } = userProvided;
+
+  const confirmed: string[] = [];
+  if (year) confirmed.push(`- Release year: ${year}`);
+  if (concentration) confirmed.push(`- Concentration: ${concentration}`);
+  if (notesTop?.length) confirmed.push(`- Top notes: ${notesTop.join(', ')}`);
+  if (notesHeart?.length) confirmed.push(`- Heart notes: ${notesHeart.join(', ')}`);
+  if (notesBase?.length) confirmed.push(`- Base notes: ${notesBase.join(', ')}`);
+  if (family) confirmed.push(`- Family: ${family}`);
+  if (gender) confirmed.push(`- Gender: ${gender}`);
+
+  const confirmedSection =
+    confirmed.length > 0
+      ? `The user has confirmed the following — treat these as ground truth and echo them verbatim in your response, do not override:\n${confirmed.join('\n')}\n\n`
+      : '';
+
   const text = await callClaude({
     model: SONNET,
-    maxTokens: 600,
-    userMessage: `You are being asked to provide fragrance data for a perfume database.
+    maxTokens: 1200,
+    system: `You are a fragrance expert with encyclopedic knowledge of perfumes — mainstream and niche, Western and Middle Eastern, vintage and contemporary. You recall note pyramids, olfactory families, longevity, sillage, and release years accurately from your training data.`,
+    userMessage: `Fragrance: ${house} — ${name}${concentration ? ` (${concentration})` : ''}
 
-Fragrance: ${house} ${name}${concentration ? ` (${concentration})` : ''}
+${confirmedSection}First, briefly recall everything you know about this specific fragrance from your training data: its note pyramid, olfactory family, longevity, sillage, typical seasonality, and release year.
 
-Draw on your training knowledge of this fragrance. Return null only for fields you are
-genuinely uncertain about — do not default to null for well-known data.
-Never invent data you are not confident about.
-Set confidence to "high" if well-known, "medium" if partially known, "low" if uncertain.
+Then output exactly this JSON using your recalled knowledge. For fields you have no reliable knowledge of, use null. Set confidence to "high" if you know this fragrance precisely, "medium" if partially, "low" if you are largely uncertain.
 
-Respond with exactly this JSON:
 {
   "notes_top":     ["<note>"],
   "notes_heart":   ["<note>"],
@@ -433,11 +465,9 @@ Respond with exactly this JSON:
   "season_tags":   ["spring|summer|fall|winter"],
   "occasion_tags": ["day|night"],
   "gender":        "<men|women|unisex or null>",
-  "year":          <4-digit release year — include if known, null only if genuinely unknown>,
+  "year":          <4-digit release year or null>,
   "confidence":    "<high|medium|low>"
-}
-
-Return JSON only. No preamble. No markdown backticks.`,
+}`,
   });
 
   return parseJSON<FragranceEnrichmentResult>(text);

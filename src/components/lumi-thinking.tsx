@@ -40,12 +40,18 @@ export function LumiThinking({
       false
     );
 
+    const FADE_OUT = 220;
+    const PAUSE = 300;
+    const FADE_IN = 220;
+    const INTERVAL = FADE_OUT + PAUSE + FADE_IN + 800;
+
     const interval = setInterval(() => {
-      textOpacity.value = withTiming(0, { duration: 200 }, () => {
-        textOpacity.value = withTiming(1, { duration: 200 });
-      });
-      setPhraseIndex((i) => (i + 1) % phrases.length);
-    }, 2000);
+      textOpacity.value = withTiming(0, { duration: FADE_OUT });
+      setTimeout(() => {
+        setPhraseIndex((i) => (i + 1) % phrases.length);
+        textOpacity.value = withTiming(1, { duration: FADE_IN });
+      }, FADE_OUT + PAUSE);
+    }, INTERVAL);
 
     return () => clearInterval(interval);
   }, []);

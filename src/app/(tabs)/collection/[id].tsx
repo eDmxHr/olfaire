@@ -7,6 +7,7 @@ import {
   IconSparkles,
   IconLayersIntersect,
   IconDroplet,
+  IconInfoCircle,
 } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
@@ -17,7 +18,7 @@ import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { StatCard } from '@/components/ui/stat-card';
 import { TagChip } from '@/components/ui/tag-chip';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
 
 export default function BottleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -111,6 +112,26 @@ export default function BottleDetailScreen() {
               </View>
             ) : null}
           </View>
+
+          {/* AI data warning */}
+          {frag?.is_user_contributed && !frag?.is_verified ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                marginTop: 10,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 99,
+                backgroundColor: colorWithOpacity(COLORS.amber, 0.12),
+              }}>
+              <IconInfoCircle size={14} color={COLORS.amber} strokeWidth={1.5} />
+              <Text style={[TYPE.caption, { color: COLORS.amber, flex: 1 }]}>
+                Fragrance data is AI-estimated and may not be fully accurate.
+              </Text>
+            </View>
+          ) : null}
 
           {/* Wear stats row */}
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>

@@ -140,7 +140,7 @@ export default function TodayScreen() {
                 <SignatureCard
                   key={sig.id}
                   signature={sig}
-                  onPress={() => router.push('/(tabs)/profile')}
+                  onPress={() => router.push('/(tabs)/profile/signatures')}
                 />
               ))}
             </View>

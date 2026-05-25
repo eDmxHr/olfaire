@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import {
   View,
   Pressable,
-  StyleSheet,
   TextInput,
   FlatList,
   ScrollView,
@@ -15,33 +14,18 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSearch, IconX, IconCheck } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  type Option,
-} from '@/components/ui/select';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { supabase, getCurrentUserId } from '@/lib/supabase';
 import { enrichFragrance } from '@/lib/claudeApi';
 import { SectionLabel } from '@/components/ui/section-label';
+import {
+  ManualFragranceForm,
+  type ManualFragranceFormValues,
+} from '@/components/collection/manual-fragrance-form';
+import type { UserProvidedFragranceData } from '@/lib/claudeApi';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
-
-const GENDER_OPTIONS: Option[] = [
-  { value: 'unisex', label: 'Unisex' },
-  { value: 'women', label: 'Women' },
-  { value: 'men', label: 'Men' },
-];
-
-const CONCENTRATION_OPTIONS: Option[] = [
-  { value: 'Eau de Toilette', label: 'Eau de Toilette' },
-  { value: 'Eau de Parfum', label: 'Eau de Parfum' },
-  { value: 'Parfum', label: 'Parfum' },
-];
 
 const STOCK_LEVELS: { value: StockLevel; label: string }[] = [
   { value: 'full', label: 'Full' },
@@ -49,6 +33,18 @@ const STOCK_LEVELS: { value: StockLevel; label: string }[] = [
   { value: 'low', label: 'Low' },
   { value: 'empty', label: 'Empty' },
 ];
+
+const INITIAL_FORM: ManualFragranceFormValues = {
+  house: '',
+  name: '',
+  concentration: undefined,
+  notesTop: '',
+  notesHeart: '',
+  notesBase: '',
+  family: '',
+  year: '',
+  gender: undefined,
+};
 
 type Step = 'search' | 'stock';
 
@@ -71,20 +67,18 @@ export default function BottleQuickAddModal() {
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<Fragrance | null>(null);
   const [manualMode, setManualMode] = useState(false);
-
-  const [manualHouse, setManualHouse] = useState('');
-  const [manualName, setManualName] = useState('');
-  const [manualConcentration, setManualConcentration] = useState<Option | undefined>(undefined);
-  const [manualNotesTop, setManualNotesTop] = useState('');
-  const [manualNotesHeart, setManualNotesHeart] = useState('');
-  const [manualNotesBase, setManualNotesBase] = useState('');
-  const [manualFamily, setManualFamily] = useState('');
-  const [manualYear, setManualYear] = useState('');
-  const [manualGender, setManualGender] = useState<Option | undefined>(undefined);
+  const [formValues, setFormValues] = useState<ManualFragranceFormValues>(INITIAL_FORM);
 
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
   const [saving, setSaving] = useState(false);
   const [savingLabel, setSavingLabel] = useState<string | null>(null);
+
+  function handleFormChange<K extends keyof ManualFragranceFormValues>(
+    key: K,
+    value: ManualFragranceFormValues[K]
+  ) {
+    setFormValues((prev) => ({ ...prev, [key]: value }));
+  }
 
   const search = useCallback(async (text: string) => {
     setQuery(text);
@@ -120,8 +114,7 @@ export default function BottleQuickAddModal() {
   async function addManualFragrance(
     house: string,
     name: string,
-    concentration?: string,
-    family?: string
+    userProvided: UserProvidedFragranceData
   ) {
     const { data: existing } = await (supabase as any)
       .from('fragrances')
@@ -136,7 +129,7 @@ export default function BottleQuickAddModal() {
     }
 
     setSavingLabel('Lumi is looking this up...');
-    const enriched = await enrichFragrance(house, name, concentration);
+    const enriched = await enrichFragrance(house, name, userProvided);
     setSavingLabel(null);
 
     const { data: newFragrance, error } = await (supabase as any)
@@ -144,18 +137,18 @@ export default function BottleQuickAddModal() {
       .insert({
         house,
         name,
-        concentration: concentration ?? null,
-        family: enriched.family || family || 'Unknown',
+        concentration: userProvided.concentration ?? null,
+        family: userProvided.family || enriched.family || 'Unknown',
         subfamily: enriched.subfamily,
-        notes_top: enriched.notes_top,
-        notes_heart: enriched.notes_heart,
-        notes_base: enriched.notes_base,
+        notes_top: userProvided.notesTop?.length ? userProvided.notesTop : enriched.notes_top,
+        notes_heart: userProvided.notesHeart?.length ? userProvided.notesHeart : enriched.notes_heart,
+        notes_base: userProvided.notesBase?.length ? userProvided.notesBase : enriched.notes_base,
         longevity: enriched.longevity,
         sillage: enriched.sillage,
         season_tags: enriched.season_tags,
         occasion_tags: enriched.occasion_tags,
-        gender: normalizeGender(enriched.gender),
-        year: enriched.year,
+        gender: normalizeGender(userProvided.gender ?? enriched.gender),
+        year: userProvided.year ?? enriched.year,
         is_user_contributed: true,
         is_verified: false,
       })
@@ -170,7 +163,7 @@ export default function BottleQuickAddModal() {
         submitted_by: userId,
         house,
         name,
-        raw_data: { concentration, family, confidence: enriched.confidence },
+        raw_data: { input: userProvided, enriched },
         status: enriched.confidence === 'low' ? 'pending' : 'verified',
         merged_into: newFragrance.id,
       });
@@ -183,14 +176,18 @@ export default function BottleQuickAddModal() {
     setSaving(true);
     try {
       if (manualMode) {
-        const house = manualHouse.trim() || 'Unknown';
-        const name = manualName.trim();
-        await addManualFragrance(
-          house,
-          name,
-          manualConcentration?.value,
-          manualFamily.trim() || undefined
-        );
+        const house = formValues.house.trim() || 'Unknown';
+        const name = formValues.name.trim();
+        const userProvided: UserProvidedFragranceData = {
+          year: formValues.year.trim() ? parseInt(formValues.year.trim(), 10) : undefined,
+          concentration: formValues.concentration?.value,
+          notesTop: formValues.notesTop.trim() ? formValues.notesTop.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          notesHeart: formValues.notesHeart.trim() ? formValues.notesHeart.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          notesBase: formValues.notesBase.trim() ? formValues.notesBase.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          family: formValues.family.trim() || undefined,
+          gender: formValues.gender?.value,
+        };
+        await addManualFragrance(house, name, userProvided);
       } else if (selected) {
         await addBottleWithStock(selected.id);
       }
@@ -218,7 +215,7 @@ export default function BottleQuickAddModal() {
     if (data) useCollectionStore.getState().prependItem(data);
   }
 
-  const canConfirm = manualMode ? manualName.trim().length > 0 : selected !== null;
+  const canConfirm = manualMode ? formValues.name.trim().length > 0 : selected !== null;
 
   return (
     <KeyboardAvoidingView
@@ -312,79 +309,7 @@ export default function BottleQuickAddModal() {
               contentContainerStyle={{ paddingBottom: 8 }}>
               <View className="mb-5 rounded-xl p-4" style={{ backgroundColor: COLORS.linen }}>
                 {manualMode ? (
-                  <>
-                    <Field
-                      placeholder="House (e.g. Chanel)"
-                      value={manualHouse}
-                      onChangeText={setManualHouse}
-                    />
-                    <Field
-                      placeholder="Fragrance name"
-                      value={manualName}
-                      onChangeText={setManualName}
-                      autoFocus
-                    />
-                    <Select value={manualConcentration} onValueChange={setManualConcentration}>
-                      <SelectTrigger style={concentrationTriggerStyle}>
-                        <SelectValue placeholder="Concentration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CONCENTRATION_OPTIONS.map((opt) => (
-                          <SelectItem key={opt!.value} label={opt!.label} value={opt!.value} />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Field
-                      placeholder="Top notes (comma-separated)"
-                      value={manualNotesTop}
-                      onChangeText={setManualNotesTop}
-                    />
-                    <Field
-                      placeholder="Heart notes (comma-separated)"
-                      value={manualNotesHeart}
-                      onChangeText={setManualNotesHeart}
-                    />
-                    <Field
-                      placeholder="Base notes (comma-separated)"
-                      value={manualNotesBase}
-                      onChangeText={setManualNotesBase}
-                    />
-
-                    <Text
-                      className="mb-2 mt-1.5 uppercase"
-                      style={{
-                        fontFamily: FONTS.uiMedium,
-                        fontSize: 11,
-                        letterSpacing: 0.6,
-                        color: COLORS.ash,
-                      }}>
-                      Optional
-                    </Text>
-
-                    <Field
-                      placeholder="Family (e.g. Floral, Woody)"
-                      value={manualFamily}
-                      onChangeText={setManualFamily}
-                      small
-                    />
-                    <Field
-                      placeholder="Year"
-                      value={manualYear}
-                      onChangeText={setManualYear}
-                      keyboardType="numeric"
-                      small
-                    />
-                    <Select value={manualGender} onValueChange={setManualGender}>
-                      <SelectTrigger style={concentrationTriggerStyle}>
-                        <SelectValue placeholder="Gender" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GENDER_OPTIONS.map((opt) => (
-                          <SelectItem key={opt!.value} label={opt!.label} value={opt!.value} />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
+                  <ManualFragranceForm values={formValues} onChange={handleFormChange} />
                 ) : (
                   <View>
                     <SectionLabel>{selected?.house}</SectionLabel>
@@ -472,63 +397,3 @@ export default function BottleQuickAddModal() {
     </KeyboardAvoidingView>
   );
 }
-
-// ── Field helper ──────────────────────────────────────────────────────────────
-
-interface FieldProps {
-  placeholder: string;
-  value: string;
-  onChangeText: (t: string) => void;
-  autoFocus?: boolean;
-  keyboardType?: 'default' | 'numeric';
-  small?: boolean;
-  last?: boolean;
-}
-
-function Field({
-  placeholder,
-  value,
-  onChangeText,
-  autoFocus,
-  keyboardType,
-  small,
-  last,
-}: FieldProps) {
-  return (
-    <TextInput
-      style={[
-        {
-          fontFamily: FONTS.ui,
-          fontSize: small ? 13 : 15,
-          color: small ? COLORS.ash : COLORS.ink,
-          borderBottomWidth: last ? 0 : StyleSheet.hairlineWidth,
-          borderBottomColor: COLORS.dust,
-          paddingBottom: last ? 0 : 8,
-          marginBottom: 10,
-          padding: 0,
-        },
-      ]}
-      placeholder={placeholder}
-      placeholderTextColor={COLORS.ash}
-      value={value}
-      onChangeText={onChangeText}
-      autoFocus={autoFocus}
-      keyboardType={keyboardType ?? 'default'}
-      autoCapitalize="none"
-    />
-  );
-}
-
-// SelectTrigger requires a style prop (not className) — kept as plain object
-const concentrationTriggerStyle = {
-  borderWidth: 0,
-  borderBottomWidth: StyleSheet.hairlineWidth,
-  borderBottomColor: COLORS.dust,
-  borderRadius: 0,
-  backgroundColor: 'transparent',
-  paddingHorizontal: 0,
-  paddingVertical: 0,
-  height: 'auto' as any,
-  marginBottom: 10,
-  shadowOpacity: 0,
-};

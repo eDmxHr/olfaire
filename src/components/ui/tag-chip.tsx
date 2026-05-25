@@ -49,7 +49,7 @@ export function TagChip({
     <Container
       onPress={onPress}
       style={[{ backgroundColor: BG[variant], borderRadius, ...padding }, style]}>
-      <Text style={[TYPE.caption, { color: textColor ?? TEXT_COLOR[variant] }]}>{label}</Text>
+      <Text style={[TYPE.caption, { color: textColor ?? TEXT_COLOR[variant] }]}>{label.replace(/-/g, ' ')}</Text>
     </Container>
   );
 }

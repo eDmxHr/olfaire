@@ -143,7 +143,7 @@ export default function PickScreen() {
           {suggestion.reasoning_tags?.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 28 }}>
               {suggestion.reasoning_tags.map((tag) => (
-                <TagChip key={tag} label={tag.replace(/-/g, ' ')} variant="dark" shape="rounded" />
+                <TagChip key={tag} label={tag} variant="dark" shape="rounded" />
               ))}
             </View>
           )}

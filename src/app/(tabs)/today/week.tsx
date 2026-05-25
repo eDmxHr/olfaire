@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { WeekDayRow } from '@/components/today/week-day-row';
+import { ShimmerLine } from '@/components/today/shimmer-line';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { supabase } from '@/lib/supabase';
@@ -26,10 +27,11 @@ export default function WeekScreen() {
   const weekLogs = useTodayStore((s) => s.weekLogs);
   const { fetchWeekLogs } = useToday();
   const [fragranceNames, setFragranceNames] = useState<Record<number, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const today = todayDate();
 
   useEffect(() => {
-    fetchWeekLogs();
+    fetchWeekLogs().finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -59,7 +61,18 @@ export default function WeekScreen() {
         contentContainerClassName="px-5 pb-12"
         showsVerticalScrollIndicator={false}>
         {/* Day rows */}
-        {days.map((date) => {
+        {isLoading
+          ? Array.from({ length: 7 }).map((_, i) => (
+              <View key={i} className="flex-row items-center gap-3.5 border-b border-border py-3.5">
+                <View className="w-10 gap-1">
+                  <ShimmerLine width={28} />
+                  <ShimmerLine width={36} />
+                </View>
+                <View className="h-2.5 w-2.5 rounded-full border border-border" />
+                <ShimmerLine width={140} />
+              </View>
+            ))
+          : days.map((date) => {
           const log = logsByDate[date] as DailyLog | undefined;
           const isToday = date === today;
 
