@@ -285,7 +285,7 @@ export default function BottleDetailScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/(tabs)/layer')}
+              onPress={() => router.push({ pathname: '/(tabs)/layer', params: { preselect: item.id } })}
               style={{
                 flex: 1,
                 backgroundColor: COLORS.linen,

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -88,7 +88,9 @@ function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
 
 export default function LayerScreen() {
   const items = useCollectionStore((s) => s.items);
-  const { selectedItems, selectBottle, deselectBottle, canAnalyse } = useLayeringStore();
+  const getById = useCollectionStore((s) => s.getById);
+  const { selectedItems, selectBottle, deselectBottle, clearSelection, canAnalyse } = useLayeringStore();
+  const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
   const [isGateChecking, setIsGateChecking] = useState(false);
@@ -105,6 +107,16 @@ export default function LayerScreen() {
     opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
     translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!preselect) return;
+      const item = getById(preselect);
+      if (!item) return;
+      clearSelection();
+      selectBottle(item);
+    }, [preselect, getById, clearSelection, selectBottle])
+  );
 
   async function handleAnalyse() {
     if (isGateChecking) return;
