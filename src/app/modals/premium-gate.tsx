@@ -1,27 +1,22 @@
-import { View, Pressable, StyleSheet, Text } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 
 export default function PremiumGateModal() {
   const insets = useSafeAreaInsets();
   return (
-    <View style={styles.backdrop}>
+    <BlurView intensity={20} tint="dark" className="flex-1 justify-end" style={StyleSheet.absoluteFill}>
       <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
-        <Text style={styles.title}>Premium</Text>
+      <View
+        className="rounded-t-3xl p-6"
+        style={{ backgroundColor: COLORS.parchment, paddingBottom: insets.bottom + 16 }}>
+        <Text style={{ fontFamily: FONTS.display, fontSize: 22, color: COLORS.ink }}>
+          Premium
+        </Text>
       </View>
-    </View>
+    </BlurView>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(28,26,24,0.6)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: COLORS.parchment,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 24,
-  },
-  title: { fontFamily: FONTS.display, fontSize: 22, color: COLORS.ink },
-});

@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSearch, IconX, IconCheck } from '@tabler/icons-react-native';
@@ -60,7 +61,6 @@ export default function BottleQuickAddModal() {
   const [selected, setSelected] = useState<Fragrance | null>(null);
   const [manualMode, setManualMode] = useState(false);
 
-  // Manual form fields
   const [manualHouse, setManualHouse] = useState('');
   const [manualName, setManualName] = useState('');
   const [manualConcentration, setManualConcentration] = useState<Option | undefined>(undefined);
@@ -195,15 +195,23 @@ export default function BottleQuickAddModal() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.backdrop}>
+      <BlurView
+        intensity={20}
+        tint="dark"
+        className="flex-1 justify-end"
+        style={StyleSheet.absoluteFill}>
         <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
 
-        <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+        <View
+          className="max-h-[90%] rounded-t-3xl px-6 pt-5"
+          style={{ backgroundColor: COLORS.parchment, paddingBottom: insets.bottom + 16 }}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Add a bottle</Text>
+          <View className="mb-4 flex-row items-center justify-between">
+            <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 22, color: COLORS.ink }}>
+              Add a bottle
+            </Text>
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <IconX size={20} color={COLORS.ash} strokeWidth={1.5} />
             </Pressable>
@@ -211,10 +219,13 @@ export default function BottleQuickAddModal() {
 
           {step === 'search' && (
             <>
-              <View style={styles.searchRow}>
+              <View
+                className="mb-2 flex-row items-center gap-2.5 rounded-xl px-3.5 py-2.5"
+                style={{ backgroundColor: COLORS.linen }}>
                 <IconSearch size={16} color={COLORS.ash} strokeWidth={1.5} />
                 <TextInput
-                  style={styles.searchInput}
+                  className="flex-1"
+                  style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, padding: 0 }}
                   placeholder="Search by name or house…"
                   placeholderTextColor={COLORS.ash}
                   value={query}
@@ -228,26 +239,54 @@ export default function BottleQuickAddModal() {
               <FlatList
                 data={results}
                 keyExtractor={(item) => String(item.id)}
-                style={{ maxHeight: 280 }}
+                className="max-h-[280px]"
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
-                  <Pressable style={styles.resultRow} onPress={() => selectFragrance(item)}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.resultHouse}>{item.house}</Text>
-                      <Text style={styles.resultName}>{item.name}</Text>
+                  <Pressable
+                    className="flex-row items-center border-b py-3"
+                    style={{ borderBottomColor: COLORS.dust }}
+                    onPress={() => selectFragrance(item)}>
+                    <View className="flex-1">
+                      <Text
+                        style={{
+                          fontFamily: FONTS.uiMedium,
+                          fontSize: 10,
+                          letterSpacing: 0.8,
+                          color: COLORS.ash,
+                          textTransform: 'uppercase',
+                        }}>
+                        {item.house}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: FONTS.displayLightItalic,
+                          fontSize: 16,
+                          lineHeight: 20,
+                          color: COLORS.ink,
+                        }}>
+                        {item.name}
+                      </Text>
                     </View>
-                    <Text style={styles.resultFamily}>{item.family}</Text>
+                    <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                      {item.family}
+                    </Text>
                   </Pressable>
                 )}
                 ListEmptyComponent={
                   query.length >= 2 && !searching ? (
-                    <Text style={styles.emptyHint}>No results — add it manually below.</Text>
+                    <Text
+                      className="py-4 text-center"
+                      style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
+                      No results — add it manually below.
+                    </Text>
                   ) : null
                 }
               />
 
-              <Pressable style={styles.manualBtn} onPress={goManual}>
-                <Text style={styles.manualBtnText}>Not in the database? Add manually →</Text>
+              <Pressable className="mt-4 items-center" onPress={goManual}>
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.amber }}>
+                  Not in the database? Add manually →
+                </Text>
               </Pressable>
             </>
           )}
@@ -257,8 +296,7 @@ export default function BottleQuickAddModal() {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ paddingBottom: 8 }}>
-              {/* Fragrance fields */}
-              <View style={styles.selectedCard}>
+              <View className="mb-5 rounded-xl p-4" style={{ backgroundColor: COLORS.linen }}>
                 {manualMode ? (
                   <>
                     <Field
@@ -273,7 +311,7 @@ export default function BottleQuickAddModal() {
                       autoFocus
                     />
                     <Select value={manualConcentration} onValueChange={setManualConcentration}>
-                      <SelectTrigger style={styles.concentrationTrigger}>
+                      <SelectTrigger style={concentrationTriggerStyle}>
                         <SelectValue placeholder="Concentration" />
                       </SelectTrigger>
                       <SelectContent>
@@ -298,7 +336,16 @@ export default function BottleQuickAddModal() {
                       onChangeText={setManualNotesBase}
                     />
 
-                    <Text style={styles.optionalLabel}>Optional</Text>
+                    <Text
+                      className="mb-2 mt-1.5 uppercase"
+                      style={{
+                        fontFamily: FONTS.uiMedium,
+                        fontSize: 11,
+                        letterSpacing: 0.6,
+                        color: COLORS.ash,
+                      }}>
+                      Optional
+                    </Text>
 
                     <Field
                       placeholder="Family (e.g. Floral, Woody)"
@@ -314,7 +361,7 @@ export default function BottleQuickAddModal() {
                       small
                     />
                     <Select value={manualGender} onValueChange={setManualGender}>
-                      <SelectTrigger style={styles.concentrationTrigger}>
+                      <SelectTrigger style={concentrationTriggerStyle}>
                         <SelectValue placeholder="Gender" />
                       </SelectTrigger>
                       <SelectContent>
@@ -326,23 +373,55 @@ export default function BottleQuickAddModal() {
                   </>
                 ) : (
                   <View>
-                    <Text style={styles.resultHouse}>{selected?.house}</Text>
-                    <Text style={[styles.resultName, { fontSize: 18 }]}>{selected?.name}</Text>
+                    <Text
+                      style={{
+                        fontFamily: FONTS.uiMedium,
+                        fontSize: 10,
+                        letterSpacing: 0.8,
+                        color: COLORS.ash,
+                        textTransform: 'uppercase',
+                      }}>
+                      {selected?.house}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: FONTS.displayLightItalic,
+                        fontSize: 18,
+                        lineHeight: 20,
+                        color: COLORS.ink,
+                      }}>
+                      {selected?.name}
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* Stock level picker */}
-              <Text style={styles.sectionLabel}>Initial stock level</Text>
-              <View style={styles.stockRow}>
+              <Text
+                className="mb-2.5 uppercase"
+                style={{
+                  fontFamily: FONTS.uiMedium,
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  color: COLORS.ash,
+                }}>
+                Initial stock level
+              </Text>
+              <View className="mb-6 flex-row gap-2">
                 {STOCK_LEVELS.map(({ value, label }) => {
                   const active = stockLevel === value;
                   return (
                     <Pressable
                       key={value}
-                      style={[styles.stockChip, active && styles.stockChipActive]}
+                      className="flex-1 items-center rounded-full py-2.5"
+                      style={{ backgroundColor: active ? COLORS.amber : COLORS.dust }}
                       onPress={() => setStockLevel(value)}>
-                      <Text style={[styles.stockChipLabel, active && styles.stockChipLabelActive]}>
+                      <Text
+                        style={{
+                          fontFamily: active ? FONTS.uiMedium : FONTS.ui,
+                          fontSize: 13,
+                          color: active ? COLORS.parchment : COLORS.ink,
+                        }}>
                         {label}
                       </Text>
                     </Pressable>
@@ -351,12 +430,18 @@ export default function BottleQuickAddModal() {
               </View>
 
               {/* Actions */}
-              <View style={styles.actions}>
-                <Pressable style={styles.backBtn} onPress={() => setStep('search')}>
-                  <Text style={styles.backBtnText}>Back</Text>
+              <View className="flex-row gap-2.5">
+                <Pressable
+                  className="items-center justify-center rounded-xl px-5 py-3.5"
+                  style={{ backgroundColor: COLORS.linen }}
+                  onPress={() => setStep('search')}>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ink }}>
+                    Back
+                  </Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.confirmBtn, !canConfirm && { opacity: 0.4 }]}
+                  className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3.5"
+                  style={{ backgroundColor: COLORS.amber, opacity: !canConfirm ? 0.4 : 1 }}
                   onPress={confirm}
                   disabled={!canConfirm || saving}>
                   {saving ? (
@@ -364,7 +449,14 @@ export default function BottleQuickAddModal() {
                   ) : (
                     <>
                       <IconCheck size={16} color={COLORS.parchment} strokeWidth={2} />
-                      <Text style={styles.confirmBtnText}>Add to collection</Text>
+                      <Text
+                        style={{
+                          fontFamily: FONTS.uiMedium,
+                          fontSize: 14,
+                          color: COLORS.parchment,
+                        }}>
+                        Add to collection
+                      </Text>
                     </>
                   )}
                 </Pressable>
@@ -372,7 +464,7 @@ export default function BottleQuickAddModal() {
             </ScrollView>
           )}
         </View>
-      </View>
+      </BlurView>
     </KeyboardAvoidingView>
   );
 }
@@ -401,9 +493,16 @@ function Field({
   return (
     <TextInput
       style={[
-        styles.manualInput,
-        small && styles.manualInputSmall,
-        last && { borderBottomWidth: 0, paddingBottom: 0 },
+        {
+          fontFamily: FONTS.ui,
+          fontSize: small ? 13 : 15,
+          color: small ? COLORS.ash : COLORS.ink,
+          borderBottomWidth: last ? 0 : StyleSheet.hairlineWidth,
+          borderBottomColor: COLORS.dust,
+          paddingBottom: last ? 0 : 8,
+          marginBottom: 10,
+          padding: 0,
+        },
       ]}
       placeholder={placeholder}
       placeholderTextColor={COLORS.ash}
@@ -416,194 +515,16 @@ function Field({
   );
 }
 
-// ── Styles ────────────────────────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(28,26,24,0.6)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: COLORS.parchment,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    paddingTop: 20,
-    maxHeight: '90%',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  title: {
-    fontFamily: FONTS.displayLightItalic,
-    fontSize: 22,
-    color: COLORS.ink,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.linen,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontFamily: FONTS.ui,
-    fontSize: 15,
-    color: COLORS.ink,
-    padding: 0,
-  },
-  resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.dust,
-  },
-  resultHouse: {
-    fontFamily: FONTS.uiMedium,
-    fontSize: 10,
-    color: COLORS.ash,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  resultName: {
-    fontFamily: FONTS.displayLightItalic,
-    fontSize: 16,
-    color: COLORS.ink,
-    lineHeight: 20,
-  },
-  resultFamily: {
-    fontFamily: FONTS.ui,
-    fontSize: 12,
-    color: COLORS.ash,
-  },
-  emptyHint: {
-    fontFamily: FONTS.ui,
-    fontSize: 13,
-    color: COLORS.ash,
-    paddingVertical: 16,
-    textAlign: 'center',
-  },
-  manualBtn: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  manualBtnText: {
-    fontFamily: FONTS.uiMedium,
-    fontSize: 13,
-    color: COLORS.amber,
-  },
-  selectedCard: {
-    backgroundColor: COLORS.linen,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-  },
-  concentrationTrigger: {
-    borderWidth: 0,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.dust,
-    borderRadius: 0,
-    backgroundColor: 'transparent',
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    height: 'auto' as any,
-    marginBottom: 10,
-    shadowOpacity: 0,
-  },
-  manualInput: {
-    fontFamily: FONTS.ui,
-    fontSize: 15,
-    color: COLORS.ink,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.dust,
-    paddingBottom: 8,
-    marginBottom: 10,
-    padding: 0,
-  },
-  manualInputSmall: {
-    fontSize: 13,
-    color: COLORS.ash,
-  },
-  optionalLabel: {
-    fontFamily: FONTS.uiMedium,
-    fontSize: 11,
-    color: COLORS.ash,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    marginTop: 6,
-    marginBottom: 8,
-  },
-  sectionLabel: {
-    fontFamily: FONTS.uiMedium,
-    fontSize: 10,
-    color: COLORS.ash,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 10,
-  },
-  stockRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 24,
-  },
-  stockChip: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderRadius: 99,
-    backgroundColor: COLORS.dust,
-  },
-  stockChipActive: {
-    backgroundColor: COLORS.amber,
-  },
-  stockChipLabel: {
-    fontFamily: FONTS.ui,
-    fontSize: 13,
-    color: COLORS.ink,
-  },
-  stockChipLabelActive: {
-    fontFamily: FONTS.uiMedium,
-    color: COLORS.parchment,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  backBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: COLORS.linen,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backBtnText: {
-    fontFamily: FONTS.ui,
-    fontSize: 14,
-    color: COLORS.ink,
-  },
-  confirmBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: COLORS.amber,
-  },
-  confirmBtnText: {
-    fontFamily: FONTS.uiMedium,
-    fontSize: 14,
-    color: COLORS.parchment,
-  },
-});
+// SelectTrigger requires a style prop (not className) — kept as plain object
+const concentrationTriggerStyle = {
+  borderWidth: 0,
+  borderBottomWidth: StyleSheet.hairlineWidth,
+  borderBottomColor: COLORS.dust,
+  borderRadius: 0,
+  backgroundColor: 'transparent',
+  paddingHorizontal: 0,
+  paddingVertical: 0,
+  height: 'auto' as any,
+  marginBottom: 10,
+  shadowOpacity: 0,
+};

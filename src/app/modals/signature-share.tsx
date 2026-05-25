@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { router, useLocalSearchParams } from 'expo-router';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -65,9 +67,11 @@ export default function SignatureShareModal() {
   }
 
   return (
-    <View style={styles.backdrop}>
+    <BlurView intensity={20} tint="dark" className="flex-1 justify-end" style={StyleSheet.absoluteFill}>
       <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+      <View
+        className="rounded-t-3xl p-6"
+        style={{ backgroundColor: COLORS.parchment, paddingBottom: insets.bottom + 16 }}>
         {/* Dismiss handle */}
         <View className="mb-5 items-center">
           <View className="h-1 w-10 rounded-full" style={{ backgroundColor: COLORS.ash }} />
@@ -138,16 +142,7 @@ export default function SignatureShareModal() {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </BlurView>
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(28,26,24,0.6)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: COLORS.parchment,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 24,
-  },
-});
