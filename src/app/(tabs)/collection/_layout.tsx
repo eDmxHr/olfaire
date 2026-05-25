@@ -9,6 +9,7 @@ export default function CollectionLayout() {
       <Stack.Screen name="dna" />
       <Stack.Screen name="low-stock" />
       <Stack.Screen name="wishlist" />
+      <Stack.Screen name="where-to-buy" />
     </Stack>
   );
 }

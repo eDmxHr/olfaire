@@ -13,6 +13,7 @@ import { useLayeringStore } from '@/store/LayeringStore';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
@@ -92,25 +93,8 @@ export default function LayerScreen() {
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
   const [isGateChecking, setIsGateChecking] = useState(false);
-  const [query, setQuery] = useState('');
-  const [showAll, setShowAll] = useState(false);
   const { bottom: bottomInset } = useSafeAreaInsets();
-
-  const PAGE = 8;
-  const isSearching = query.trim().length > 0;
-
-  const filteredItems = isSearching
-    ? items.filter((item) => {
-        const q = query.toLowerCase();
-        return (
-          item.fragrance?.name?.toLowerCase().includes(q) ||
-          item.fragrance?.house?.toLowerCase().includes(q)
-        );
-      })
-    : items;
-
-  const visibleItems = isSearching || showAll ? filteredItems : filteredItems.slice(0, PAGE);
-  const hasMore = !isSearching && !showAll && filteredItems.length > PAGE;
+  const { query, setQuery, filtered: filteredItems, visible: visibleItems, hasMore, setShowAll } = useCollectionSearch(items);
 
   const { animStyle, trigger } = useScreenAnimation(16);
 
@@ -276,7 +260,7 @@ export default function LayerScreen() {
                 className="items-center py-3.5"
                 style={{ borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.dust }}>
                 <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ash }} >
-                  Show {filteredItems.length - PAGE} more
+                  Show {filteredItems.length - visibleItems.length} more
                 </Text>
               </Pressable>
             )}

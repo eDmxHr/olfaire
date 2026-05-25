@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { View, ScrollView, Pressable, StyleSheet, Alert, Linking } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
@@ -34,14 +35,6 @@ export default function LowStockScreen() {
   useEffect(() => {
     trigger();
   }, []);
-
-  async function handleWhereToBuy(sourceUrl: string | null | undefined) {
-    if (sourceUrl) {
-      await Linking.openURL(sourceUrl);
-    } else {
-      Alert.alert('Coming soon', 'Where to buy links will be available in a future update.');
-    }
-  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
@@ -174,7 +167,13 @@ export default function LowStockScreen() {
                               {STOCK_LABEL[item.stock_level]}
                             </Text>
                           </View>
-                          <Pressable onPress={() => handleWhereToBuy(frag?.source_url)}>
+                          <Pressable
+                            onPress={() =>
+                              router.push({
+                                pathname: '/(tabs)/collection/where-to-buy',
+                                params: { name: frag?.name ?? '', house: frag?.house ?? '' },
+                              } as any)
+                            }>
                             <Text
                               style={{
                                 fontFamily: FONTS.uiMedium,

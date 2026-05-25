@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
-import { View, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconPlus } from '@tabler/icons-react-native';
+import { IconPlus, IconSparkles, IconSearch } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { BottleRow } from '@/components/collection/bottle-row';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
+import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { StatCard } from '@/components/ui/stat-card';
@@ -22,6 +23,7 @@ export default function CollectionScreen() {
   const lowStockItems = useCollectionStore((s) => s.lowStockItems);
   const { fetchCollection } = useCollection();
   const [selectedFamily, setSelectedFamily] = useState<string | null>(null);
+  const { query, setQuery, isSearching } = useCollectionSearch(items, items.length);
 
   const { animStyle, trigger } = useScreenAnimation(8);
 
@@ -34,9 +36,14 @@ export default function CollectionScreen() {
     new Set(items.map((i) => i.fragrance?.family).filter(Boolean) as string[])
   ).sort();
 
-  const filteredItems = selectedFamily
-    ? items.filter((i) => i.fragrance?.family === selectedFamily)
-    : items;
+  const filteredItems = items.filter((i) => {
+    const matchesFamily = selectedFamily ? i.fragrance?.family === selectedFamily : true;
+    const matchesQuery = isSearching
+      ? i.fragrance?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        i.fragrance?.house?.toLowerCase().includes(query.toLowerCase())
+      : true;
+    return matchesFamily && matchesQuery;
+  });
 
   const familyCount = families.length;
   const lowCount = lowStockItems().length;
@@ -73,6 +80,7 @@ export default function CollectionScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 4, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
           {/* Header */}
@@ -113,17 +121,45 @@ export default function CollectionScreen() {
             />
           </View>
 
-          {/* DNA link */}
+          {/* DNA card */}
           <Pressable
             onPress={() => router.push('/(tabs)/collection/dna')}
-            style={{ alignItems: 'flex-end', marginTop: 8 }}>
-            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.amber }}>
-              View DNA →
-            </Text>
+            style={{
+              marginTop: 14,
+              backgroundColor: COLORS.ink,
+              borderRadius: 14,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <IconSparkles size={18} color={COLORS.amber} strokeWidth={1.5} />
+              <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.parchment }}>
+                Your Fragrance DNA
+              </Text>
+            </View>
+            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.amber }}>→</Text>
           </Pressable>
 
+          {/* Search */}
+          <View
+            className="mt-4 flex-row items-center gap-2.5 rounded-[14px] px-3.5 py-2.5"
+            style={{ backgroundColor: COLORS.linen }}>
+            <IconSearch size={18} color={COLORS.ash} strokeWidth={1.5} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search your collection…"
+              placeholderTextColor={COLORS.ash}
+              className="flex-1 p-0"
+              style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}
+            />
+          </View>
+
           {/* Filter chips */}
-          <View className="mt-5">
+          <View className="mt-4">
             <SectionLabel className="mb-3">Filter</SectionLabel>
             <ScrollView
               horizontal
@@ -159,11 +195,13 @@ export default function CollectionScreen() {
           {/* Bottle list */}
           <SectionLabel className="mb-1 mt-5">{selectedFamily ?? 'All bottles'}</SectionLabel>
 
-          {filteredItems.length === 0 && selectedFamily !== null ? (
+          {filteredItems.length === 0 ? (
             <Text
               className="mt-6 text-center"
               style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ash }}>
-              No {selectedFamily} bottles in your collection.
+              {isSearching
+                ? 'No results for that search.'
+                : `No ${selectedFamily} bottles in your collection.`}
             </Text>
           ) : (
             <View>

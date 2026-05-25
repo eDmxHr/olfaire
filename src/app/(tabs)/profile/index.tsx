@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
@@ -49,6 +49,11 @@ export default function ProfileScreen() {
 
   const isNewUser = signatures.length === 0;
 
+  const mostWorn = [...items]
+    .filter((i) => i.wear_count > 0)
+    .sort((a, b) => b.wear_count - a.wear_count)
+    .slice(0, 3);
+
   const checklistItems = [
     {
       label: 'Add your first bottle',
@@ -69,7 +74,7 @@ export default function ProfileScreen() {
           <View className="mt-5 flex-row items-center">
             <Avatar alt={profile?.display_name ?? 'Avatar'} className="size-12 rounded-full">
               {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
-              <AvatarFallback className="size-12 items-center justify-center rounded-full bg-secondary">
+              <AvatarFallback className="size-12 items-center justify-center rounded-full">
                 <Text
                   style={{
                     fontFamily: FONTS.displayLightItalic,
@@ -192,14 +197,16 @@ export default function ProfileScreen() {
           </View>
 
           {!isNewUser ? (
-            signatures.slice(0, 3).map((sig) => (
-              <SignatureCard
-                key={sig.id}
-                signature={sig}
-                nameSize={14}
-                onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
-              />
-            ))
+            signatures
+              .slice(0, 3)
+              .map((sig) => (
+                <SignatureCard
+                  key={sig.id}
+                  signature={sig}
+                  nameSize={14}
+                  onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
+                />
+              ))
           ) : (
             /* Getting started checklist */
             <View className="rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
@@ -238,6 +245,55 @@ export default function ProfileScreen() {
                 </Pressable>
               ))}
             </View>
+          )}
+
+          {/* ── Most worn ── */}
+          {mostWorn.length > 0 && (
+            <>
+              <SectionLabel className="mb-2.5 mt-7">Most worn</SectionLabel>
+              <View className="overflow-hidden rounded-2xl bg-secondary">
+                {mostWorn.map((item, index) => {
+                  const frag = item.fragrance;
+                  const isLast = index === mostWorn.length - 1;
+                  return (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => router.push(`/collection/${item.id}` as any)}
+                      className="flex-row items-center px-4 py-3.5"
+                      style={{
+                        borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
+                        borderBottomColor: COLORS.dust,
+                      }}>
+                      <View className="flex-1">
+                        <Text
+                          style={{
+                            fontFamily: FONTS.displayLightItalic,
+                            fontSize: 16,
+                            lineHeight: 20,
+                            color: COLORS.ink,
+                          }}>
+                          {frag?.name ?? '—'}
+                        </Text>
+                        {frag?.house ? (
+                          <Text
+                            className="mt-0.5"
+                            style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+                            {frag.house}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <View
+                        className="rounded-full px-2.5 py-0.5"
+                        style={{ backgroundColor: colorWithOpacity(COLORS.amber, 0.13) }}>
+                        <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.amber }}>
+                          {item.wear_count}×
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
           )}
         </Animated.View>
       </ScrollView>
