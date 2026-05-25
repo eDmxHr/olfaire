@@ -9,7 +9,7 @@ export default function TabsLayout() {
       tabBar={(props: BottomTabBarProps) => <TabBar {...props} />}>
       <Tabs.Screen name="today" />
       <Tabs.Screen name="layer" />
-      <Tabs.Screen name="collection/index" />
+      <Tabs.Screen name="collection" />
       <Tabs.Screen name="profile" />
     </Tabs>
   );

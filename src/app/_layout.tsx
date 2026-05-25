@@ -86,6 +86,7 @@ function useAuthRedirect() {
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
     const inTabsGroup = segments[0] === '(tabs)';
+    const inModalsGroup = segments[0] === 'modals';
 
     if (!session) {
       if (!inAuthGroup) router.replace('/(auth)/splash');
@@ -99,7 +100,7 @@ function useAuthRedirect() {
       return;
     }
 
-    if (!inTabsGroup) {
+    if (!inTabsGroup && !inModalsGroup) {
       router.replace('/(tabs)/today');
     }
   }, [hydrated, session, profile, segments]);
