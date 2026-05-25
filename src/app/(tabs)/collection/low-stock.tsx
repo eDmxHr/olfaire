@@ -1,18 +1,14 @@
 import { useEffect } from 'react';
 import { View, ScrollView, Pressable, StyleSheet, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
-import { COLORS, FONTS } from '@/lib/theme';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 import type { StockLevel } from '@/lib/supabase';
 
 const STOCK_FILL: Record<StockLevel, number> = {
@@ -33,16 +29,10 @@ export default function LowStockScreen() {
   const lowStockItems = useCollectionStore((s) => s.lowStockItems);
   const items = lowStockItems();
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
   }, []);
 
   async function handleWhereToBuy(sourceUrl: string | null | undefined) {
@@ -69,7 +59,7 @@ export default function LowStockScreen() {
                   width: 48,
                   height: 48,
                   borderRadius: 24,
-                  backgroundColor: COLORS.amber + '20',
+                  backgroundColor: colorWithOpacity(COLORS.amber, 0.13),
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -168,7 +158,7 @@ export default function LowStockScreen() {
                         <View style={{ alignItems: 'flex-end', gap: 4 }}>
                           <View
                             style={{
-                              backgroundColor: COLORS.red + '20',
+                              backgroundColor: colorWithOpacity(COLORS.red, 0.13),
                               borderRadius: 99,
                               paddingHorizontal: 10,
                               paddingVertical: 3,
@@ -199,7 +189,7 @@ export default function LowStockScreen() {
                       <View
                         style={{
                           height: 4,
-                          backgroundColor: COLORS.ash + '30',
+                          backgroundColor: colorWithOpacity(COLORS.ash, 0.19),
                           borderRadius: 99,
                           marginTop: 10,
                         }}>

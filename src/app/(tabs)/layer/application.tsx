@@ -6,9 +6,8 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { BodyMap } from '@/components/layer/body-map';
 import { useLayeringStore } from '@/store/LayeringStore';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
-
-const INK_RAISED = '#2A2724';
 
 function parseRatio(ratio: string): [number, number] {
   const colon = ratio.match(/(\d+)\s*:\s*(\d+)/);
@@ -61,11 +60,7 @@ export default function ApplicationScreen() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 + bottomInset }}
         showsVerticalScrollIndicator={false}>
         {/* ── Section A: Body map ── */}
-        <Text
-          className="mb-4 mt-2 uppercase tracking-widest"
-          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
-          Where to apply
-        </Text>
+        <SectionLabel className="mb-4 mt-2">Where to apply</SectionLabel>
 
         <BodyMap
           placementFirst={application.placement_first}
@@ -88,20 +83,16 @@ export default function ApplicationScreen() {
           </View>
         </View>
 
-        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
+        <View className="my-5 h-px" style={{ backgroundColor: COLORS.inkRaised }} />
 
         {/* ── Section B: Ratio bar ── */}
-        <Text
-          className="mb-1.5 uppercase tracking-widest"
-          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
-          Ratio
-        </Text>
+        <SectionLabel className="mb-1.5">Ratio</SectionLabel>
         <Text className="mb-2.5" style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
           {application.ratio}
         </Text>
         <View className="h-2 flex-row gap-0.5 overflow-hidden rounded">
           <View className="rounded" style={{ flex: r1, backgroundColor: COLORS.amber }} />
-          <View className="rounded" style={{ flex: r2, backgroundColor: INK_RAISED }} />
+          <View className="rounded" style={{ flex: r2, backgroundColor: COLORS.inkRaised }} />
         </View>
         <View className="mt-1.5 flex-row">
           <View className="flex-1" style={{ flex: r1 }}>
@@ -120,20 +111,16 @@ export default function ApplicationScreen() {
           </View>
         </View>
 
-        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
+        <View className="my-5 h-px" style={{ backgroundColor: COLORS.inkRaised }} />
 
         {/* ── Section C: Steps ── */}
-        <Text
-          className="mb-3 uppercase tracking-widest"
-          style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash, letterSpacing: 1 }}>
-          How to apply
-        </Text>
+        <SectionLabel className="mb-3">How to apply</SectionLabel>
         <View className="gap-2.5">
           {STEPS.map((step) => (
             <View
               key={step.num}
               className="flex-row items-start gap-3 rounded-xl p-4"
-              style={{ backgroundColor: INK_RAISED }}>
+              style={{ backgroundColor: COLORS.inkRaised }}>
               <View
                 className="mt-0.5 h-6 w-6 shrink-0 items-center justify-center rounded-full"
                 style={{ backgroundColor: COLORS.amber }}>
@@ -155,20 +142,11 @@ export default function ApplicationScreen() {
           ))}
         </View>
 
-        <View className="my-5 h-px" style={{ backgroundColor: INK_RAISED }} />
+        <View className="my-5 h-px" style={{ backgroundColor: COLORS.inkRaised }} />
 
         {/* ── Section D: Lumi tip ── */}
-        <View className="gap-1.5 rounded-2xl p-4" style={{ backgroundColor: INK_RAISED }}>
-          <Text
-            className="uppercase tracking-widest"
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 1,
-            }}>
-            Lumi says
-          </Text>
+        <View className="gap-1.5 rounded-2xl p-4" style={{ backgroundColor: COLORS.inkRaised }}>
+          <SectionLabel>Lumi says</SectionLabel>
           <Text
             style={{
               fontFamily: FONTS.displayLightItalic,

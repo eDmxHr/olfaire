@@ -9,6 +9,7 @@ import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
 import { fetchSignatureNames } from '@/lib/claudeApi';
 import { SpinningLoader } from '@/components/spinning-loader';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
 
 const PRESET_TAGS = ['Daytime', 'Evening', 'Work', 'Date night', 'Weekend', 'Seasonal'];
@@ -126,28 +127,10 @@ export default function SignatureScreen() {
 
         {/* ── Name your blend ── */}
         <View className="mb-2 flex-row items-center justify-between">
-          <Text
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 1,
-              textTransform: 'uppercase',
-            }}>
-            Name your blend
-          </Text>
+          <SectionLabel>Name your blend</SectionLabel>
           {isFetchingNames && <SpinningLoader size={14} color={COLORS.ash} />}
           {!isFetchingNames && suggestions.length > 0 && (
-            <Text
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-              }}>
-              Lumi suggests
-            </Text>
+            <SectionLabel>Lumi suggests</SectionLabel>
           )}
         </View>
         {!isFetchingNames && suggestions.length > 0 && (
@@ -188,17 +171,7 @@ export default function SignatureScreen() {
         />
 
         {/* ── Tags ── */}
-        <Text
-          style={{
-            fontFamily: FONTS.uiMedium,
-            fontSize: 10,
-            color: COLORS.ash,
-            letterSpacing: 1,
-            textTransform: 'uppercase',
-            marginBottom: 10,
-          }}>
-          Tags
-        </Text>
+        <SectionLabel className="mb-2.5">Tags</SectionLabel>
         <View className="flex-row flex-wrap gap-2">
           {PRESET_TAGS.map((tag) => {
             const active = selectedTags.includes(tag);

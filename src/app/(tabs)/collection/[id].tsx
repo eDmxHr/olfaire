@@ -2,12 +2,7 @@ import { useEffect } from 'react';
 import { View, ScrollView, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import {
   IconSparkles,
   IconLayersIntersect,
@@ -18,6 +13,10 @@ import { Text } from '@/components/ui/text';
 import { NotesPyramid } from '@/components/today/notes-pyramid';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { StatCard } from '@/components/ui/stat-card';
+import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS } from '@/lib/theme';
 
 export default function BottleDetailScreen() {
@@ -26,16 +25,10 @@ export default function BottleDetailScreen() {
   const item = getById(id);
   const { removeBottle } = useCollection();
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
   }, []);
 
   if (!item) {
@@ -85,16 +78,7 @@ export default function BottleDetailScreen() {
           {/* Dark hero card */}
           <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20 }}>
             {frag?.house ? (
-              <Text
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                  textTransform: 'uppercase',
-                }}>
-                {frag.house}
-              </Text>
+              <SectionLabel>{frag.house}</SectionLabel>
             ) : null}
             <Text
               style={{
@@ -122,18 +106,7 @@ export default function BottleDetailScreen() {
             {(frag?.family || frag?.subfamily) ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
                 {[frag.family, frag.subfamily].filter(Boolean).map((tag, i) => (
-                  <View
-                    key={i}
-                    style={{
-                      backgroundColor: COLORS.ash + '30',
-                      borderRadius: 99,
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                    }}>
-                    <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-                      {tag}
-                    </Text>
-                  </View>
+                  <TagChip key={i} label={tag!} variant="muted" />
                 ))}
               </View>
             ) : null}
@@ -141,58 +114,15 @@ export default function BottleDetailScreen() {
 
           {/* Wear stats row */}
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-            {[
-              { label: 'Worn', value: String(item.wear_count) },
-              { label: 'Last worn', value: lastWorn },
-              { label: 'Rating', value: ratingLabel },
-            ].map(({ label, value }) => (
-              <View
-                key={label}
-                style={{
-                  flex: 1,
-                  backgroundColor: COLORS.linen,
-                  borderRadius: 16,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 20,
-                    lineHeight: 24,
-                    color: COLORS.ink,
-                  }}>
-                  {value}
-                </Text>
-                <Text
-                  style={{
-                    fontFamily: FONTS.uiMedium,
-                    fontSize: 10,
-                    color: COLORS.ash,
-                    letterSpacing: 0.8,
-                    textTransform: 'uppercase',
-                    marginTop: 2,
-                  }}>
-                  {label}
-                </Text>
-              </View>
-            ))}
+            <StatCard value={item.wear_count} label="Worn" size="sm" />
+            <StatCard value={lastWorn} label="Last worn" size="sm" />
+            <StatCard value={ratingLabel} label="Rating" size="sm" />
           </View>
 
           {/* Notes pyramid */}
           {frag && (
             <View style={{ marginTop: 24 }}>
-              <Text
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                  textTransform: 'uppercase',
-                  marginBottom: 12,
-                }}>
-                Notes
-              </Text>
+              <SectionLabel className="mb-3">Notes</SectionLabel>
               <NotesPyramid
                 top={frag.notes_top ?? []}
                 heart={frag.notes_heart ?? []}
@@ -204,31 +134,10 @@ export default function BottleDetailScreen() {
           {/* Season tags */}
           {frag?.season_tags && frag.season_tags.length > 0 ? (
             <View style={{ marginTop: 20 }}>
-              <Text
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}>
-                Season
-              </Text>
+              <SectionLabel className="mb-2">Season</SectionLabel>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {frag.season_tags.map((tag) => (
-                  <View
-                    key={tag}
-                    style={{
-                      backgroundColor: COLORS.linen,
-                      borderRadius: 99,
-                      paddingHorizontal: 12,
-                      paddingVertical: 5,
-                    }}>
-                    <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-                      {tag}
-                    </Text>
-                  </View>
+                  <TagChip key={tag} label={tag} />
                 ))}
               </View>
             </View>
@@ -237,31 +146,10 @@ export default function BottleDetailScreen() {
           {/* Occasion tags */}
           {frag?.occasion_tags && frag.occasion_tags.length > 0 ? (
             <View style={{ marginTop: 16 }}>
-              <Text
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}>
-                Occasion
-              </Text>
+              <SectionLabel className="mb-2">Occasion</SectionLabel>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {frag.occasion_tags.map((tag) => (
-                  <View
-                    key={tag}
-                    style={{
-                      backgroundColor: COLORS.linen,
-                      borderRadius: 99,
-                      paddingHorizontal: 12,
-                      paddingVertical: 5,
-                    }}>
-                    <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-                      {tag}
-                    </Text>
-                  </View>
+                  <TagChip key={tag} label={tag} />
                 ))}
               </View>
             </View>

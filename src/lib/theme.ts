@@ -84,11 +84,17 @@ export const COLORS = {
   parchment: '#FAF9F6',
   linen: '#EDEAE3',
   ink: '#1C1A18',
+  inkRaised: '#2A2724',
   amber: '#B07D2A',
   ash: '#8C8680',
   dust: '#D4CFC8',
   red: '#C4503A',
 } as const;
+
+export function colorWithOpacity(hex: string, opacity: number): string {
+  const alpha = Math.round(opacity * 255).toString(16).padStart(2, '0');
+  return `${hex}${alpha}`;
+}
 
 export const FONTS = {
   display: 'CormorantGaramond-Regular',
@@ -102,3 +108,14 @@ export const FONTS = {
 } as const;
 
 export type FontFamily = (typeof FONTS)[keyof typeof FONTS];
+
+export const TYPE = {
+  displayXL: { fontFamily: FONTS.displayLightItalic, fontSize: 32, lineHeight: 40 },
+  displayL:  { fontFamily: FONTS.displayLightItalic, fontSize: 28, lineHeight: 36 },
+  displayM:  { fontFamily: FONTS.displayLightItalic, fontSize: 22, lineHeight: 28 },
+  displayS:  { fontFamily: FONTS.displayLightItalic, fontSize: 17, lineHeight: 22 },
+  body:      { fontFamily: FONTS.ui, fontSize: 15, lineHeight: 22 },
+  bodyS:     { fontFamily: FONTS.ui, fontSize: 13, lineHeight: 20 },
+  label:     { fontFamily: FONTS.uiMedium, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase' as const },
+  caption:   { fontFamily: FONTS.ui, fontSize: 11 },
+} as const;

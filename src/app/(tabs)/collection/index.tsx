@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { IconPlus } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
@@ -15,6 +10,9 @@ import { Text } from '@/components/ui/text';
 import { BottleRow } from '@/components/collection/bottle-row';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { StatCard } from '@/components/ui/stat-card';
 import { COLORS, FONTS } from '@/lib/theme';
 
 // ── CollectionScreen ──────────────────────────────────────────────────────────
@@ -25,16 +23,10 @@ export default function CollectionScreen() {
   const { fetchCollection } = useCollection();
   const [selectedFamily, setSelectedFamily] = useState<string | null>(null);
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
     fetchCollection();
   }, []);
 
@@ -88,7 +80,7 @@ export default function CollectionScreen() {
             <Text
               style={{
                 fontFamily: FONTS.displayLightItalic,
-                fontSize: 30,
+                fontSize: 32,
                 lineHeight: 40,
                 color: COLORS.ink,
               }}>
@@ -111,78 +103,14 @@ export default function CollectionScreen() {
 
           {/* Stats row */}
           <View className="mt-5 flex-row gap-3">
-            <View
-              className="flex-1 items-center rounded-2xl py-4"
-              style={{ backgroundColor: COLORS.linen }}>
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 28,
-                  color: COLORS.ink,
-                  lineHeight: 32,
-                }}>
-                {items.length}
-              </Text>
-              <Text
-                className="mt-0.5 uppercase"
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                }}>
-                Bottles
-              </Text>
-            </View>
-
-            <View
-              className="flex-1 items-center rounded-2xl py-4"
-              style={{ backgroundColor: COLORS.linen }}>
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 28,
-                  color: COLORS.ink,
-                  lineHeight: 32,
-                }}>
-                {familyCount}
-              </Text>
-              <Text
-                className="mt-0.5 uppercase"
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                }}>
-                Families
-              </Text>
-            </View>
-
-            <Pressable
-              className="flex-1 items-center rounded-2xl py-4"
-              style={{ backgroundColor: COLORS.linen }}
-              onPress={() => router.push('/(tabs)/collection/low-stock')}>
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 28,
-                  color: lowCount > 0 ? COLORS.red : COLORS.ink,
-                  lineHeight: 32,
-                }}>
-                {lowCount}
-              </Text>
-              <Text
-                className="mt-0.5 uppercase"
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                }}>
-                Low stock
-              </Text>
-            </Pressable>
+            <StatCard value={items.length} label="Bottles" />
+            <StatCard value={familyCount} label="Families" />
+            <StatCard
+              value={lowCount}
+              label="Low stock"
+              valueColor={lowCount > 0 ? COLORS.red : undefined}
+              onPress={() => router.push('/(tabs)/collection/low-stock')}
+            />
           </View>
 
           {/* DNA link */}
@@ -196,16 +124,7 @@ export default function CollectionScreen() {
 
           {/* Filter chips */}
           <View className="mt-5">
-            <Text
-              className="mb-3 uppercase"
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 0.8,
-              }}>
-              Filter
-            </Text>
+            <SectionLabel className="mb-3">Filter</SectionLabel>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -238,16 +157,7 @@ export default function CollectionScreen() {
           </View>
 
           {/* Bottle list */}
-          <Text
-            className="mb-1 mt-5 uppercase"
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 0.8,
-            }}>
-            {selectedFamily ?? 'All bottles'}
-          </Text>
+          <SectionLabel className="mb-1 mt-5">{selectedFamily ?? 'All bottles'}</SectionLabel>
 
           {filteredItems.length === 0 && selectedFamily !== null ? (
             <Text

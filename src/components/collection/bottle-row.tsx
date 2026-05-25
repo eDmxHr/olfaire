@@ -1,6 +1,7 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { IconChevronRight } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
@@ -29,16 +30,7 @@ export function BottleRow({ item, onPress }: Props) {
       className="flex-row items-center py-3.5 pl-4 pr-4">
       <View className="flex-1">
         {frag?.house ? (
-          <Text
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 0.8,
-              textTransform: 'uppercase',
-            }}>
-            {frag.house}
-          </Text>
+          <SectionLabel>{frag.house}</SectionLabel>
         ) : null}
         <Text
           style={{

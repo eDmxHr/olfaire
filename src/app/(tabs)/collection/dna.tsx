@@ -2,33 +2,24 @@ import { useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
-import { COLORS, FONTS } from '@/lib/theme';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 
 export default function DNAScreen() {
   const dna = useCollectionStore((s) => s.dna);
   const items = useCollectionStore((s) => s.items);
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
   }, []);
 
   const hasDNA = dna && Object.keys(dna.families ?? {}).length > 0;
@@ -49,16 +40,7 @@ export default function DNAScreen() {
             <>
               {/* Dominant family hero */}
               <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20, marginBottom: 20 }}>
-                <Text
-                  style={{
-                    fontFamily: FONTS.uiMedium,
-                    fontSize: 10,
-                    color: COLORS.ash,
-                    letterSpacing: 0.8,
-                    textTransform: 'uppercase',
-                  }}>
-                  Your signature
-                </Text>
+                <SectionLabel>Your signature</SectionLabel>
                 <Text
                   style={{
                     fontFamily: FONTS.displayLightItalic,
@@ -85,17 +67,7 @@ export default function DNAScreen() {
               </View>
 
               {/* Section label */}
-              <Text
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 0.8,
-                  textTransform: 'uppercase',
-                  marginBottom: 16,
-                }}>
-                Family breakdown
-              </Text>
+              <SectionLabel className="mb-4">Family breakdown</SectionLabel>
 
               {/* All family bars */}
               <View style={{ gap: 16 }}>
@@ -109,7 +81,7 @@ export default function DNAScreen() {
                         {Math.round(score)}
                       </Text>
                     </View>
-                    <View style={{ height: 3, backgroundColor: COLORS.ash + '30', borderRadius: 99 }}>
+                    <View style={{ height: 3, backgroundColor: colorWithOpacity(COLORS.ash, 0.19), borderRadius: 99 }}>
                       <View
                         style={{
                           height: 3,

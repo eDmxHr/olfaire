@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { Lumi } from '@/components/lumi';
 import { LumiThinking } from '@/components/lumi-thinking';
 import { Button } from '@/components/ui/button';
@@ -20,6 +15,9 @@ import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { SignatureCard } from '@/components/ui/signature-card';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Mood } from '@/lib/supabase';
 
@@ -30,18 +28,12 @@ export default function TodayScreen() {
   const signatures = useLayeringStore((s) => s.signatures);
   const [hasError, setHasError] = useState(false);
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(16);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(16);
 
   const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
     fetchSignatures();
   }, []);
 
@@ -84,7 +76,7 @@ export default function TodayScreen() {
                   fontFamily: FONTS.displayLightItalic,
                   fontSize: 22,
                   color: COLORS.ink,
-                  lineHeight: 30,
+                  lineHeight: 28,
                 }}>
                 {store.lumiOpening}
               </Text>
@@ -97,11 +89,7 @@ export default function TodayScreen() {
           </View>
 
           {/* Mood section label */}
-          <Text
-            className="mb-3.5 mt-4 text-xs uppercase tracking-widest"
-            style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash, letterSpacing: 0.8 }}>
-            How are you feeling?
-          </Text>
+          <SectionLabel className="mb-3.5 mt-4">How are you feeling?</SectionLabel>
 
           {/* Mood grid */}
           <MoodGrid
@@ -147,56 +135,14 @@ export default function TodayScreen() {
           {/* Recent layers */}
           {signatures.length > 0 && (
             <View className="mt-6">
-              <Text
-                className="mb-2 uppercase tracking-widest"
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  color: COLORS.ash,
-                  letterSpacing: 1,
-                }}>
-                Recent layers
-              </Text>
-              {signatures.slice(0, 3).map((sig) => {
-                const date = new Date(sig.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                });
-                return (
-                  <Pressable
-                    key={sig.id}
-                    onPress={() => router.push('/(tabs)/profile')}
-                    className="mb-2 rounded-[10px] px-3.5 py-3"
-                    style={{ backgroundColor: COLORS.linen }}>
-                    <View className="flex-row items-start justify-between">
-                      <Text
-                        className="flex-1"
-                        style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ink }}>
-                        {sig.name}
-                      </Text>
-                      <Text
-                        className="ml-2"
-                        style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                        {date}
-                      </Text>
-                    </View>
-                    {sig.tags.length > 0 && (
-                      <View className="mt-1.5 flex-row flex-wrap gap-1.5">
-                        {sig.tags.map((tag) => (
-                          <View
-                            key={tag}
-                            className="rounded-full px-2 py-0.5"
-                            style={{ backgroundColor: COLORS.parchment }}>
-                            <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                              {tag}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
+              <SectionLabel className="mb-2">Recent layers</SectionLabel>
+              {signatures.slice(0, 3).map((sig) => (
+                <SignatureCard
+                  key={sig.id}
+                  signature={sig}
+                  onPress={() => router.push('/(tabs)/profile')}
+                />
+              ))}
             </View>
           )}
 

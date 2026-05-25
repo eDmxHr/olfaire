@@ -2,8 +2,6 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
 
-const INK_RAISED = '#2A2724';
-
 export type InteractionType = 'anchor' | 'amplify' | 'contrast' | 'neutral';
 
 export interface NoteInteraction {
@@ -17,7 +15,7 @@ const INTERACTION_COLORS: Record<InteractionType, string> = {
   anchor: COLORS.amber,
   amplify: '#6B8F6B',
   contrast: '#8F6B6B',
-  neutral: INK_RAISED,
+  neutral: COLORS.inkRaised,
 };
 
 export function InteractionCard({ interaction }: { interaction: NoteInteraction }) {

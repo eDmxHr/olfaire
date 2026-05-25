@@ -2,12 +2,7 @@ import { useEffect } from 'react';
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { IconCheck, IconX } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
@@ -15,6 +10,8 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
@@ -54,16 +51,7 @@ function WishlistRow({
       className="flex-row items-center py-3.5">
       <View style={{ flex: 1 }}>
         {frag?.house ? (
-          <Text
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 0.8,
-              textTransform: 'uppercase',
-            }}>
-            {frag.house}
-          </Text>
+          <SectionLabel>{frag.house}</SectionLabel>
         ) : null}
         <Text
           style={{
@@ -121,16 +109,10 @@ export default function WishlistScreen() {
   const dna = useCollectionStore((s) => s.dna);
   const { moveToCollection, removeBottle } = useCollection();
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
   }, []);
 
   const gapHint = dna?.dominant_family
@@ -175,17 +157,7 @@ export default function WishlistScreen() {
                   padding: 16,
                   marginBottom: 20,
                 }}>
-                <Text
-                  style={{
-                    fontFamily: FONTS.uiMedium,
-                    fontSize: 10,
-                    color: COLORS.ash,
-                    letterSpacing: 0.8,
-                    textTransform: 'uppercase',
-                    marginBottom: 8,
-                  }}>
-                  Gap insight
-                </Text>
+                <SectionLabel className="mb-2">Gap insight</SectionLabel>
                 <Text
                   style={{
                     fontFamily: FONTS.displayLightItalic,

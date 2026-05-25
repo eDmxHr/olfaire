@@ -8,12 +8,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { IconHeart, IconMinus, IconThumbDown, IconRefresh, IconChevronRight } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
+import { SectionLabel } from '@/components/ui/section-label';
+import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Suggestion } from '@/store/TodayStore';
 import type { WearRating } from '@/lib/supabase';
 import { RATINGS } from '@/data/ratings';
-
-const INK_RAISED = '#2A2724';
 
 interface Props {
   suggestion: Suggestion;
@@ -54,16 +54,7 @@ export function SuggestionCard({
         {/* Fragrance name + tap hint */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <View style={{ gap: 2, flex: 1 }}>
-            <Text
-              className="uppercase"
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 1,
-              }}>
-              {suggestion.fragrance_house}
-            </Text>
+            <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
             <Text
               style={{
                 fontFamily: FONTS.displayLightItalic,
@@ -88,18 +79,7 @@ export function SuggestionCard({
         {suggestion.reasoning_tags?.length > 0 && (
           <View className="flex-row flex-wrap gap-1.5">
             {suggestion.reasoning_tags.map((tag) => (
-              <View
-                key={tag}
-                style={{
-                  backgroundColor: INK_RAISED,
-                  borderRadius: 6,
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                }}>
-                <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                  {tag.replace(/-/g, ' ')}
-                </Text>
-              </View>
+              <TagChip key={tag} label={tag.replace(/-/g, ' ')} variant="dark" shape="rounded" />
             ))}
           </View>
         )}
@@ -133,18 +113,14 @@ export function SuggestionCard({
         {/* Rating — post-wearing, pre-rated */}
         {!previewOnly && isWearing && !hasRated && (
           <View style={{ gap: 10 }}>
-            <Text
-              className="uppercase tracking-widest"
-              style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash }}>
-              How did it wear?
-            </Text>
+            <SectionLabel>How did it wear?</SectionLabel>
             <View className="flex-row gap-2">
               {RATINGS.map(({ key, label, Icon }) => (
                 <Pressable
                   key={key}
                   onPress={() => onRating(key)}
                   className="flex-1 items-center gap-1.5 rounded-xl py-3"
-                  style={{ backgroundColor: INK_RAISED }}>
+                  style={{ backgroundColor: COLORS.inkRaised }}>
                   <Icon size={18} color={COLORS.parchment} strokeWidth={1.5} />
                   <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.parchment }}>
                     {label}

@@ -8,6 +8,8 @@ import { NotesPyramid } from '@/components/today/notes-pyramid';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { supabase } from '@/lib/supabase';
+import { SectionLabel } from '@/components/ui/section-label';
+import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS } from '@/lib/theme';
 import { RATINGS } from '@/data/ratings';
 import { SpinningLoader } from '@/components/spinning-loader';
@@ -80,22 +82,13 @@ export default function PickScreen() {
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48, paddingTop: 8 }}>
           {/* House + Name + Identity metadata */}
           <View style={{ gap: 4, marginBottom: 16 }}>
-            <Text
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 1.2,
-                textTransform: 'uppercase',
-              }}>
-              {suggestion.fragrance_house}
-            </Text>
+            <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
             <Text
               style={{
                 fontFamily: FONTS.displayLightItalic,
-                fontSize: 30,
+                fontSize: 32,
                 color: COLORS.parchment,
-                lineHeight: 36,
+                lineHeight: 40,
               }}>
               {suggestion.fragrance_name}
             </Text>
@@ -113,20 +106,20 @@ export default function PickScreen() {
                 {[fragrance.family, fragrance.concentration].filter(Boolean).map((item, i) => (
                   <Text
                     key={item}
-                    style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                    style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                     {i > 0 ? `· ${item}` : item}
                   </Text>
                 ))}
                 {(fragrance.longevity || fragrance.sillage) && (
-                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>·</Text>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>·</Text>
                 )}
                 {fragrance.longevity != null && (
-                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                     Longevity {fragrance.longevity}/5
                   </Text>
                 )}
                 {fragrance.sillage != null && (
-                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                     · Sillage {fragrance.sillage}/5
                   </Text>
                 )}
@@ -150,24 +143,13 @@ export default function PickScreen() {
           {suggestion.reasoning_tags?.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 28 }}>
               {suggestion.reasoning_tags.map((tag) => (
-                <View
-                  key={tag}
-                  style={{
-                    backgroundColor: '#2A2724',
-                    borderRadius: 6,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                  }}>
-                  <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-                    {tag.replace(/-/g, ' ')}
-                  </Text>
-                </View>
+                <TagChip key={tag} label={tag.replace(/-/g, ' ')} variant="dark" shape="rounded" />
               ))}
             </View>
           )}
 
           {/* Divider */}
-          <View style={{ height: 1, backgroundColor: '#2A2724', marginBottom: 24 }} />
+          <View style={{ height: 1, backgroundColor: COLORS.inkRaised, marginBottom: 24 }} />
 
           {/* Notes pyramid */}
           {loading ? (
@@ -219,16 +201,7 @@ export default function PickScreen() {
 
             {isWearing && !hasRated && (
               <View style={{ gap: 10 }}>
-                <Text
-                  style={{
-                    fontFamily: FONTS.uiMedium,
-                    fontSize: 10,
-                    color: COLORS.ash,
-                    letterSpacing: 1,
-                    textTransform: 'uppercase',
-                  }}>
-                  How did it wear?
-                </Text>
+                <SectionLabel>How did it wear?</SectionLabel>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {RATINGS.map(({ key, label }) => (
                     <Pressable
@@ -244,7 +217,7 @@ export default function PickScreen() {
                         alignItems: 'center',
                         paddingVertical: 12,
                         borderRadius: 10,
-                        backgroundColor: '#2A2724',
+                        backgroundColor: COLORS.inkRaised,
                       }}>
                       <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.parchment }}>
                         {label}

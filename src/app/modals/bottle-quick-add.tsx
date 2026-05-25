@@ -27,6 +27,7 @@ import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { supabase, getCurrentUserId } from '@/lib/supabase';
 import { enrichFragrance } from '@/lib/claudeApi';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
 
@@ -269,16 +270,7 @@ export default function BottleQuickAddModal() {
                     style={{ borderBottomColor: COLORS.dust }}
                     onPress={() => selectFragrance(item)}>
                     <View className="flex-1">
-                      <Text
-                        style={{
-                          fontFamily: FONTS.uiMedium,
-                          fontSize: 10,
-                          letterSpacing: 0.8,
-                          color: COLORS.ash,
-                          textTransform: 'uppercase',
-                        }}>
-                        {item.house}
-                      </Text>
+                      <SectionLabel>{item.house}</SectionLabel>
                       <Text
                         style={{
                           fontFamily: FONTS.displayLightItalic,
@@ -395,16 +387,7 @@ export default function BottleQuickAddModal() {
                   </>
                 ) : (
                   <View>
-                    <Text
-                      style={{
-                        fontFamily: FONTS.uiMedium,
-                        fontSize: 10,
-                        letterSpacing: 0.8,
-                        color: COLORS.ash,
-                        textTransform: 'uppercase',
-                      }}>
-                      {selected?.house}
-                    </Text>
+                    <SectionLabel>{selected?.house}</SectionLabel>
                     <Text
                       style={{
                         fontFamily: FONTS.displayLightItalic,
@@ -419,16 +402,7 @@ export default function BottleQuickAddModal() {
               </View>
 
               {/* Stock level picker */}
-              <Text
-                className="mb-2.5 uppercase"
-                style={{
-                  fontFamily: FONTS.uiMedium,
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  color: COLORS.ash,
-                }}>
-                Initial stock level
-              </Text>
+              <SectionLabel className="mb-2.5">Initial stock level</SectionLabel>
               <View className="mb-6 flex-row gap-2">
                 {STOCK_LEVELS.map(({ value, label }) => {
                   const active = stockLevel === value;

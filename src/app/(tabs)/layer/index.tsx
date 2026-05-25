@@ -2,12 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { IconX, IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
@@ -17,7 +12,9 @@ import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
-import { COLORS, FONTS } from '@/lib/theme';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -47,7 +44,7 @@ function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
       onPress={onToggle}
       disabled={isDisabled}
       style={{
-        backgroundColor: isSelected ? `${COLORS.amber}12` : 'transparent',
+        backgroundColor: isSelected ? colorWithOpacity(COLORS.amber, 0.07) : 'transparent',
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: COLORS.dust,
         opacity: isDisabled ? 0.35 : 1,
@@ -96,16 +93,10 @@ export default function LayerScreen() {
   const [isGateChecking, setIsGateChecking] = useState(false);
   const { bottom: bottomInset } = useSafeAreaInsets();
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(16);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(16);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
   }, []);
 
   useFocusEffect(
@@ -177,7 +168,7 @@ export default function LayerScreen() {
         <Animated.View style={animStyle}>
           {/* Header */}
           <View className="mt-5 items-center">
-            <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 30, color: COLORS.ink }}>
+            <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 32, lineHeight: 40, color: COLORS.ink }}>
               Layer
             </Text>
             {selectedItems.length > 0 && (
@@ -223,16 +214,7 @@ export default function LayerScreen() {
           </View>
 
           {/* Section label */}
-          <Text
-            className="mb-1 mt-3 uppercase tracking-widest"
-            style={{
-              fontFamily: FONTS.uiMedium,
-              fontSize: 10,
-              color: COLORS.ash,
-              letterSpacing: 0.8,
-            }}>
-            Your collection
-          </Text>
+          <SectionLabel className="mb-1 mt-3">Your collection</SectionLabel>
 
           {/* Bottle list */}
           <View>

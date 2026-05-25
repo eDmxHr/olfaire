@@ -8,8 +8,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS } from '@/lib/theme';
-
-const INK_RAISED = '#2A2724';
 const SEGMENTS = 5;
 
 function SegmentBar({ filled, delay }: { filled: boolean; delay: number }) {
@@ -23,7 +21,7 @@ function SegmentBar({ filled, delay }: { filled: boolean; delay: number }) {
   return (
     <Animated.View
       style={[
-        { flex: 1, height: 6, borderRadius: 3, backgroundColor: filled ? COLORS.amber : INK_RAISED },
+        { flex: 1, height: 6, borderRadius: 3, backgroundColor: filled ? COLORS.amber : COLORS.inkRaised },
         style,
       ]}
     />

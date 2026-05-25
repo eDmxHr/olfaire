@@ -2,12 +2,7 @@ import { useEffect } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { IconSettings, IconCheck } from '@tabler/icons-react-native';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
@@ -16,7 +11,10 @@ import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useTodayStore } from '@/store/TodayStore';
 import { useCollection } from '@/hooks/useCollection';
-import { COLORS, FONTS } from '@/lib/theme';
+import { useScreenAnimation } from '@/hooks/useScreenAnimation';
+import { SectionLabel } from '@/components/ui/section-label';
+import { SignatureCard } from '@/components/ui/signature-card';
+import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 
 export default function ProfileScreen() {
   const profile = useAuthStore((s) => s.profile);
@@ -26,16 +24,10 @@ export default function ProfileScreen() {
   const todayLog = useTodayStore((s) => s.todayLog);
   const { fetchDNA, computeAndSaveDNA } = useCollection();
 
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(16);
-  const animStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
+  const { animStyle, trigger } = useScreenAnimation(16);
 
   useEffect(() => {
-    opacity.value = withDelay(100, withTiming(1, { duration: 400 }));
-    translateY.value = withDelay(100, withTiming(0, { duration: 400 }));
+    trigger();
     fetchDNA().then(() => {
       const currentDNA = useCollectionStore.getState().dna;
       const noFamilies = !currentDNA || Object.keys(currentDNA.families ?? {}).length === 0;
@@ -115,16 +107,7 @@ export default function ProfileScreen() {
 
           {/* ── DNA card (dark) ── */}
           <View className="mt-5 rounded-2xl p-4" style={{ backgroundColor: COLORS.ink }}>
-            <Text
-              className="uppercase tracking-widest"
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 1,
-              }}>
-              Fragrance DNA
-            </Text>
+            <SectionLabel>Fragrance DNA</SectionLabel>
 
             {hasDNA ? (
               <>
@@ -141,7 +124,7 @@ export default function ProfileScreen() {
                 {topFamilies.map(([family, score]) => (
                   <View key={family} className="mt-3">
                     <View className="mb-1.5 flex-row items-center justify-between">
-                      <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+                      <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
                         {family}
                       </Text>
                       <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.ash }}>
@@ -150,7 +133,7 @@ export default function ProfileScreen() {
                     </View>
                     <View
                       className="rounded-full"
-                      style={{ height: 3, backgroundColor: COLORS.ash + '30' }}>
+                      style={{ height: 3, backgroundColor: colorWithOpacity(COLORS.ash, 0.19) }}>
                       <View
                         className="rounded-full"
                         style={{
@@ -186,7 +169,7 @@ export default function ProfileScreen() {
                 <Pressable
                   onPress={() => router.push('/(tabs)/collection')}
                   className="mt-3 self-start rounded-full px-3.5 py-1.5"
-                  style={{ backgroundColor: COLORS.ash + '30' }}>
+                  style={{ backgroundColor: colorWithOpacity(COLORS.ash, 0.19) }}>
                   <Text
                     style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
                     Build collection
@@ -198,16 +181,7 @@ export default function ProfileScreen() {
 
           {/* ── Signatures header ── */}
           <View className="mb-2.5 mt-7 flex-row items-center justify-between">
-            <Text
-              className="uppercase tracking-widest"
-              style={{
-                fontFamily: FONTS.uiMedium,
-                fontSize: 10,
-                color: COLORS.ash,
-                letterSpacing: 1,
-              }}>
-              Signatures
-            </Text>
+            <SectionLabel>Signatures</SectionLabel>
             {signatures.length >= 3 && (
               <Pressable onPress={() => router.push('/(tabs)/profile/signatures')}>
                 <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.amber }}>
@@ -218,46 +192,14 @@ export default function ProfileScreen() {
           </View>
 
           {!isNewUser ? (
-            signatures.slice(0, 3).map((sig) => {
-              const date = new Date(sig.created_at).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              });
-              return (
-                <Pressable
-                  key={sig.id}
-                  onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
-                  className="mb-2 rounded-[10px] px-3.5 py-3"
-                  style={{ backgroundColor: COLORS.linen }}>
-                  <View className="flex-row items-start justify-between">
-                    <Text
-                      className="flex-1"
-                      style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.ink }}>
-                      {sig.name}
-                    </Text>
-                    <Text
-                      className="ml-2"
-                      style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                      {date}
-                    </Text>
-                  </View>
-                  {sig.tags.length > 0 && (
-                    <View className="mt-1.5 flex-row flex-wrap gap-1.5">
-                      {sig.tags.map((tag) => (
-                        <View
-                          key={tag}
-                          className="rounded-full px-2 py-0.5"
-                          style={{ backgroundColor: COLORS.parchment }}>
-                          <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                            {tag}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })
+            signatures.slice(0, 3).map((sig) => (
+              <SignatureCard
+                key={sig.id}
+                signature={sig}
+                nameSize={14}
+                onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
+              />
+            ))
           ) : (
             /* Getting started checklist */
             <View className="rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>

@@ -16,9 +16,8 @@ import {
 import { Text } from '@/components/ui/text';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
+import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
-
-const INK_RAISED = '#2A2724';
 
 export default function AnalysisScreen() {
   const { selectedItems, analysis, isAnalysing, hasConflict } = useLayeringStore();
@@ -76,16 +75,7 @@ export default function AnalysisScreen() {
 
               {/* Lumi summary */}
               <View className="mb-4 gap-1.5">
-                <Text
-                  className="uppercase tracking-widest"
-                  style={{
-                    fontFamily: FONTS.uiMedium,
-                    fontSize: 10,
-                    color: COLORS.ash,
-                    letterSpacing: 1,
-                  }}>
-                  Lumi says
-                </Text>
+                <SectionLabel>Lumi says</SectionLabel>
                 <Text
                   style={{
                     fontFamily: FONTS.displayLightItalic,
@@ -101,7 +91,7 @@ export default function AnalysisScreen() {
               {hasConflict() && analysis.lumi_warning && (
                 <View
                   className="mb-4 flex-row items-start gap-2 rounded-lg p-3"
-                  style={{ backgroundColor: INK_RAISED }}>
+                  style={{ backgroundColor: COLORS.inkRaised }}>
                   <IconAlertTriangle
                     size={13}
                     color={COLORS.amber}
@@ -121,7 +111,7 @@ export default function AnalysisScreen() {
                 </View>
               )}
 
-              <View className="mb-1 mt-2" style={{ height: 1, backgroundColor: INK_RAISED }} />
+              <View className="mb-1 mt-2" style={{ height: 1, backgroundColor: COLORS.inkRaised }} />
 
               {/* Note interactions — collapsed by default */}
               <Accordion type="single" collapsible>
@@ -138,7 +128,7 @@ export default function AnalysisScreen() {
                       </Text>
                       <View
                         className="rounded-full px-2 py-0.5"
-                        style={{ backgroundColor: INK_RAISED }}>
+                        style={{ backgroundColor: COLORS.inkRaised }}>
                         <Text
                           style={{ fontFamily: FONTS.uiMedium, fontSize: 10, color: COLORS.ash }}>
                           {analysis.interactions.slice(0, 4).length}
@@ -156,7 +146,7 @@ export default function AnalysisScreen() {
                 </AccordionItem>
               </Accordion>
 
-              <View className="mb-6 mt-1" style={{ height: 1, backgroundColor: INK_RAISED }} />
+              <View className="mb-6 mt-1" style={{ height: 1, backgroundColor: COLORS.inkRaised }} />
 
               {/* CTAs */}
               <View className="gap-3">
@@ -172,7 +162,7 @@ export default function AnalysisScreen() {
                 <Pressable
                   onPress={() => router.push('/(tabs)/layer/signature')}
                   className="items-center rounded-[10px] py-3.5"
-                  style={{ backgroundColor: INK_RAISED }}>
+                  style={{ backgroundColor: COLORS.inkRaised }}>
                   <Text
                     style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.parchment }}>
                     Save as signature
