@@ -43,21 +43,30 @@ Deno.serve(async (req: Request) => {
     return new Response('OK', { status: 200 });
   }
 
-  const expiresAt: string | null = event.expiration_at_ms
-    ? new Date(event.expiration_at_ms).toISOString()
-    : null;
-
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+
+  // Build the update payload. For premium events we always set is_premium=true.
+  // premium_expires_at: use expiration_at_ms if present, otherwise leave the
+  // column untouched (don't null it out) so a prior value isn't erased.
+  // For revoke events we clear both fields.
+  const updatePayload: Record<string, unknown> = { is_premium: isPremium };
+
+  if (isPremium) {
+    if (event.expiration_at_ms) {
+      updatePayload.premium_expires_at = new Date(event.expiration_at_ms).toISOString();
+    }
+    // If no expiration_at_ms (e.g. lifetime or sandbox quirk), don't touch premium_expires_at
+  } else {
+    // Revoking — clear expiry too
+    updatePayload.premium_expires_at = null;
+  }
 
   const { error } = await supabase
     .from('profiles')
-    .update({
-      is_premium: isPremium,
-      premium_expires_at: isPremium ? expiresAt : null,
-    })
+    .update(updatePayload as any)
     .eq('id', userId);
 
   if (error) {
