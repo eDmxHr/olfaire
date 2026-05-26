@@ -70,8 +70,16 @@ export default function BottleQuickAddModal() {
   const [formValues, setFormValues] = useState<ManualFragranceFormValues>(INITIAL_FORM);
 
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
-  const [saving, setSaving] = useState(false);
-  const [savingLabel, setSavingLabel] = useState<string | null>(null);
+
+  type SaveStep = 'idle' | 'looking-up' | 'saving' | 'done';
+  const [saveStep, setSaveStep] = useState<SaveStep>('idle');
+
+  const SAVE_STEP_LABEL: Record<SaveStep, string | null> = {
+    'idle': null,
+    'looking-up': 'Lumi is looking this up…',
+    'saving': 'Saving…',
+    'done': 'Done!',
+  };
 
   function handleFormChange<K extends keyof ManualFragranceFormValues>(
     key: K,
@@ -128,9 +136,9 @@ export default function BottleQuickAddModal() {
       return;
     }
 
-    setSavingLabel('Lumi is looking this up...');
+    setSaveStep('looking-up');
     const enriched = await enrichFragrance(house, name, userProvided);
-    setSavingLabel(null);
+    setSaveStep('saving');
 
     const { data: newFragrance, error } = await (supabase as any)
       .from('fragrances')
@@ -173,7 +181,7 @@ export default function BottleQuickAddModal() {
   }
 
   async function confirm() {
-    setSaving(true);
+    setSaveStep('saving');
     try {
       if (manualMode) {
         const house = formValues.house.trim() || 'Unknown';
@@ -191,12 +199,12 @@ export default function BottleQuickAddModal() {
       } else if (selected) {
         await addBottleWithStock(selected.id);
       }
+      setSaveStep('done');
+      await new Promise((r) => setTimeout(r, 500));
       router.back();
     } catch (err: any) {
       console.error('confirm add bottle error:', err?.message ?? err);
-    } finally {
-      setSaving(false);
-      setSavingLabel(null);
+      setSaveStep('idle');
     }
   }
 
@@ -364,16 +372,17 @@ export default function BottleQuickAddModal() {
                   className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3.5"
                   style={{ backgroundColor: COLORS.amber, opacity: !canConfirm ? 0.4 : 1 }}
                   onPress={confirm}
-                  disabled={!canConfirm || saving}>
-                  {saving ? (
+                  disabled={!canConfirm || saveStep !== 'idle'}>
+                  {saveStep !== 'idle' ? (
                     <>
-                      <ActivityIndicator size="small" color={COLORS.parchment} />
-                      {savingLabel ? (
-                        <Text
-                          style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.parchment }}>
-                          {savingLabel}
-                        </Text>
-                      ) : null}
+                      {saveStep === 'done' ? (
+                        <IconCheck size={16} color={COLORS.parchment} strokeWidth={2.5} />
+                      ) : (
+                        <ActivityIndicator size="small" color={COLORS.parchment} />
+                      )}
+                      <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.parchment }}>
+                        {SAVE_STEP_LABEL[saveStep]}
+                      </Text>
                     </>
                   ) : (
                     <>

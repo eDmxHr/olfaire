@@ -6,7 +6,13 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { IconHeart, IconMinus, IconThumbDown, IconRefresh, IconChevronRight } from '@tabler/icons-react-native';
+import {
+  IconHeart,
+  IconMinus,
+  IconThumbDown,
+  IconRefresh,
+  IconChevronRight,
+} from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { SectionLabel } from '@/components/ui/section-label';
 import { TagChip } from '@/components/ui/tag-chip';
@@ -52,7 +58,12 @@ export function SuggestionCard({
     <Animated.View style={[animStyle, { marginTop: 24 }]}>
       <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20, gap: 16 }}>
         {/* Fragrance name + tap hint */}
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+          }}>
           <View style={{ gap: 2, flex: 1 }}>
             <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
             <Text
@@ -66,7 +77,12 @@ export function SuggestionCard({
             </Text>
           </View>
           {previewOnly && (
-            <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} style={{ marginTop: 4 }} />
+            <IconChevronRight
+              size={16}
+              color={COLORS.ash}
+              strokeWidth={1.5}
+              style={{ marginTop: 4 }}
+            />
           )}
         </View>
 

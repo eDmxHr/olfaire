@@ -11,7 +11,11 @@
       "tsconfigPaths": true
     },
     "scheme": "olfaire",
-    "plugins": ["expo-router", "expo-web-browser"],
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      "@react-native-community/datetimepicker"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -30,7 +34,9 @@
       "./assets/fonts/DMSans-Regular.ttf",
       "./assets/fonts/DMSans-Medium.ttf"
     ],
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.olfaire.app"

@@ -146,6 +146,22 @@ export interface FragranceContribution {
   created_at: string;
 }
 
+export interface FeatureRequest {
+  id: string;
+  title: string;
+  description: string | null;
+  created_by: string | null;
+  created_at: string;
+  upvotes: number;
+  downvotes: number;
+}
+
+export interface FeatureRequestVote {
+  user_id: string;
+  request_id: string;
+  vote: 1 | -1;
+}
+
 type R = Record<string, unknown>;
 
 // ── Database schema type ──────────────────────────────────────────
@@ -237,6 +253,30 @@ export function getSignatureCardUrl(userId: string, signatureId: string): string
     .from('signature-cards')
     .getPublicUrl(`${userId}/${signatureId}.jpg`);
   return data.publicUrl;
+}
+
+/**
+ * Uploads a user's avatar to Supabase Storage.
+ * Returns the public URL on success, null on failure.
+ */
+export async function uploadAvatarImage(userId: string, fileUri: string): Promise<string | null> {
+  try {
+    const response = await fetch(fileUri);
+    const blob = await response.blob();
+    const path = `${userId}.jpg`;
+    const { error } = await supabase.storage
+      .from('avatars')
+      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+    if (error) {
+      console.error('Avatar upload error:', error);
+      return null;
+    }
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    return data.publicUrl;
+  } catch (err) {
+    console.error('uploadAvatarImage failed:', err);
+    return null;
+  }
 }
 
 /**

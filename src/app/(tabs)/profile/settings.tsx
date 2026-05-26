@@ -1,11 +1,12 @@
-import { Alert, View, ScrollView, Switch } from 'react-native';
+import { useState } from 'react';
+import { Alert, View, ScrollView, Switch, TextInput, Pressable, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Pressable } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
 import {
-  IconCrown,
-  IconLogout,
-  IconTrash,
+  IconCrown, IconLogout, IconTrash, IconPencil, IconCamera,
+  IconChevronRight, IconBulb,
 } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -36,10 +37,82 @@ function RowDivider() {
   return <View style={{ height: 1, backgroundColor: COLORS.dust }} />;
 }
 
+function timeStringToDate(timeStr: string): Date {
+  const [h, m] = (timeStr || '08:00').split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function dateToTimeString(date: Date): string {
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function formatTime(timeStr: string): string {
+  const [h, m] = (timeStr || '08:00').split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`;
+}
+
 export default function SettingsScreen() {
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
-  const { setTheme, setSkinType, setNotifications, signOut } = useProfile();
+  const { setTheme, setSkinType, setNotifications, uploadAvatar, updateProfile, signOut } = useProfile();
+
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarCacheBust, setAvatarCacheBust] = useState<number | null>(null);
+
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  function startEditing() {
+    setDraftName(profile?.display_name ?? '');
+    setEditing(true);
+  }
+
+  function cancelEditing() {
+    setEditing(false);
+    setDraftName('');
+  }
+
+  async function saveProfile() {
+    const name = draftName.trim();
+    if (name && name !== profile?.display_name) {
+      await updateProfile({ display_name: name });
+    }
+    setEditing(false);
+  }
+
+  async function pickAvatar() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please allow photo access to change your avatar.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (result.canceled) return;
+    setUploadingAvatar(true);
+    try {
+      await uploadAvatar(result.assets[0].uri);
+      setAvatarCacheBust(Date.now());
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  function onTimeChange(_: any, date?: Date) {
+    if (Platform.OS === 'android') setShowTimePicker(false);
+    if (date) setNotifications(true, dateToTimeString(date));
+  }
 
   function confirmSignOut() {
     Alert.alert('Sign out?', 'You will need to sign in again to access your account.', [
@@ -77,9 +150,7 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: COLORS.parchment }}
-      edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top', 'bottom']}>
       <ScreenHeader title="Settings" onBack={() => router.back()} />
 
       <ScrollView
@@ -96,30 +167,118 @@ export default function SettingsScreen() {
             paddingVertical: 14,
           }}>
           <View className="flex-row items-center gap-3">
-            <Avatar style={{ width: 32, height: 32, borderRadius: 16 }}>
-              {profile?.avatar_url ? (
-                <AvatarImage source={{ uri: profile.avatar_url }} />
-              ) : null}
-              <AvatarFallback
-                style={{
-                  backgroundColor: COLORS.dust,
-                  width: 32,
-                  height: 32,
-                  borderRadius: 16,
-                }}>
-                <Text
+            {/* Avatar */}
+            <Pressable onPress={editing ? pickAvatar : undefined} style={{ position: 'relative' }}>
+              <Avatar
+                style={{ width: 48, height: 48, borderRadius: 24 }}
+                alt={profile?.display_name || ''}>
+                {profile?.avatar_url ? (
+                  <AvatarImage
+                    source={{
+                      uri: avatarCacheBust
+                        ? `${profile.avatar_url}?t=${avatarCacheBust}`
+                        : profile.avatar_url,
+                      cache: 'reload',
+                    }}
+                  />
+                ) : null}
+                <AvatarFallback
                   style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 15,
-                    color: COLORS.amber,
+                    backgroundColor: COLORS.dust,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
                   }}>
-                  {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
+                  <Text
+                    style={{
+                      fontFamily: FONTS.displayLightItalic,
+                      fontSize: 20,
+                      color: COLORS.amber,
+                    }}>
+                    {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
+                  </Text>
+                </AvatarFallback>
+              </Avatar>
+              {editing && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    backgroundColor: COLORS.amber,
+                    borderRadius: 10,
+                    width: 20,
+                    height: 20,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  {uploadingAvatar ? (
+                    <ActivityIndicator size="small" color={COLORS.parchment} />
+                  ) : (
+                    <IconCamera size={11} color={COLORS.parchment} strokeWidth={2} />
+                  )}
+                </View>
+              )}
+            </Pressable>
+
+            {/* Name */}
+            <View style={{ flex: 1 }}>
+              {editing ? (
+                <TextInput
+                  value={draftName}
+                  onChangeText={setDraftName}
+                  style={{
+                    fontFamily: FONTS.uiMedium,
+                    fontSize: 15,
+                    color: COLORS.ink,
+                    borderBottomWidth: 1,
+                    borderBottomColor: COLORS.amber,
+                    paddingBottom: 2,
+                  }}
+                  autoFocus
+                  returnKeyType="done"
+                  onSubmitEditing={saveProfile}
+                />
+              ) : (
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>
+                  {profile?.display_name ?? ''}
                 </Text>
-              </AvatarFallback>
-            </Avatar>
-            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>
-              {profile?.display_name ?? ''}
-            </Text>
+              )}
+            </View>
+
+            {/* Edit / Save / Cancel */}
+            {editing ? (
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={cancelEditing}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: COLORS.dust,
+                  }}>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={saveProfile}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 8,
+                    backgroundColor: COLORS.amber,
+                  }}>
+                  <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
+                    Save
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable onPress={startEditing} hitSlop={8}>
+                <IconPencil size={17} color={COLORS.ash} strokeWidth={1.5} />
+              </Pressable>
+            )}
           </View>
         </View>
 
@@ -132,15 +291,16 @@ export default function SettingsScreen() {
             paddingHorizontal: 14,
           }}>
           {/* Notifications toggle */}
-          <View
-            className="flex-row items-center justify-between"
-            style={{ paddingVertical: 14 }}>
+          <View className="flex-row items-center justify-between" style={{ paddingVertical: 14 }}>
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
               Morning reminder
             </Text>
             <Switch
               value={profile?.notification_enabled ?? false}
-              onValueChange={(val) => setNotifications(val)}
+              onValueChange={(val) => {
+                setNotifications(val);
+                if (!val) setShowTimePicker(false);
+              }}
               trackColor={{ false: COLORS.dust, true: COLORS.amber }}
               thumbColor={COLORS.parchment}
             />
@@ -149,16 +309,32 @@ export default function SettingsScreen() {
           {profile?.notification_enabled && (
             <>
               <RowDivider />
-              <View
+              {/* Time row — tap to open picker on Android; always-visible on iOS */}
+              <Pressable
                 className="flex-row items-center justify-between"
-                style={{ paddingVertical: 14 }}>
+                style={{ paddingVertical: 14 }}
+                onPress={() => {
+                  if (Platform.OS === 'android') setShowTimePicker(true);
+                }}>
                 <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
                   Reminder time
                 </Text>
-                <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ash }}>
-                  {profile.notification_time ?? '08:00'}
+                <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.amber }}>
+                  {formatTime(profile.notification_time ?? '08:00')}
                 </Text>
-              </View>
+              </Pressable>
+
+              {/* iOS: always visible inline picker; Android: conditional */}
+              {(Platform.OS === 'ios' || showTimePicker) && (
+                <DateTimePicker
+                  mode="time"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  value={timeStringToDate(profile.notification_time ?? '08:00')}
+                  onChange={onTimeChange}
+                  themeVariant="light"
+                  style={{ marginBottom: 8, alignSelf: 'flex-start' }}
+                />
+              )}
             </>
           )}
 
@@ -254,14 +430,33 @@ export default function SettingsScreen() {
           }}>
           <View className="flex-row items-center gap-3">
             <IconCrown size={20} color={COLORS.amber} strokeWidth={1.5} />
-            <Text
-              style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
               {isPremium ? 'Olfaire Premium' : 'Free plan'}
             </Text>
             <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.amber }}>
               {isPremium ? 'Active' : 'Upgrade'}
             </Text>
           </View>
+        </View>
+
+        {/* ── Community ── */}
+        <SectionLabel label="Community" />
+        <View
+          style={{
+            backgroundColor: COLORS.linen,
+            borderRadius: 12,
+            paddingHorizontal: 14,
+          }}>
+          <Pressable
+            onPress={() => router.push('/(tabs)/profile/feature-requests')}
+            className="flex-row items-center gap-3"
+            style={{ paddingVertical: 14 }}>
+            <IconBulb size={20} color={COLORS.amber} strokeWidth={1.5} />
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
+              Feature requests
+            </Text>
+            <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} />
+          </Pressable>
         </View>
 
         {/* ── Account actions ── */}
@@ -272,20 +467,16 @@ export default function SettingsScreen() {
             borderRadius: 12,
             paddingHorizontal: 14,
           }}>
-          {/* Sign out */}
           <Pressable
             onPress={confirmSignOut}
             className="flex-row items-center gap-3"
             style={{ paddingVertical: 14 }}>
             <IconLogout size={20} color={COLORS.ash} strokeWidth={1.5} />
-            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
-              Sign out
-            </Text>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>Sign out</Text>
           </Pressable>
 
           <RowDivider />
 
-          {/* Delete account */}
           <Pressable
             onPress={confirmDeleteAccount}
             className="flex-row items-center gap-3"
@@ -296,7 +487,6 @@ export default function SettingsScreen() {
             </Text>
           </Pressable>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );

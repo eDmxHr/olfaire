@@ -1,4 +1,4 @@
-import { supabase, type Profile, type Theme, type SkinType, type Lifestyle } from '@/lib/supabase';
+import { supabase, uploadAvatarImage, type Profile, type Theme, type SkinType, type Lifestyle } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 
 export function useProfile() {
@@ -61,9 +61,16 @@ export function useProfile() {
 
   const completeOnboarding = () => updateProfile({ onboarding_completed: true });
 
+  async function uploadAvatar(uri: string): Promise<void> {
+    if (!profile) return;
+    const publicUrl = await uploadAvatarImage(profile.id, uri);
+    if (publicUrl) await updateProfile({ avatar_url: publicUrl });
+  }
+
   return {
     fetchProfile,
     updateProfile,
+    uploadAvatar,
     signOut,
     setTheme,
     setSkinType,
