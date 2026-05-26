@@ -26,7 +26,7 @@ export default function SignaturesScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
-      <ScreenHeader title="Signatures" onBack={() => router.back()} />
+      <ScreenHeader title="Signatures" onBack={() => router.navigate('/(tabs)/profile')} />
 
       {signatures.length === 0 ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>

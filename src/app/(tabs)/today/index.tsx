@@ -27,8 +27,7 @@ export default function TodayScreen() {
   const { fetchSignatures } = useLayering();
   const signatures = useLayeringStore((s) => s.signatures);
   const [hasError, setHasError] = useState(false);
-
-  const { animStyle, trigger } = useScreenAnimation(16);
+const { animStyle, trigger } = useScreenAnimation(16);
 
   const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
@@ -140,7 +139,7 @@ export default function TodayScreen() {
                 <SignatureCard
                   key={sig.id}
                   signature={sig}
-                  onPress={() => router.push('/(tabs)/profile/signatures')}
+                  onPress={() => router.navigate('/(tabs)/profile/signatures')}
                 />
               ))}
             </View>
