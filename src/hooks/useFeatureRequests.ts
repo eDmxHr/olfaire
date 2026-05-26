@@ -9,11 +9,13 @@ export function useFeatureRequests() {
   const [requests, setRequests] = useState<FeatureRequestWithVote[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
     try {
       const userId = await getCurrentUserId();
+      setCurrentUserId(userId);
 
       const { data: rows, error } = await (supabase as any)
         .from('feature_requests')
@@ -71,7 +73,7 @@ export function useFeatureRequests() {
     }
   }
 
-  async function vote(requestId: string, v: 1 | -1): Promise<void> {
+  const vote = useCallback(async (requestId: string, v: 1 | -1): Promise<void> => {
     const userId = await getCurrentUserId();
     if (!userId) return;
 
@@ -141,7 +143,7 @@ export function useFeatureRequests() {
       // Revert by refetching
       fetchRequests();
     }
-  }
+  }, [requests, fetchRequests]);
 
-  return { requests, loading, submitting, fetchRequests, submitRequest, vote };
+  return { requests, loading, submitting, currentUserId, fetchRequests, submitRequest, vote };
 }

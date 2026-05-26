@@ -1,95 +1,93 @@
 import { useState, useEffect } from 'react';
-import {
-  View,
-  ScrollView,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  FlatList,
-} from 'react-native';
+import { View, ScrollView, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { IconChevronUp, IconChevronDown, IconPlus, IconX } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
+import { ShimmerLine } from '@/components/today/shimmer-line';
 import { useFeatureRequests, type FeatureRequestWithVote } from '@/hooks/useFeatureRequests';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
 
 function VoteButton({
   icon,
-  count,
   active,
   activeColor,
   onPress,
 }: {
   icon: 'up' | 'down';
-  count: number;
   active: boolean;
   activeColor: string;
   onPress: () => void;
 }) {
   const color = active ? activeColor : COLORS.ash;
   return (
-    <Pressable
-      onPress={onPress}
-      hitSlop={6}
-      style={{ alignItems: 'center', gap: 2, minWidth: 32 }}>
+    <Pressable onPress={onPress} hitSlop={8} className="items-center">
       {icon === 'up' ? (
-        <IconChevronUp size={18} color={color} strokeWidth={active ? 2.5 : 1.5} />
+        <IconChevronUp size={20} color={color} strokeWidth={active ? 2.5 : 1.5} />
       ) : (
-        <IconChevronDown size={18} color={color} strokeWidth={active ? 2.5 : 1.5} />
+        <IconChevronDown size={20} color={color} strokeWidth={active ? 2.5 : 1.5} />
       )}
-      <Text
-        style={{
-          fontFamily: active ? FONTS.uiMedium : FONTS.ui,
-          fontSize: 12,
-          color,
-        }}>
-        {count}
-      </Text>
     </Pressable>
   );
 }
 
 function RequestRow({
   item,
+  currentUserId,
   onVote,
 }: {
   item: FeatureRequestWithVote;
+  currentUserId: string | null;
   onVote: (id: string, v: 1 | -1) => void;
 }) {
+  const net = item.upvotes - item.downvotes;
+  const netColor = net > 0 ? COLORS.amber : net < 0 ? COLORS.red : COLORS.ash;
+  const author = item.created_by === currentUserId ? 'You' : 'Community';
+
   return (
     <View
-      style={{
-        backgroundColor: COLORS.linen,
-        borderRadius: 12,
-        padding: 14,
-        marginBottom: 10,
-        flexDirection: 'row',
-        gap: 12,
-        alignItems: 'flex-start',
-      }}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink, marginBottom: 2 }}>
+      className="mb-2.5 flex-row items-start gap-3 rounded-2xl p-4"
+      style={{ backgroundColor: COLORS.linen }}>
+      {/* Content */}
+      <View className="flex-1 gap-1.5">
+        <Text
+          style={{
+            fontFamily: FONTS.displayMedium,
+            fontSize: 17,
+            color: COLORS.ink,
+            lineHeight: 22,
+          }}>
           {item.title}
         </Text>
         {item.description ? (
-          <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }} numberOfLines={2}>
-            {item.description}
-          </Text>
+          <Text style={{ ...TYPE.bodyS, color: COLORS.ash }}>{item.description}</Text>
         ) : null}
+        <Text style={{ ...TYPE.caption, color: COLORS.ash }}>
+          {author} · {formatDate(item.created_at)}
+        </Text>
       </View>
-      <View style={{ flexDirection: 'row', gap: 10, paddingTop: 2 }}>
+
+      {/* Vote column */}
+      <View className="items-center gap-1 pt-0.5">
         <VoteButton
           icon="up"
-          count={item.upvotes}
           active={item.userVote === 1}
           activeColor={COLORS.amber}
           onPress={() => onVote(item.id, 1)}
         />
+        <Text
+          className="min-w-[24px] text-center"
+          style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: netColor }}>
+          {net > 0 ? `+${net}` : `${net}`}
+        </Text>
         <VoteButton
           icon="down"
-          count={item.downvotes}
           active={item.userVote === -1}
           activeColor={COLORS.red}
           onPress={() => onVote(item.id, -1)}
@@ -99,8 +97,19 @@ function RequestRow({
   );
 }
 
+function ShimmerRow() {
+  return (
+    <View className="mb-2.5 gap-2 rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
+      <ShimmerLine width="70%" />
+      <ShimmerLine width="90%" />
+      <ShimmerLine width="40%" />
+    </View>
+  );
+}
+
 export default function FeatureRequestsScreen() {
-  const { requests, loading, submitting, fetchRequests, submitRequest, vote } = useFeatureRequests();
+  const { requests, loading, submitting, currentUserId, fetchRequests, submitRequest, vote } =
+    useFeatureRequests();
 
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
@@ -122,25 +131,22 @@ export default function FeatureRequestsScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top', 'bottom']}>
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: COLORS.parchment }}
+      edges={['top', 'bottom']}>
       <ScreenHeader title="Feature Requests" onBack={() => router.back()} />
-
       <ScrollView
+        className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
-
         {/* Suggest button / form */}
         {showForm ? (
-          <View
-            style={{
-              backgroundColor: COLORS.linen,
-              borderRadius: 12,
-              padding: 14,
-              marginTop: 16,
-              marginBottom: 16,
-            }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.ink, flex: 1 }}>
+          <View className="mb-4 mt-3 rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
+            <View className="mb-3 flex-row items-center">
+              <Text
+                className="flex-1"
+                style={{ fontFamily: FONTS.displayMedium, fontSize: 18, color: COLORS.ink }}>
                 Suggest a feature
               </Text>
               <Pressable onPress={() => setShowForm(false)} hitSlop={8}>
@@ -153,15 +159,12 @@ export default function FeatureRequestsScreen() {
               placeholderTextColor={COLORS.ash}
               value={title}
               onChangeText={setTitle}
+              className="mb-2 rounded-lg px-3 py-2.5"
               style={{
                 fontFamily: FONTS.ui,
                 fontSize: 15,
                 color: COLORS.ink,
                 backgroundColor: COLORS.parchment,
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 10,
-                marginBottom: 8,
               }}
               returnKeyType="next"
             />
@@ -172,27 +175,21 @@ export default function FeatureRequestsScreen() {
               onChangeText={setDescription}
               multiline
               numberOfLines={3}
+              className="mb-3 min-h-[72px] rounded-lg px-3 py-2.5"
               style={{
                 fontFamily: FONTS.ui,
                 fontSize: 14,
                 color: COLORS.ink,
                 backgroundColor: COLORS.parchment,
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 10,
-                marginBottom: 12,
-                minHeight: 72,
                 textAlignVertical: 'top',
               }}
             />
             <Pressable
               onPress={handleSubmit}
               disabled={!title.trim() || submitting}
+              className="items-center rounded-xl py-[11px]"
               style={{
                 backgroundColor: COLORS.amber,
-                borderRadius: 10,
-                paddingVertical: 11,
-                alignItems: 'center',
                 opacity: !title.trim() || submitting ? 0.5 : 1,
               }}>
               {submitting ? (
@@ -207,18 +204,10 @@ export default function FeatureRequestsScreen() {
         ) : (
           <Pressable
             onPress={() => setShowForm(true)}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-              backgroundColor: COLORS.linen,
-              borderRadius: 12,
-              padding: 14,
-              marginTop: 16,
-              marginBottom: 16,
-            }}>
+            className="mb-4 mt-3 flex-row items-center gap-2 rounded-2xl border p-4"
+            style={{ backgroundColor: COLORS.linen, borderColor: COLORS.dust }}>
             <IconPlus size={16} color={COLORS.amber} strokeWidth={2} />
-            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.amber }}>
+            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.amber }}>
               Suggest a feature
             </Text>
           </Pressable>
@@ -226,21 +215,18 @@ export default function FeatureRequestsScreen() {
 
         {/* List */}
         {loading ? (
-          <ActivityIndicator color={COLORS.ash} style={{ marginTop: 32 }} />
+          <>
+            <ShimmerRow />
+            <ShimmerRow />
+            <ShimmerRow />
+          </>
         ) : requests.length === 0 ? (
-          <Text
-            style={{
-              fontFamily: FONTS.ui,
-              fontSize: 14,
-              color: COLORS.ash,
-              textAlign: 'center',
-              marginTop: 32,
-            }}>
+          <Text className="mt-8 text-center" style={{ ...TYPE.bodyS, color: COLORS.ash }}>
             No feature requests yet. Be the first to suggest one!
           </Text>
         ) : (
           requests.map((item) => (
-            <RequestRow key={item.id} item={item} onVote={vote} />
+            <RequestRow key={item.id} item={item} currentUserId={currentUserId} onVote={vote} />
           ))
         )}
       </ScrollView>
