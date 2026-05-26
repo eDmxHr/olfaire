@@ -27,7 +27,7 @@ export default function TodayScreen() {
   const { fetchSignatures } = useLayering();
   const signatures = useLayeringStore((s) => s.signatures);
   const [hasError, setHasError] = useState(false);
-const { animStyle, trigger } = useScreenAnimation(16);
+  const { animStyle, trigger } = useScreenAnimation(16);
 
   const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 

@@ -1,13 +1,12 @@
-import { Alert, View, ScrollView } from 'react-native';
+import { Alert, View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Pressable } from 'react-native';
 import { IconNotes, IconShare3, IconTrash } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 export default function SignaturesScreen() {
   const signatures = useLayeringStore((s) => s.signatures);
@@ -16,24 +15,18 @@ export default function SignaturesScreen() {
   function confirmDelete(id: string, name: string) {
     Alert.alert('Delete signature?', name, [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => deleteSignature(id),
-      },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteSignature(id) },
     ]);
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScreenHeader title="Signatures" onBack={() => router.navigate('/(tabs)/profile')} />
 
       {signatures.length === 0 ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+        <View className="flex-1 items-center justify-center gap-2.5">
           <IconNotes size={40} color={COLORS.ash} strokeWidth={1.2} />
-          <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ash }}>
-            No signatures yet
-          </Text>
+          <Text style={{ ...TYPE.bodyS, color: COLORS.ash }}>No signatures yet</Text>
         </View>
       ) : (
         <ScrollView
@@ -48,51 +41,48 @@ export default function SignaturesScreen() {
             return (
               <View
                 key={sig.id}
-                style={{
-                  backgroundColor: COLORS.linen,
-                  borderRadius: 10,
-                  paddingHorizontal: 14,
-                  paddingVertical: 14,
-                  marginBottom: 10,
-                }}>
+                className="mb-2.5 rounded-2xl px-4 py-3.5"
+                style={{ backgroundColor: COLORS.linen }}>
+                {/* Name + date */}
                 <View className="flex-row items-start justify-between">
                   <Text
                     className="flex-1"
-                    style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.ink }}>
+                    style={{
+                      fontFamily: FONTS.displayMedium,
+                      fontSize: 17,
+                      color: COLORS.ink,
+                      lineHeight: 22,
+                    }}>
                     {sig.name}
                   </Text>
-                  <Text
-                    className="ml-2"
-                    style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+                  <Text className="ml-2" style={{ ...TYPE.caption, color: COLORS.ash }}>
                     {date}
                   </Text>
                 </View>
 
+                {/* Blend subtitle */}
                 {sig.fragrance_a_name && sig.fragrance_b_name ? (
                   <Text
+                    className="mt-0.5"
                     style={{
-                      fontFamily: FONTS.displayLightItalic,
-                      fontSize: 13,
+                      fontFamily: FONTS.uiLight,
+                      fontSize: 12,
                       color: COLORS.ash,
+                      lineHeight: 20,
                     }}>
                     {sig.fragrance_a_name} × {sig.fragrance_b_name}
                   </Text>
                 ) : null}
 
-                <View className="mt-1.5 flex-row items-center justify-between">
+                {/* Tags + actions */}
+                <View className="mt-2 flex-row items-center justify-between">
                   <View className="flex-1 flex-row flex-wrap gap-1.5">
                     {sig.tags.map((tag) => (
                       <View
                         key={tag}
-                        style={{
-                          backgroundColor: COLORS.parchment,
-                          borderRadius: 99,
-                          paddingHorizontal: 8,
-                          paddingVertical: 2,
-                        }}>
-                        <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
-                          {tag}
-                        </Text>
+                        className="rounded-full px-2 py-0.5"
+                        style={{ backgroundColor: COLORS.parchment }}>
+                        <Text style={{ ...TYPE.caption, color: COLORS.ash }}>{tag}</Text>
                       </View>
                     ))}
                   </View>

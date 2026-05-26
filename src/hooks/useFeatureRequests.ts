@@ -124,20 +124,6 @@ export function useFeatureRequests() {
         );
       }
 
-      // Refetch from server to keep counts accurate
-      const { data } = await (supabase as any)
-        .from('feature_requests')
-        .select('upvotes, downvotes')
-        .eq('id', requestId)
-        .single();
-
-      if (data) {
-        setRequests((prev) =>
-          prev.map((r) =>
-            r.id === requestId ? { ...r, upvotes: data.upvotes, downvotes: data.downvotes } : r
-          )
-        );
-      }
     } catch (err) {
       console.error('vote error:', err);
       // Revert by refetching

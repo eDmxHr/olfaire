@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { TagChip } from '@/components/ui/tag-chip';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 interface Signature {
@@ -20,7 +20,7 @@ interface SignatureCardProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function SignatureCard({ signature, nameSize = 13, onPress, style }: SignatureCardProps) {
+export function SignatureCard({ signature, nameSize = 17, onPress, style }: SignatureCardProps) {
   const date = new Date(signature.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -34,20 +34,27 @@ export function SignatureCard({ signature, nameSize = 13, onPress, style }: Sign
   return (
     <Pressable
       onPress={onPress}
-      className="mb-2 rounded-[10px] px-3.5 py-3"
+      className="mb-2 rounded-2xl px-4 py-3.5"
       style={[{ backgroundColor: COLORS.linen }, style]}>
       <View className="flex-row items-start justify-between">
         <Text
           className="flex-1"
-          style={{ fontFamily: FONTS.uiMedium, fontSize: nameSize, color: COLORS.ink }}>
+          style={{
+            fontFamily: FONTS.displayMedium,
+            fontSize: nameSize,
+            color: COLORS.ink,
+            lineHeight: 22,
+          }}>
           {signature.name}
         </Text>
-        <Text className="ml-2" style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+        <Text className="ml-2" style={{ ...TYPE.caption, color: COLORS.ash }}>
           {date}
         </Text>
       </View>
       {blendSubtitle ? (
-        <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 13, color: COLORS.ash }}>
+        <Text
+          className="mt-0.5"
+          style={{ fontFamily: FONTS.uiLight, fontSize: 12, color: COLORS.ash, lineHeight: 20 }}>
           {blendSubtitle}
         </Text>
       ) : null}

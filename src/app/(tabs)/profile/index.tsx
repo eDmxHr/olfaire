@@ -285,7 +285,8 @@ export default function ProfileScreen() {
                       <View
                         className="rounded-full px-2.5 py-0.5"
                         style={{ backgroundColor: colorWithOpacity(COLORS.amber, 0.13) }}>
-                        <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.amber }}>
+                        <Text
+                          style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.amber }}>
                           {item.wear_count}×
                         </Text>
                       </View>
