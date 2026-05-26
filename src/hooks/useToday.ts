@@ -8,6 +8,14 @@ function todayDate(): string {
   return new Date().toISOString().split('T')[0];
 }
 
+function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' | 'night' {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 21) return 'evening';
+  return 'night';
+}
+
 export function useToday() {
   const store = useTodayStore();
   const profile = useAuthStore((s) => s.profile);
@@ -118,13 +126,17 @@ export function useToday() {
   }
 
   async function fetchLumiOpening() {
-    const weather = store.weather;
+    store.setLumiOpening(null);
+    await waitForWeather(3000);
+    const weather = useTodayStore.getState().weather;
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const timeOfDay = getTimeOfDay();
     try {
       const line = await fetchLumiOpeningLine({
         weekday: today,
-        condition: weather?.condition ?? 'clear',
+        condition: weather?.condition ?? 'Clear',
         tempC: weather?.temp_c ?? 20,
+        timeOfDay,
       });
       if (line) store.setLumiOpening(line);
     } catch (err) {

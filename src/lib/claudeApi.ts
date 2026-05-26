@@ -132,23 +132,24 @@ function parseJSON<T>(text: string): T {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Task 1 — Morning Opening Line
+// Task 1 — Opening Line
 // Model: Haiku · Never cached
 // ─────────────────────────────────────────────────────────────────
 interface OpeningLineParams {
   weekday: string;
   condition: string;
   tempC: number;
+  timeOfDay: 'morning' | 'afternoon' | 'evening' | 'night';
 }
 
 export async function fetchLumiOpeningLine(params: OpeningLineParams): Promise<string> {
-  const { weekday, condition, tempC } = params;
+  const { weekday, condition, tempC, timeOfDay } = params;
 
   const text = await callClaude({
     model: HAIKU,
     system: LUMI_SYSTEM,
     maxTokens: 60,
-    userMessage: `Write Lumi's morning greeting — the single line the user sees before selecting their mood.
+    userMessage: `Write Lumi's ${timeOfDay} greeting — the single line the user sees before selecting their mood.
 One sentence. Maximum 15 words. No greeting words like "Good morning", "Hello", "Hi".
 Start with the day, the weather, or something sensory.
 
@@ -157,7 +158,7 @@ Examples:
 - "Thursday. The kind of cold that asks for something warm."
 - "Clear sky, office ahead. What are you reaching for today?"
 
-TODAY: ${weekday} | Weather: ${condition}, ${tempC}°C
+TODAY: ${weekday}, ${timeOfDay} | Weather: ${condition}, ${tempC}°C
 
 Return plain text only. No JSON. No punctuation beyond the sentence.`,
   });
