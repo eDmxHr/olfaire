@@ -272,10 +272,10 @@ export async function uploadAvatarImage(userId: string, fileUri: string): Promis
       console.error('Avatar upload error:', error);
       return null;
     }
-    // Signed URL valid for 10 years — stored in profile so no runtime re-signing needed
+    // Signed URL valid for 1 year — regenerated on each avatar upload
     const { data: signed, error: signError } = await supabase.storage
       .from('avatars')
-      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
     if (signError || !signed) {
       console.error('Avatar signed URL error:', signError);
       return null;

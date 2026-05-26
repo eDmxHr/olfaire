@@ -30,10 +30,10 @@ export function useAuth() {
         const params = new URLSearchParams(hash);
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
-        if (accessToken) {
+        if (accessToken && refreshToken) {
           await supabase.auth.setSession({
             access_token: accessToken,
-            refresh_token: refreshToken ?? '',
+            refresh_token: refreshToken,
           });
         }
       }

@@ -24,6 +24,7 @@ import {
   IconBulb,
 } from '@tabler/icons-react-native';
 import RevenueCatUI from 'react-native-purchases-ui';
+import { TimePickerModal } from '@/components/profile/time-picker-modal';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
@@ -317,13 +318,11 @@ export default function SettingsScreen() {
           {profile?.notification_enabled && (
             <>
               <RowDivider />
-              {/* Time row — tap to open picker on Android; always-visible on iOS */}
+              {/* Time row — tap to open picker */}
               <Pressable
                 className="flex-row items-center justify-between"
                 style={{ paddingVertical: 14 }}
-                onPress={() => {
-                  if (Platform.OS === 'android') setShowTimePicker(true);
-                }}>
+                onPress={() => setShowTimePicker(true)}>
                 <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
                   Reminder time
                 </Text>
@@ -332,15 +331,24 @@ export default function SettingsScreen() {
                 </Text>
               </Pressable>
 
-              {/* iOS: always visible inline picker; Android: conditional */}
-              {(Platform.OS === 'ios' || showTimePicker) && (
+              {/* iOS: modal bottom sheet */}
+              {Platform.OS === 'ios' && (
+                <TimePickerModal
+                  visible={showTimePicker}
+                  value={timeStringToDate(profile.notification_time ?? '08:00')}
+                  onChange={onTimeChange}
+                  onClose={() => setShowTimePicker(false)}
+                />
+              )}
+
+              {/* Android: native picker, conditional */}
+              {Platform.OS === 'android' && showTimePicker && (
                 <DateTimePicker
                   mode="time"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  display="default"
                   value={timeStringToDate(profile.notification_time ?? '08:00')}
                   onChange={onTimeChange}
                   themeVariant="light"
-                  style={{ marginBottom: 8, alignSelf: 'flex-start' }}
                 />
               )}
             </>

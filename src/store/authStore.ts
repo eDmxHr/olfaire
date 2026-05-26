@@ -1,17 +1,18 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { type Session } from '@supabase/supabase-js';
 import { type Profile } from '@/lib/supabase';
 
 // ── State & Actions interface ─────────────────────────────────────
 interface AuthState {
   // State
-  session: any | null;
+  session: Session | null;
   profile: Profile | null;
   isLoading: boolean;
 
   // Pure setters (used by useProfile hook)
-  setSession: (session: any | null) => void;
+  setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
   setLoading: (loading: boolean) => void;
   clearAll: () => void;

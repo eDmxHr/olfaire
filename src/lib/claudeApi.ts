@@ -1,9 +1,11 @@
 // ── Lumi · Claude API calls ───────────────────────────────────────
 // All Anthropic API calls go through this file.
 // Models: Haiku for simple calls, Sonnet for layering/conflict.
+// The Anthropic key lives server-side in the `lumi` edge function — never in the client bundle.
 
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_KEY;
+import { supabase } from '@/lib/supabase';
+
+const LUMI_FUNCTION_URL = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/lumi`;
 
 // ── Models ────────────────────────────────────────────────────────
 const HAIKU = 'claude-haiku-4-5-20251001';
@@ -91,14 +93,14 @@ async function callClaude({
   userMessage: string;
   maxTokens?: number;
 }): Promise<string> {
-  if (!API_KEY) throw new Error('Missing EXPO_PUBLIC_ANTHROPIC_KEY in .env');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('Not authenticated');
 
-  const res = await fetch(ANTHROPIC_API_URL, {
+  const res = await fetch(LUMI_FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-      'anthropic-version': '2023-06-01',
+      'Authorization': `Bearer ${session.access_token}`,
     },
     body: JSON.stringify({
       model,
@@ -110,12 +112,12 @@ async function callClaude({
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Claude API error ${res.status}: ${err}`);
+    throw new Error(`Lumi API error ${res.status}: ${err}`);
   }
 
   const data = await res.json();
   const text = data.content?.[0]?.text?.trim();
-  if (!text) throw new Error('Empty response from Claude API');
+  if (!text) throw new Error('Empty response from Lumi');
   return text;
 }
 
@@ -126,7 +128,6 @@ function parseJSON<T>(text: string): T {
   try {
     return JSON.parse(match[0]) as T;
   } catch (e) {
-    console.log('[claudeApi] raw response:', text);
     throw e;
   }
 }
