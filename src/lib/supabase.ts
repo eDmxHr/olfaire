@@ -122,6 +122,9 @@ export interface Signature {
   is_public: boolean;
   share_count: number;
   created_at: string;
+  // denormalised from layering_cache join — present when fetched via fetchSignatures
+  fragrance_a_name?: string | null;
+  fragrance_b_name?: string | null;
 }
 
 export interface DNAProfile {

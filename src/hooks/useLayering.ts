@@ -111,13 +111,20 @@ export function useLayering() {
 
   async function fetchSignatures() {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('signatures')
-        .select('*')
+        .select(`*, layering_cache:layering_cache_id(fragrance_a:fragrance_a_id(name), fragrance_b:fragrance_b_id(name))`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      store.setSignatures(data ?? []);
+
+      const mapped = (data ?? []).map((row: any) => ({
+        ...row,
+        fragrance_a_name: row.layering_cache?.fragrance_a?.name ?? null,
+        fragrance_b_name: row.layering_cache?.fragrance_b?.name ?? null,
+        layering_cache: undefined,
+      }));
+      store.setSignatures(mapped);
     } catch (err) {
       console.error('fetchSignatures error:', err);
     }

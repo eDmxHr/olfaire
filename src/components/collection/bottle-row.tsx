@@ -13,13 +13,6 @@ interface Props {
 export function BottleRow({ item, onPress }: Props) {
   const frag = item.fragrance;
 
-  const dotColor =
-    item.stock_level === 'full' || item.stock_level === 'medium'
-      ? COLORS.amber
-      : item.stock_level === 'low'
-        ? COLORS.red
-        : COLORS.ash;
-
   return (
     <Pressable
       onPress={onPress}
@@ -48,22 +41,7 @@ export function BottleRow({ item, onPress }: Props) {
         ) : null}
       </View>
 
-      <View className="ml-3 flex-row items-center gap-2">
-        <View
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: dotColor,
-          }}
-        />
-        {item.wear_count > 0 ? (
-          <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.ash }}>
-            {item.wear_count}×
-          </Text>
-        ) : null}
-        <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} />
-      </View>
+      <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} className="ml-3" />
     </Pressable>
   );
 }

@@ -20,10 +20,10 @@ export function StatCard({ value, label, valueColor, size = 'default', onPress, 
   return (
     <Container
       onPress={onPress}
-      className="flex-1 items-center rounded-2xl py-4"
+      className="flex-1 items-start rounded-2xl px-4 py-3.5"
       style={[{ backgroundColor: COLORS.linen }, style]}>
-      <Text style={[valueStyle, { color: valueColor ?? COLORS.ink }]}>{value}</Text>
-      <SectionLabel className="mt-0.5">{label}</SectionLabel>
+      <SectionLabel>{label}</SectionLabel>
+      <Text style={[valueStyle, { color: valueColor ?? COLORS.ink, marginTop: 2 }]}>{value}</Text>
     </Container>
   );
 }

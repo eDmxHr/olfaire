@@ -16,7 +16,7 @@ const PRESET_TAGS = ['Daytime', 'Evening', 'Work', 'Date night', 'Weekend', 'Sea
 
 export default function SignatureScreen() {
   const { analysis, selectedItems, cacheId, isSaving } = useLayeringStore();
-  const { saveSignature } = useLayering();
+  const { saveSignature, deleteSignature } = useLayering();
   const { bottom: bottomInset } = useSafeAreaInsets();
 
   const fragA = selectedItems[0]?.fragrance as any;
@@ -77,11 +77,6 @@ export default function SignatureScreen() {
     router.back();
   }
 
-  async function handleShare() {
-    const id = await getOrSave();
-    if (id) router.push(`/modals/signature-share?signatureId=${id}`);
-  }
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScreenHeader title="Signature" />
@@ -129,9 +124,7 @@ export default function SignatureScreen() {
         <View className="mb-2 flex-row items-center justify-between">
           <SectionLabel>Name your blend</SectionLabel>
           {isFetchingNames && <SpinningLoader size={14} color={COLORS.ash} />}
-          {!isFetchingNames && suggestions.length > 0 && (
-            <SectionLabel>Lumi suggests</SectionLabel>
-          )}
+          {!isFetchingNames && suggestions.length > 0 && <SectionLabel>Lumi suggests</SectionLabel>}
         </View>
         {!isFetchingNames && suggestions.length > 0 && (
           <View className="mb-3 flex-row flex-wrap gap-2">
@@ -217,16 +210,6 @@ export default function SignatureScreen() {
           <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.parchment }}>
             {isSaving ? 'Saving…' : 'Save signature'}
           </Text>
-        </Pressable>
-        <Pressable
-          onPress={handleShare}
-          style={{
-            backgroundColor: COLORS.linen,
-            borderRadius: 10,
-            paddingVertical: 14,
-            alignItems: 'center',
-          }}>
-          <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>Share</Text>
         </Pressable>
       </View>
     </SafeAreaView>

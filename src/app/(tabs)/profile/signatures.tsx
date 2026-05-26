@@ -2,7 +2,7 @@ import { Alert, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
-import { IconNotes } from '@tabler/icons-react-native';
+import { IconNotes, IconShare3, IconTrash } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { useLayeringStore } from '@/store/LayeringStore';
@@ -68,8 +68,19 @@ export default function SignaturesScreen() {
                   </Text>
                 </View>
 
-                {sig.tags.length > 0 && (
-                  <View className="mt-1.5 flex-row flex-wrap gap-1.5">
+                {sig.fragrance_a_name && sig.fragrance_b_name ? (
+                  <Text
+                    style={{
+                      fontFamily: FONTS.displayLightItalic,
+                      fontSize: 13,
+                      color: COLORS.ash,
+                    }}>
+                    {sig.fragrance_a_name} × {sig.fragrance_b_name}
+                  </Text>
+                ) : null}
+
+                <View className="mt-1.5 flex-row items-center justify-between">
+                  <View className="flex-1 flex-row flex-wrap gap-1.5">
                     {sig.tags.map((tag) => (
                       <View
                         key={tag}
@@ -85,27 +96,16 @@ export default function SignaturesScreen() {
                       </View>
                     ))}
                   </View>
-                )}
-
-                <View className="mt-3 flex-row items-center gap-3">
-                  <Pressable
-                    onPress={() =>
-                      router.push(`/modals/signature-share?signatureId=${sig.id}`)
-                    }>
-                    <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.amber }}>
-                      Share
-                    </Text>
-                  </Pressable>
-
-                  <View
-                    style={{ width: 1, height: 16, backgroundColor: COLORS.dust }}
-                  />
-
-                  <Pressable onPress={() => confirmDelete(sig.id, sig.name)}>
-                    <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ash }}>
-                      Delete
-                    </Text>
-                  </Pressable>
+                  <View className="ml-3 flex-row items-center gap-3">
+                    <Pressable
+                      onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
+                      hitSlop={8}>
+                      <IconShare3 size={18} color={COLORS.amber} strokeWidth={1.5} />
+                    </Pressable>
+                    <Pressable onPress={() => confirmDelete(sig.id, sig.name)} hitSlop={8}>
+                      <IconTrash size={18} color={COLORS.ash} strokeWidth={1.5} />
+                    </Pressable>
+                  </View>
                 </View>
               </View>
             );
