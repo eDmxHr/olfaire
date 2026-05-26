@@ -95,6 +95,7 @@ export interface DailyLog {
   weather_temp_c: number | null;
   weather_humidity: number | null;
   lumi_suggestion_text: string | null;
+  reasoning_tags: string[];
   wear_rating: WearRating | null;
   calendar_event: string | null;
   created_at: string;
@@ -271,8 +272,15 @@ export async function uploadAvatarImage(userId: string, fileUri: string): Promis
       console.error('Avatar upload error:', error);
       return null;
     }
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-    return data.publicUrl;
+    // Signed URL valid for 10 years — stored in profile so no runtime re-signing needed
+    const { data: signed, error: signError } = await supabase.storage
+      .from('avatars')
+      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+    if (signError || !signed) {
+      console.error('Avatar signed URL error:', signError);
+      return null;
+    }
+    return signed.signedUrl;
   } catch (err) {
     console.error('uploadAvatarImage failed:', err);
     return null;

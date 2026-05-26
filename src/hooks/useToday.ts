@@ -34,7 +34,7 @@ export function useToday() {
             fragrance_house: suggested_fragrance.house,
             fragrance_name: suggested_fragrance.name,
             lumi_line: log.lumi_suggestion_text,
-            reasoning_tags: [],
+            reasoning_tags: log.reasoning_tags ?? [],
           });
         }
       } else {
@@ -190,6 +190,7 @@ export function useToday() {
         .update({
           suggested_fragrance_id: result.fragrance_id,
           lumi_suggestion_text: result.lumi_line,
+          reasoning_tags: result.reasoning_tags ?? [],
         })
         .eq('id', todayLog.id);
     } catch (err) {

@@ -1,12 +1,26 @@
 import { useState } from 'react';
-import { Alert, View, ScrollView, Switch, TextInput, Pressable, ActivityIndicator, Platform } from 'react-native';
+import {
+  Alert,
+  View,
+  ScrollView,
+  Switch,
+  TextInput,
+  Pressable,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import {
-  IconCrown, IconLogout, IconTrash, IconPencil, IconCamera,
-  IconChevronRight, IconBulb,
+  IconCrown,
+  IconLogout,
+  IconTrash,
+  IconPencil,
+  IconCamera,
+  IconChevronRight,
+  IconBulb,
 } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -60,12 +74,12 @@ function formatTime(timeStr: string): string {
 export default function SettingsScreen() {
   const profile = useAuthStore((s) => s.profile);
   const isPremium = useAuthStore((s) => s.isPremium());
-  const { setTheme, setSkinType, setNotifications, uploadAvatar, updateProfile, signOut } = useProfile();
+  const { setTheme, setSkinType, setNotifications, uploadAvatar, updateProfile, signOut } =
+    useProfile();
 
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [avatarCacheBust, setAvatarCacheBust] = useState<number | null>(null);
 
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -103,7 +117,6 @@ export default function SettingsScreen() {
     setUploadingAvatar(true);
     try {
       await uploadAvatar(result.assets[0].uri);
-      setAvatarCacheBust(Date.now());
     } finally {
       setUploadingAvatar(false);
     }
@@ -156,7 +169,6 @@ export default function SettingsScreen() {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
-
         {/* ── Account ── */}
         <SectionLabel label="Account" />
         <View
@@ -170,18 +182,10 @@ export default function SettingsScreen() {
             {/* Avatar */}
             <Pressable onPress={editing ? pickAvatar : undefined} style={{ position: 'relative' }}>
               <Avatar
+                key={profile?.avatar_url ?? 'no-avatar'}
                 style={{ width: 48, height: 48, borderRadius: 24 }}
                 alt={profile?.display_name || ''}>
-                {profile?.avatar_url ? (
-                  <AvatarImage
-                    source={{
-                      uri: avatarCacheBust
-                        ? `${profile.avatar_url}?t=${avatarCacheBust}`
-                        : profile.avatar_url,
-                      cache: 'reload',
-                    }}
-                  />
-                ) : null}
+                {profile?.avatar_url ? <AvatarImage source={{ uri: profile.avatar_url }} /> : null}
                 <AvatarFallback
                   style={{
                     backgroundColor: COLORS.dust,
@@ -269,7 +273,8 @@ export default function SettingsScreen() {
                     borderRadius: 8,
                     backgroundColor: COLORS.amber,
                   }}>
-                  <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
+                  <Text
+                    style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
                     Save
                   </Text>
                 </Pressable>

@@ -95,7 +95,7 @@ export function SuggestionCard({
         {suggestion.reasoning_tags?.length > 0 && (
           <View className="flex-row flex-wrap gap-1.5">
             {suggestion.reasoning_tags.map((tag) => (
-              <TagChip key={tag} label={tag} variant="dark" shape="rounded" />
+              <TagChip key={tag} label={tag.replace(/_/g, ' ')} variant="dark" shape="rounded" />
             ))}
           </View>
         )}
