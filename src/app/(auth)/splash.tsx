@@ -21,7 +21,7 @@ export default function SplashScreen() {
           <Text
             style={{ fontFamily: FONTS.ui }}
             className="text-xs uppercase tracking-widest text-muted-foreground">
-            your scent, understood
+            Your intelliscent
           </Text>
         </View>
 

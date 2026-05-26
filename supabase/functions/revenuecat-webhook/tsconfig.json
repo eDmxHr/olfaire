@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "types": ["@supabase/functions-js/src/edge-runtime.d.ts"],
+    "paths": {
+      "https://esm.sh/@supabase/supabase-js@2": ["../../../node_modules/@supabase/supabase-js"]
+    }
+  }
+}

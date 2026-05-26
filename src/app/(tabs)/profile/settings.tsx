@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   Alert,
+  Linking,
   View,
   ScrollView,
   Switch,
@@ -22,11 +23,13 @@ import {
   IconChevronRight,
   IconBulb,
 } from '@tabler/icons-react-native';
+import RevenueCatUI from 'react-native-purchases-ui';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { useAuthStore } from '@/store/authStore';
 import { useProfile } from '@/hooks/useProfile';
+import { syncPremiumStatus } from '@/lib/revenueCat';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { SkinType, Theme } from '@/lib/supabase';
 
@@ -431,17 +434,53 @@ export default function SettingsScreen() {
             backgroundColor: COLORS.linen,
             borderRadius: 12,
             paddingHorizontal: 14,
-            paddingVertical: 14,
           }}>
-          <View className="flex-row items-center gap-3">
+          <Pressable
+            onPress={() => !isPremium && router.push('/modals/premium-gate')}
+            className="flex-row items-center gap-3"
+            style={{ paddingVertical: 14 }}>
             <IconCrown size={20} color={COLORS.amber} strokeWidth={1.5} />
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
-              {isPremium ? 'Olfaire Premium' : 'Free plan'}
+              {isPremium ? 'Olfaire Pro' : 'Free plan'}
             </Text>
             <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.amber }}>
               {isPremium ? 'Active' : 'Upgrade'}
             </Text>
-          </View>
+          </Pressable>
+
+          <View style={{ height: 1, backgroundColor: COLORS.dust }} />
+
+          {isPremium ? (
+            <Pressable
+              onPress={async () => {
+                try {
+                  await RevenueCatUI.presentCustomerCenter({
+                    callbacks: {
+                      onRestoreCompleted: async () => { await syncPremiumStatus(); },
+                    },
+                  });
+                } catch {
+                  // Native Customer Center unavailable (e.g. Expo Go) — open Apple's subscription page
+                  Linking.openURL('https://apps.apple.com/account/subscriptions');
+                }
+              }}
+              className="flex-row items-center gap-3"
+              style={{ paddingVertical: 14 }}>
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
+                Manage subscription
+              </Text>
+              <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} />
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => router.push('/modals/premium-gate')}
+              className="flex-row items-center gap-3"
+              style={{ paddingVertical: 14 }}>
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ash, flex: 1 }}>
+                Restore purchases
+              </Text>
+            </Pressable>
+          )}
         </View>
 
         {/* ── Community ── */}

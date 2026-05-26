@@ -47,6 +47,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-purchases": "^10.1.2",
+    "react-native-purchases-ui": "^10.1.2",
     "react-native-reanimated": "~4.1.7",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.16.0",
@@ -60,7 +62,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@deno/types": "^0.0.1",
     "@react-native-reusables/cli": "^0.7.1",
+    "@supabase/functions-js": "^2.106.2",
     "@types/node": "^25.9.1",
     "@types/react": "~19.1.10",
     "babel-preset-expo": "^54.0.10",

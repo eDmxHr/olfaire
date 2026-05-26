@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
@@ -6,7 +7,9 @@ import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { supabase } from '@/lib/supabase';
+import { syncPremiumStatus } from '@/lib/revenueCat';
 import '../../global.css';
 import { useAuthStore } from '@/store/authStore';
 import { useCollectionStore } from '@/store/Collectionstore';
@@ -55,6 +58,9 @@ function useAuthRedirect() {
         await fetchProfile();
         await fetchCollection();
         await fetchTodayLog();
+        const userId = newSession.user.id;
+        await Purchases.logIn(userId);
+        await syncPremiumStatus();
       }
 
       if (event === 'SIGNED_OUT') {
@@ -62,6 +68,9 @@ function useAuthRedirect() {
         resetCollection();
         resetToday();
         resetLayering();
+        try {
+          await Purchases.logOut();
+        } catch {}
       }
     });
 
@@ -73,7 +82,8 @@ function useAuthRedirect() {
         resetLayering();
       } else if (session) {
         setSession(session);
-        fetchProfile();
+        Purchases.logIn(session.user.id).catch(() => {});
+        fetchProfile().then(() => syncPremiumStatus());
       }
     });
 
@@ -152,6 +162,17 @@ function Navigator() {
 
 // ── Root layout ───────────────────────────────────────────────────
 export default function RootLayout() {
+  useEffect(() => {
+    if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+    Purchases.configure({
+      apiKey: Platform.select({
+        ios: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY!,
+        android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY!,
+        default: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY!,
+      })!,
+    });
+  }, []);
+
   const [fontsLoaded] = useFonts({
     'CormorantGaramond-Light': require('../../assets/fonts/CormorantGaramond-Light.ttf'),
     'CormorantGaramond-LightItalic': require('../../assets/fonts/CormorantGaramond-LightItalic.ttf'),
