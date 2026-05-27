@@ -113,7 +113,7 @@ export default function PremiumGateModal() {
             <Text
               className="text-center"
               style={{
-                fontFamily: FONTS.display,
+                fontFamily: FONTS.displayLightItalic,
                 fontSize: 28,
                 color: COLORS.ink,
                 lineHeight: 34,
@@ -128,7 +128,7 @@ export default function PremiumGateModal() {
                   fontFamily: FONTS.uiMedium,
                   fontSize: 12,
                   color: COLORS.amber,
-                  letterSpacing: 0.5,
+                  letterSpacing: 1.9,
                 }}>
                 Olfaire Pro
               </Text>
@@ -150,7 +150,7 @@ export default function PremiumGateModal() {
                 </Text>
                 <Text
                   className="flex-1"
-                  style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ink, lineHeight: 22 }}>
+                  style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, lineHeight: 22 }}>
                   {f}
                 </Text>
               </View>
@@ -218,7 +218,7 @@ export default function PremiumGateModal() {
                             fontFamily: FONTS.uiMedium,
                             fontSize: 10,
                             color: COLORS.amber,
-                            letterSpacing: 0.5,
+                            letterSpacing: 1.9,
                           }}>
                           {badge}
                         </Text>

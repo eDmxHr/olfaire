@@ -14,7 +14,7 @@ import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { StatCard } from '@/components/ui/stat-card';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 // ── CollectionScreen ──────────────────────────────────────────────────────────
 
@@ -71,13 +71,7 @@ export default function CollectionScreen() {
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
           {/* Header */}
           <View className="mt-5 flex-row items-center justify-between">
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 32,
-                lineHeight: 40,
-                color: COLORS.ink,
-              }}>
+            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
               Collection
             </Text>
             <Pressable
@@ -177,7 +171,7 @@ export default function CollectionScreen() {
           {filteredItems.length === 0 ? (
             <Text
               className="mt-6 text-center"
-              style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ash }}>
+              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
               {isSearching
                 ? 'No results for that search.'
                 : `No ${selectedFamily} bottles in your collection.`}

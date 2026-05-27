@@ -89,7 +89,7 @@ export default function WeekScreen() {
                   <Text
                     style={{
                       fontFamily: FONTS.uiMedium,
-                      fontSize: 12,
+                      fontSize: 11,
                       color: isToday ? COLORS.amber : COLORS.ink,
                     }}>
                     {day}

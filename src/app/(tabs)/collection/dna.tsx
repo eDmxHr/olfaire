@@ -10,7 +10,7 @@ import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
 
 export default function DNAScreen() {
   const dna = useCollectionStore((s) => s.dna);
@@ -41,14 +41,7 @@ export default function DNAScreen() {
               {/* Dominant family hero */}
               <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20, marginBottom: 20 }}>
                 <SectionLabel>Your signature</SectionLabel>
-                <Text
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 28,
-                    lineHeight: 34,
-                    color: COLORS.parchment,
-                    marginTop: 4,
-                  }}>
+                <Text style={[TYPE.displayL, { color: COLORS.parchment, marginTop: 4 }]}>
                   {dna!.dominant_family}
                 </Text>
                 {dna!.lumi_insight ? (
@@ -111,14 +104,7 @@ export default function DNAScreen() {
             /* Empty state */
             <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: 16 }}>
               <Lumi size={48} />
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 20,
-                  color: COLORS.ink,
-                  lineHeight: 28,
-                  textAlign: 'center',
-                }}>
+              <Text style={[TYPE.displayM, { color: COLORS.ink, textAlign: 'center' }]}>
                 Add 3+ bottles to unlock your DNA
               </Text>
               <Button variant="outline" onPress={() => router.back()}>

@@ -58,7 +58,7 @@ function RequestRow({
       <View className="flex-1 gap-1.5">
         <Text
           style={{
-            fontFamily: FONTS.displayMedium,
+            fontFamily: FONTS.uiMedium,
             fontSize: 17,
             color: COLORS.ink,
             lineHeight: 22,
@@ -146,7 +146,7 @@ export default function FeatureRequestsScreen() {
             <View className="mb-3 flex-row items-center">
               <Text
                 className="flex-1"
-                style={{ fontFamily: FONTS.displayMedium, fontSize: 18, color: COLORS.ink }}>
+                style={{ fontFamily: FONTS.displayLightItalic, fontSize: 22, color: COLORS.ink, lineHeight: 28 }}>
                 Suggest a feature
               </Text>
               <Pressable onPress={() => setShowForm(false)} hitSlop={8}>

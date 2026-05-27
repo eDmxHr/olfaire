@@ -7,7 +7,7 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { LumiQuote } from '@/components/ui/lumi-quote';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import { RATINGS, RATING_CONFIG } from '@/data/ratings';
 
 export default function WearingScreen() {
@@ -44,13 +44,7 @@ export default function WearingScreen() {
               {house}
             </Text>
           ) : null}
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 32,
-              color: COLORS.ink,
-              lineHeight: 38,
-            }}>
+          <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
             {name}
           </Text>
         </View>
@@ -106,13 +100,7 @@ export default function WearingScreen() {
             style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
             Layer it
           </Text>
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 17,
-              color: COLORS.ink,
-              lineHeight: 24,
-            }}>
+          <Text style={[TYPE.displayS, { color: COLORS.ink }]}>
             Curious how this pairs with something else?
           </Text>
           <Text

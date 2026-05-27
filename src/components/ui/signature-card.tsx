@@ -40,7 +40,7 @@ export function SignatureCard({ signature, nameSize = 17, onPress, style }: Sign
         <Text
           className="flex-1"
           style={{
-            fontFamily: FONTS.displayMedium,
+            fontFamily: FONTS.displayLightItalic,
             fontSize: nameSize,
             color: COLORS.ink,
             lineHeight: 22,

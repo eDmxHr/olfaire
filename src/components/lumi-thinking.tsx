@@ -62,7 +62,7 @@ export function LumiThinking({
         <Lumi size={size} wingColor={wingColor} veinColor={veinColor} bodyColor={COLORS.amber} />
       </Animated.View>
       <Animated.View style={textStyle}>
-        <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 16, color: COLORS.ash }}>
+        <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 17, color: COLORS.ash }}>
           {phrases[phraseIndex]}
         </Text>
       </Animated.View>

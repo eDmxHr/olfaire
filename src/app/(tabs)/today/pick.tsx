@@ -10,7 +10,7 @@ import { useToday } from '@/hooks/useToday';
 import { supabase } from '@/lib/supabase';
 import { SectionLabel } from '@/components/ui/section-label';
 import { TagChip } from '@/components/ui/tag-chip';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import { RATINGS } from '@/data/ratings';
 import { SpinningLoader } from '@/components/spinning-loader';
 import type { Fragrance } from '@/lib/supabase';
@@ -83,13 +83,7 @@ export default function PickScreen() {
           {/* House + Name + Identity metadata */}
           <View style={{ gap: 4, marginBottom: 16 }}>
             <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 32,
-                color: COLORS.parchment,
-                lineHeight: 40,
-              }}>
+            <Text style={[TYPE.displayXL, { color: COLORS.parchment }]}>
               {suggestion.fragrance_name}
             </Text>
 
@@ -130,8 +124,8 @@ export default function PickScreen() {
           {/* Lumi's line */}
           <Text
             style={{
-              fontFamily: FONTS.ui,
-              fontSize: 14,
+              fontFamily: FONTS.displayLightItalic,
+              fontSize: 15,
               color: COLORS.amber,
               lineHeight: 22,
               marginBottom: 16,

@@ -42,7 +42,7 @@ export default function StockUpdateModal() {
 
       <Text
         className="mb-2.5 uppercase"
-        style={{ fontFamily: FONTS.uiMedium, fontSize: 10, letterSpacing: 0.8, color: COLORS.ash }}>
+        style={{ fontFamily: FONTS.uiMedium, fontSize: 10, letterSpacing: 2.4, color: COLORS.ash }}>
         Stock level
       </Text>
       <View className="mb-6">

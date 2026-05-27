@@ -46,14 +46,7 @@ export default function SignaturesScreen() {
                 style={{ backgroundColor: COLORS.linen }}>
                 {/* Name + date */}
                 <View className="flex-row items-start justify-between">
-                  <Text
-                    className="flex-1"
-                    style={{
-                      fontFamily: FONTS.displayMedium,
-                      fontSize: 17,
-                      color: COLORS.ink,
-                      lineHeight: 22,
-                    }}>
+                  <Text className="flex-1" style={[TYPE.displayS, { color: COLORS.ink }]}>
                     {sig.name}
                   </Text>
                   <Text className="ml-2" style={{ ...TYPE.caption, color: COLORS.ash }}>

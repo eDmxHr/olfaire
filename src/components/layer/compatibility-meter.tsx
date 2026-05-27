@@ -36,7 +36,7 @@ export function CompatibilityMeter({ score, label, fragNames }: { score: number;
           <Text className="uppercase tracking-widest" style={[TYPE.label, { color: COLORS.ash }]}>
             Compatibility
           </Text>
-          <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 18, color: COLORS.parchment, lineHeight: 24 }}>
+          <Text style={{ fontFamily: FONTS.displayLightItalic, fontSize: 17, color: COLORS.parchment, lineHeight: 22 }}>
             {fragNames}
           </Text>
         </View>

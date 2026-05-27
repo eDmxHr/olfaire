@@ -117,6 +117,6 @@ export const TYPE = {
   displayS:    { fontFamily: FONTS.displayLightItalic, fontSize: 17, lineHeight: 22 },
   body:        { fontFamily: FONTS.ui, fontSize: 15, lineHeight: 22 },
   bodyS:       { fontFamily: FONTS.ui, fontSize: 13, lineHeight: 20 },
-  label:       { fontFamily: FONTS.uiMedium, fontSize: 11, letterSpacing: 0.8, textTransform: 'uppercase' as const },
+  label:       { fontFamily: FONTS.uiMedium, fontSize: 11, letterSpacing: 2.4, textTransform: 'uppercase' as const },
   caption:     { fontFamily: FONTS.ui, fontSize: 11, lineHeight: 16 },
 } as const;

@@ -100,7 +100,7 @@ export default function LowStockScreen() {
                                 fontFamily: FONTS.uiMedium,
                                 fontSize: 10,
                                 color: COLORS.ash,
-                                letterSpacing: 0.8,
+                                letterSpacing: 2.4,
                                 textTransform: 'uppercase',
                               }}>
                               {frag.house}

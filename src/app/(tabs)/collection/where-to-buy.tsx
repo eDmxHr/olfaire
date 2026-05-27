@@ -5,7 +5,7 @@ import { Lumi } from '@/components/lumi';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 export default function WhereToBuyScreen() {
   const { name, house } = useLocalSearchParams<{ name: string; house: string }>();
@@ -20,14 +20,7 @@ export default function WhereToBuyScreen() {
           {house ? (
             <SectionLabel>{house}</SectionLabel>
           ) : null}
-          <Text
-            className="mt-1"
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 28,
-              lineHeight: 34,
-              color: COLORS.parchment,
-            }}>
+          <Text className="mt-1" style={[TYPE.displayL, { color: COLORS.parchment }]}>
             {name || '—'}
           </Text>
         </View>
@@ -35,12 +28,7 @@ export default function WhereToBuyScreen() {
         {/* Coming soon content */}
         <View className="flex-1 items-center justify-center gap-4">
           <Lumi size={48} wingColor={COLORS.ink} />
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 24,
-              color: COLORS.ink,
-            }}>
+          <Text style={[TYPE.displayM, { color: COLORS.ink }]}>
             Coming soon
           </Text>
           <Text

@@ -90,7 +90,7 @@ export function ManualFragranceForm({ values, onChange }: Props) {
 
       <Text
         className="mb-2 mt-1.5 uppercase"
-        style={{ fontFamily: FONTS.uiMedium, fontSize: 11, letterSpacing: 0.6, color: COLORS.ash }}>
+        style={{ fontFamily: FONTS.uiMedium, fontSize: 11, letterSpacing: 2.4, color: COLORS.ash }}>
         Optional
       </Text>
 

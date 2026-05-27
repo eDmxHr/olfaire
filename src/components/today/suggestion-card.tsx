@@ -69,9 +69,9 @@ export function SuggestionCard({
             <Text
               style={{
                 fontFamily: FONTS.displayLightItalic,
-                fontSize: 20,
+                fontSize: 22,
                 color: COLORS.parchment,
-                lineHeight: 26,
+                lineHeight: 28,
               }}>
               {suggestion.fragrance_name}
             </Text>

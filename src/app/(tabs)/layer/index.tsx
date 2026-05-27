@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -54,13 +54,7 @@ const BottleRow = React.memo(function BottleRow({ item, isSelected, isDisabled, 
       }}
       className="flex-row items-center py-3.5">
       <View className="flex-1">
-        <Text
-          style={{
-            fontFamily: FONTS.displayLightItalic,
-            fontSize: 17,
-            lineHeight: 22,
-            color: COLORS.ink,
-          }}>
+        <Text style={[TYPE.displayS, { color: COLORS.ink }]}>
           {frag?.name ?? '—'}
         </Text>
         {sub ? (
@@ -167,13 +161,7 @@ export default function LayerScreen() {
         <Animated.View style={animStyle}>
           {/* Header */}
           <View className="mt-5 items-center">
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 32,
-                lineHeight: 40,
-                color: COLORS.ink,
-              }}>
+            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
               Layer
             </Text>
             {selectedItems.length > 0 && (

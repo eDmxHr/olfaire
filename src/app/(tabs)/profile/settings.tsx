@@ -32,24 +32,8 @@ import { useAuthStore } from '@/store/authStore';
 import { useProfile } from '@/hooks/useProfile';
 import { syncPremiumStatus } from '@/lib/revenueCat';
 import { COLORS, FONTS } from '@/lib/theme';
+import { SectionLabel } from '@/components/ui/section-label';
 import type { SkinType, Theme } from '@/lib/supabase';
-
-function SectionLabel({ label }: { label: string }) {
-  return (
-    <Text
-      style={{
-        fontFamily: FONTS.uiMedium,
-        fontSize: 10,
-        color: COLORS.ash,
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-        marginTop: 28,
-        marginBottom: 10,
-      }}>
-      {label}
-    </Text>
-  );
-}
 
 function RowDivider() {
   return <View style={{ height: 1, backgroundColor: COLORS.dust }} />;
@@ -174,7 +158,7 @@ export default function SettingsScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
         {/* ── Account ── */}
-        <SectionLabel label="Account" />
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Account</SectionLabel>
         <View
           style={{
             backgroundColor: COLORS.linen,
@@ -200,7 +184,7 @@ export default function SettingsScreen() {
                   <Text
                     style={{
                       fontFamily: FONTS.displayLightItalic,
-                      fontSize: 20,
+                      fontSize: 22,
                       color: COLORS.amber,
                     }}>
                     {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
@@ -292,7 +276,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── Preferences ── */}
-        <SectionLabel label="Preferences" />
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Preferences</SectionLabel>
         <View
           style={{
             backgroundColor: COLORS.linen,
@@ -436,7 +420,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── Subscription ── */}
-        <SectionLabel label="Subscription" />
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Subscription</SectionLabel>
         <View
           style={{
             backgroundColor: COLORS.linen,
@@ -492,7 +476,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── Community ── */}
-        <SectionLabel label="Community" />
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Community</SectionLabel>
         <View
           style={{
             backgroundColor: COLORS.linen,
@@ -512,7 +496,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── Account actions ── */}
-        <SectionLabel label="Account" />
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Account</SectionLabel>
         <View
           style={{
             backgroundColor: COLORS.linen,

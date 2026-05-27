@@ -14,7 +14,7 @@ import { useCollection } from '@/hooks/useCollection';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { SignatureCard } from '@/components/ui/signature-card';
-import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
 
 export default function ProfileScreen() {
   const profile = useAuthStore((s) => s.profile);
@@ -93,13 +93,7 @@ export default function ProfileScreen() {
             </Avatar>
 
             <View className="ml-3 flex-1">
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 22,
-                  color: COLORS.ink,
-                  lineHeight: 28,
-                }}>
+              <Text style={[TYPE.displayM, { color: COLORS.ink }]}>
                 {profile?.display_name ?? ''}
               </Text>
               {memberSince && (
@@ -124,11 +118,7 @@ export default function ProfileScreen() {
               <>
                 <Text
                   className="mt-1"
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 20,
-                    color: COLORS.parchment,
-                  }}>
+                  style={[TYPE.displayM, { color: COLORS.parchment }]}>
                   {dna!.dominant_family}
                 </Text>
 
@@ -160,12 +150,7 @@ export default function ProfileScreen() {
                 {dna!.lumi_insight ? (
                   <Text
                     className="mt-3"
-                    style={{
-                      fontFamily: FONTS.displayLightItalic,
-                      fontSize: 17,
-                      color: COLORS.parchment,
-                      lineHeight: 24,
-                    }}>
+                    style={[TYPE.displayS, { color: COLORS.parchment }]}>
                     "{dna!.lumi_insight}"
                   </Text>
                 ) : null}
@@ -218,7 +203,7 @@ export default function ProfileScreen() {
             <View className="rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
               <Text
                 className="mb-3.5"
-                style={{ fontFamily: FONTS.displayLightItalic, fontSize: 18, color: COLORS.ink }}>
+                style={[TYPE.displayM, { color: COLORS.ink }]}>
                 Getting started
               </Text>
               {checklistItems.map((item) => (
@@ -273,9 +258,7 @@ export default function ProfileScreen() {
                       <View className="flex-1">
                         <Text
                           style={{
-                            fontFamily: FONTS.displayLightItalic,
-                            fontSize: 16,
-                            lineHeight: 20,
+                            ...TYPE.displayS,
                             color: COLORS.ink,
                           }}>
                           {frag?.name ?? '—'}

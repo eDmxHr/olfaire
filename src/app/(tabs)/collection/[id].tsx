@@ -81,14 +81,7 @@ export default function BottleDetailScreen() {
             {frag?.house ? (
               <SectionLabel>{frag.house}</SectionLabel>
             ) : null}
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 28,
-                lineHeight: 34,
-                color: COLORS.parchment,
-                marginTop: 2,
-              }}>
+            <Text style={[TYPE.displayL, { color: COLORS.parchment, marginTop: 2 }]}>
               {frag?.name ?? '—'}
             </Text>
 

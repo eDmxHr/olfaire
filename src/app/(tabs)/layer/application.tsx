@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import { BodyMap } from '@/components/layer/body-map';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 function parseRatio(ratio: string): [number, number] {
   const colon = ratio.match(/(\d+)\s*:\s*(\d+)/);
@@ -129,7 +129,7 @@ export default function ApplicationScreen() {
                 </Text>
               </View>
               <View className="flex-1">
-                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.parchment }}>
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.parchment }}>
                   {step.title}
                 </Text>
                 <Text
@@ -147,13 +147,7 @@ export default function ApplicationScreen() {
         {/* ── Section D: Lumi tip ── */}
         <View className="gap-1.5 rounded-2xl p-4" style={{ backgroundColor: COLORS.inkRaised }}>
           <SectionLabel>Lumi says</SectionLabel>
-          <Text
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 17,
-              color: COLORS.parchment,
-              lineHeight: 26,
-            }}>
+          <Text style={[TYPE.displayS, { color: COLORS.parchment }]}>
             {analysis.lumi_summary}
           </Text>
         </View>

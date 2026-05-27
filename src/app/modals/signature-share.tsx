@@ -152,13 +152,7 @@ export default function SignatureShareModal() {
               </Text>
               <View className="flex-row items-center justify-between gap-4">
                 <View className="flex-1 gap-1">
-                  <Text
-                    style={{
-                      fontFamily: FONTS.displayLightItalic,
-                      fontSize: 22,
-                      color: COLORS.parchment,
-                      lineHeight: 28,
-                    }}>
+                  <Text style={[TYPE.displayM, { color: COLORS.parchment }]}>
                     {cardData?.blendName ?? 'My Signature'}
                   </Text>
                   {cardData?.overallCharacter ? (
@@ -170,7 +164,7 @@ export default function SignatureShareModal() {
                 {cardData?.compatibilityScore != null && (
                   <Text
                     style={{
-                      fontFamily: FONTS.displayMedium,
+                      fontFamily: FONTS.displayLightItalic,
                       fontSize: 48,
                       color: COLORS.amber,
                       lineHeight: 52,
@@ -180,13 +174,7 @@ export default function SignatureShareModal() {
                 )}
               </View>
               {cardData?.lumiSummary ? (
-                <Text
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 15,
-                    color: COLORS.ash,
-                    lineHeight: 22,
-                  }}>
+                <Text style={[TYPE.displayS, { color: COLORS.ash }]}>
                   "{cardData.lumiSummary}"
                 </Text>
               ) : null}

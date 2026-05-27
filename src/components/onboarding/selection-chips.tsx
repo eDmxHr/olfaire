@@ -47,7 +47,7 @@ export function SelectionChips(props: SelectionChipsProps) {
         <Text
           style={{
             fontFamily: active ? FONTS.uiMedium : FONTS.ui,
-            fontSize: 14,
+            fontSize: 15,
             color: active ? COLORS.amber : COLORS.ink,
           }}>
           {chip.label}

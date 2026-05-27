@@ -77,7 +77,7 @@ export default function AddPerfumeScreen() {
           <Text
             style={{
               fontFamily: FONTS.ui,
-              fontSize: 14,
+              fontSize: 13,
               color: COLORS.ash,
               marginTop: 24,
               textAlign: 'center',

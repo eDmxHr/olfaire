@@ -10,7 +10,7 @@ import { useLayering } from '@/hooks/useLayering';
 import { fetchSignatureNames } from '@/lib/claudeApi';
 import { SpinningLoader } from '@/components/spinning-loader';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 const PRESET_TAGS = ['Daytime', 'Evening', 'Work', 'Date night', 'Weekend', 'Seasonal'];
 
@@ -95,13 +95,7 @@ export default function SignatureScreen() {
           }}>
           <View className="flex-row items-center gap-4">
             <View className="flex-1">
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 22,
-                  color: COLORS.parchment,
-                  lineHeight: 28,
-                }}>
+              <Text style={[TYPE.displayM, { color: COLORS.parchment }]}>
                 {fragA && fragB ? `${fragA.name} × ${fragB.name}` : defaultName}
               </Text>
               <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, marginTop: 4 }}>
@@ -110,7 +104,7 @@ export default function SignatureScreen() {
             </View>
             <Text
               style={{
-                fontFamily: FONTS.displayMedium,
+                fontFamily: FONTS.displayLightItalic,
                 fontSize: 40,
                 color: COLORS.amber,
                 lineHeight: 44,

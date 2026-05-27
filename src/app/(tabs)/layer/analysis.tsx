@@ -17,7 +17,7 @@ import { Text } from '@/components/ui/text';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 
 export default function AnalysisScreen() {
   const { selectedItems, analysis, isAnalysing, hasConflict } = useLayeringStore();
@@ -81,13 +81,7 @@ export default function AnalysisScreen() {
               {/* Lumi summary */}
               <View className="mb-4 gap-1.5">
                 <SectionLabel>Lumi says</SectionLabel>
-                <Text
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 18,
-                    color: COLORS.parchment,
-                    lineHeight: 26,
-                  }}>
+                <Text style={[TYPE.displayM, { color: COLORS.parchment }]}>
                   {analysis.lumi_summary}
                 </Text>
               </View>

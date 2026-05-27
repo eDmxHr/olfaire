@@ -18,7 +18,7 @@ import { useLayering } from '@/hooks/useLayering';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { SignatureCard } from '@/components/ui/signature-card';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import type { Mood } from '@/lib/supabase';
 
 export default function TodayScreen() {
@@ -70,13 +70,7 @@ export default function TodayScreen() {
           {/* Lumi greeting */}
           <View className="mt-6 min-h-[60px]">
             {store.lumiOpening ? (
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 22,
-                  color: COLORS.ink,
-                  lineHeight: 28,
-                }}>
+              <Text style={[TYPE.displayM, { color: COLORS.ink }]}>
                 {store.lumiOpening}
               </Text>
             ) : (
