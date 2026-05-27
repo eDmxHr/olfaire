@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { View, ScrollView, Pressable, Alert } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
@@ -26,6 +26,7 @@ export default function BottleDetailScreen() {
   const item = getById(id);
   const { removeBottle } = useCollection();
 
+  const [removing, setRemoving] = useState(false);
   const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function BottleDetailScreen() {
   if (!item) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
-        <ScreenHeader title="" />
+        <ScreenHeader title="Collection" />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ash }}>
             Bottle not found.
@@ -61,8 +62,14 @@ export default function BottleDetailScreen() {
         style: 'destructive',
         onPress: async () => {
           if (!item) return;
-          await removeBottle(item.id);
-          router.back();
+          setRemoving(true);
+          try {
+            await removeBottle(item.id);
+            router.back();
+          } catch {
+            setRemoving(false);
+            Alert.alert('Error', 'Could not remove bottle. Please try again.');
+          }
         },
       },
     ]);
@@ -223,10 +230,14 @@ export default function BottleDetailScreen() {
           {/* Remove */}
           <Pressable
             onPress={confirmRemove}
-            style={{ alignItems: 'center', marginTop: 28, paddingVertical: 8 }}>
-            <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
-              Remove from collection
-            </Text>
+            disabled={removing}
+            style={{ alignItems: 'center', marginTop: 28, paddingVertical: 16, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
+            {removing
+              ? <ActivityIndicator size="small" color={COLORS.red} />
+              : <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
+                  Remove from collection
+                </Text>
+            }
           </Pressable>
 
         </Animated.View>

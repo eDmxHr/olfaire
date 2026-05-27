@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, ScrollView, TextInput, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { IconChevronUp, IconChevronDown, IconPlus, IconX } from '@tabler/icons-react-native';
@@ -131,6 +131,7 @@ export default function FeatureRequestsScreen() {
   }
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <SafeAreaView
       className="flex-1"
       style={{ backgroundColor: COLORS.parchment }}
@@ -139,7 +140,8 @@ export default function FeatureRequestsScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
         {/* Suggest button / form */}
         {showForm ? (
           <View className="mb-4 mt-3 rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
@@ -231,5 +233,6 @@ export default function FeatureRequestsScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }

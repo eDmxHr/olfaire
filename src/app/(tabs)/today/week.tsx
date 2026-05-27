@@ -28,6 +28,7 @@ export default function WeekScreen() {
   const { fetchWeekLogs } = useToday();
   const [fragranceNames, setFragranceNames] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [namesLoading, setNamesLoading] = useState(false);
   const today = todayDate();
 
   useEffect(() => {
@@ -37,16 +38,20 @@ export default function WeekScreen() {
   useEffect(() => {
     const ids = weekLogs.map((l) => l.worn_fragrance_id).filter((id): id is number => id != null);
     if (!ids.length) return;
+    setNamesLoading(true);
     (async () => {
-      const { data } = await (supabase as any)
+      const { data, error } = await (supabase as any)
         .from('fragrances')
         .select('id, house, name')
         .in('id', ids);
-      if (data) {
+      if (error) {
+        console.warn('week.tsx: failed to load fragrance names', error);
+      } else if (data) {
         const map: Record<number, string> = {};
         for (const f of data) map[f.id] = `${f.house} ${f.name}`;
         setFragranceNames(map);
       }
+      setNamesLoading(false);
     })();
   }, [weekLogs]);
 
@@ -106,13 +111,28 @@ export default function WeekScreen() {
             );
           }
 
+          const resolvedName = log.worn_fragrance_id
+            ? (fragranceNames[log.worn_fragrance_id] ?? null)
+            : null;
+
+          if (namesLoading && log.worn_fragrance_id && !resolvedName) {
+            return (
+              <View key={date} className="flex-row items-center gap-3.5 border-b border-border py-3.5">
+                <View className="w-10 gap-1">
+                  <ShimmerLine width={28} />
+                  <ShimmerLine width={36} />
+                </View>
+                <View className="h-2.5 w-2.5 rounded-full border border-border" />
+                <ShimmerLine width={140} />
+              </View>
+            );
+          }
+
           return (
             <WeekDayRow
               key={date}
               log={log}
-              fragranceName={
-                log.worn_fragrance_id ? (fragranceNames[log.worn_fragrance_id] ?? null) : null
-              }
+              fragranceName={resolvedName}
               isToday={isToday}
             />
           );

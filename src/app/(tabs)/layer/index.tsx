@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { IconX, IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
+import { SpinningLoader } from '@/components/spinning-loader';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
@@ -131,6 +132,7 @@ export default function LayerScreen() {
       router.push('/(tabs)/layer/analysis');
     } catch (err) {
       console.error('handleAnalyse error:', err);
+      Alert.alert('Error', 'Could not start analysis. Check your connection and try again.');
     } finally {
       setIsGateChecking(false);
     }
@@ -188,7 +190,7 @@ export default function LayerScreen() {
                   <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ink }}>
                     {item.fragrance?.name ?? '—'}
                   </Text>
-                  <Pressable onPress={() => deselectBottle(item.id)} hitSlop={8} className="ml-0.5">
+                  <Pressable onPress={() => deselectBottle(item.id)} hitSlop={16} className="ml-0.5">
                     <IconX size={14} color={COLORS.ash} strokeWidth={1.5} />
                   </Pressable>
                 </View>
@@ -255,6 +257,7 @@ export default function LayerScreen() {
           right: 20,
         }}>
         <Button disabled={!canAnalyse() || isGateChecking} onPress={handleAnalyse}>
+          {isGateChecking && <SpinningLoader size={14} color={COLORS.parchment} />}
           <Text style={{ fontFamily: FONTS.uiMedium }}>
             {isGateChecking ? 'Analysing...' : 'Analyse'}
           </Text>

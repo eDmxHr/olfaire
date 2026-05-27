@@ -9,6 +9,7 @@ import {
   Pressable,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -67,6 +68,7 @@ export default function SettingsScreen() {
 
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
+  const [savingName, setSavingName] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -83,10 +85,15 @@ export default function SettingsScreen() {
 
   async function saveProfile() {
     const name = draftName.trim();
-    if (name && name !== profile?.display_name) {
-      await updateProfile({ display_name: name });
+    setSavingName(true);
+    try {
+      if (name && name !== profile?.display_name) {
+        await updateProfile({ display_name: name });
+      }
+    } finally {
+      setSavingName(false);
+      setEditing(false);
     }
-    setEditing(false);
   }
 
   async function pickAvatar() {
@@ -105,6 +112,8 @@ export default function SettingsScreen() {
     setUploadingAvatar(true);
     try {
       await uploadAvatar(result.assets[0].uri);
+    } catch {
+      Alert.alert('Upload failed', 'Could not update your avatar. Please try again.');
     } finally {
       setUploadingAvatar(false);
     }
@@ -151,6 +160,7 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top', 'bottom']}>
       <ScreenHeader title="Settings" onBack={() => router.back()} />
 
@@ -255,16 +265,20 @@ export default function SettingsScreen() {
                 </Pressable>
                 <Pressable
                   onPress={saveProfile}
+                  disabled={savingName}
                   style={{
                     paddingHorizontal: 12,
                     paddingVertical: 6,
                     borderRadius: 8,
                     backgroundColor: COLORS.amber,
+                    opacity: savingName ? 0.7 : 1,
                   }}>
-                  <Text
-                    style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
-                    Save
-                  </Text>
+                  {savingName
+                    ? <ActivityIndicator size="small" color={COLORS.parchment} />
+                    : <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.parchment }}>
+                        Save
+                      </Text>
+                  }
                 </Pressable>
               </View>
             ) : (
@@ -525,5 +539,6 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }

@@ -28,6 +28,7 @@ export default function SignatureShareModal() {
   const cardRef = useRef<View>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [shareError, setShareError] = useState(false);
   const [cardData, setCardData] = useState<CardData | null>(null);
 
   useEffect(() => {
@@ -113,6 +114,7 @@ export default function SignatureShareModal() {
       router.back();
     } catch (err) {
       console.error('handleShare error:', err);
+      setShareError(true);
     } finally {
       setIsSharing(false);
     }
@@ -182,9 +184,16 @@ export default function SignatureShareModal() {
           )}
         </View>
 
+        {/* Share error */}
+        {shareError && (
+          <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red, textAlign: 'center', marginBottom: 8 }}>
+            Couldn't share. Please try again.
+          </Text>
+        )}
+
         {/* Share button */}
         <Pressable
-          onPress={handleShare}
+          onPress={() => { setShareError(false); handleShare(); }}
           disabled={isSharing || isLoadingData}
           className="flex-row items-center justify-center gap-2 rounded-xl py-3.5"
           style={{ backgroundColor: COLORS.amber, opacity: isSharing || isLoadingData ? OPACITY.loading : 1 }}>

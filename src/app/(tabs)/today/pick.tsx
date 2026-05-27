@@ -22,6 +22,8 @@ export default function PickScreen() {
   const [loading, setLoading] = useState(true);
   const [navigatedBack, setNavigatedBack] = useState(false);
 
+  const [isConfirming, setIsConfirming] = useState(false);
+
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['92%'], []);
 
@@ -53,7 +55,13 @@ export default function PickScreen() {
   if (!suggestion) return null;
 
   async function handleWearThis() {
-    await confirmWearing(suggestion!.fragrance_id);
+    if (isConfirming) return;
+    setIsConfirming(true);
+    try {
+      await confirmWearing(suggestion!.fragrance_id);
+    } finally {
+      setIsConfirming(false);
+    }
   }
 
   async function handleSuggestAnother() {
@@ -74,7 +82,7 @@ export default function PickScreen() {
       <BottomSheet
         ref={sheetRef}
         snapPoints={snapPoints}
-        enablePanDownToClose
+        enablePanDownToClose={!isConfirming}
         onClose={handleSheetClose}
         backgroundStyle={{ backgroundColor: COLORS.ink, borderRadius: 24 }}
         handleIndicatorStyle={{ backgroundColor: COLORS.ash }}>
@@ -166,14 +174,20 @@ export default function PickScreen() {
               <>
                 <Pressable
                   onPress={handleWearThis}
+                  disabled={isConfirming}
                   style={{
                     backgroundColor: COLORS.amber,
                     borderRadius: 10,
                     paddingVertical: 14,
                     alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    gap: 8,
+                    opacity: isConfirming ? 0.7 : 1,
                   }}>
+                  {isConfirming && <SpinningLoader size={14} color={COLORS.ink} />}
                   <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>
-                    Wearing this today
+                    {isConfirming ? 'Confirming…' : 'Wearing this today'}
                   </Text>
                 </Pressable>
                 <Pressable

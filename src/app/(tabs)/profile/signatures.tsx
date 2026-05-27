@@ -1,4 +1,5 @@
-import { Alert, View, ScrollView, Pressable } from 'react-native';
+import { Alert, View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { IconNotes, IconShare3, IconTrash } from '@tabler/icons-react-native';
@@ -12,17 +13,29 @@ import { COLORS, FONTS, TYPE } from '@/lib/theme';
 export default function SignaturesScreen() {
   const signatures = useLayeringStore((s) => s.signatures);
   const { deleteSignature } = useLayering();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   function confirmDelete(id: string, name: string) {
     Alert.alert('Delete signature?', name, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteSignature(id) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          setDeletingId(id);
+          try {
+            await deleteSignature(id);
+          } finally {
+            setDeletingId(null);
+          }
+        },
+      },
     ]);
   }
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
-      <ScreenHeader title="Signatures" onBack={() => router.navigate('/(tabs)/profile')} />
+      <ScreenHeader title="Signatures" onBack={() => router.back()} />
 
       {signatures.length === 0 ? (
         <EmptyState
@@ -83,11 +96,17 @@ export default function SignaturesScreen() {
                   <View className="ml-3 flex-row items-center gap-3">
                     <Pressable
                       onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
-                      hitSlop={8}>
+                      hitSlop={14}>
                       <IconShare3 size={18} color={COLORS.amber} strokeWidth={1.5} />
                     </Pressable>
-                    <Pressable onPress={() => confirmDelete(sig.id, sig.name)} hitSlop={8}>
-                      <IconTrash size={18} color={COLORS.ash} strokeWidth={1.5} />
+                    <Pressable
+                      onPress={() => confirmDelete(sig.id, sig.name)}
+                      disabled={deletingId === sig.id}
+                      hitSlop={14}>
+                      {deletingId === sig.id
+                        ? <ActivityIndicator size="small" color={COLORS.ash} />
+                        : <IconTrash size={18} color={COLORS.ash} strokeWidth={1.5} />
+                      }
                     </Pressable>
                   </View>
                 </View>

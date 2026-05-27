@@ -15,6 +15,7 @@ import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
+import { useCollectionStore } from '@/store/Collectionstore';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { SectionLabel } from '@/components/ui/section-label';
 import { SignatureCard } from '@/components/ui/signature-card';
@@ -26,6 +27,7 @@ export default function TodayScreen() {
   const { selectMood, fetchSuggestion, submitRating } = useToday();
   const { fetchSignatures } = useLayering();
   const signatures = useLayeringStore((s) => s.signatures);
+  const collectionEmpty = useCollectionStore((s) => s.items.length === 0);
   const [hasError, setHasError] = useState(false);
   const { animStyle, trigger } = useScreenAnimation(16);
 
@@ -143,8 +145,10 @@ export default function TodayScreen() {
           {hasError && !store.isLoadingSuggestion && (
             <Text
               className="mt-4 text-center"
-              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
-              Lumi couldn't find a match. Try a different mood.
+              style={{ fontFamily: FONTS.ui, fontSize: 13, color: collectionEmpty ? COLORS.ash : COLORS.red }}>
+              {collectionEmpty
+                ? 'Add some bottles to your collection so Lumi can suggest one.'
+                : "Lumi couldn't find a match. Try a different mood."}
             </Text>
           )}
         </Animated.View>

@@ -3,7 +3,7 @@ import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconAlertTriangle } from '@tabler/icons-react-native';
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react-native';
 import { LumiThinking } from '@/components/lumi-thinking';
 import { CompatibilityMeter } from '@/components/layer/compatibility-meter';
 import { InteractionCard } from '@/components/layer/interaction-card';
@@ -26,18 +26,29 @@ export default function AnalysisScreen() {
   const { bottom: bottomInset } = useSafeAreaInsets();
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['92%'], []);
+  const didInitiate = useRef(false);
 
   useEffect(() => {
     if (selectedItems.length < 2) {
       router.back();
       return;
     }
-    if (!analysis && !isAnalysing) analyse();
+    if (!analysis && !isAnalysing) {
+      didInitiate.current = true;
+      analyse();
+    }
   }, []);
 
+  // True only after an analysis attempt has settled with no result
+  const hasError = didInitiate.current && !isAnalysing && !analysis;
+
   const handleClose = useCallback(() => {
+    // Cancel any in-flight analysis before navigating back to avoid stale state
+    if (isAnalysing) {
+      useLayeringStore.getState().setAnalysing(false);
+    }
     router.back();
-  }, []);
+  }, [isAnalysing]);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -62,6 +73,25 @@ export default function AnalysisScreen() {
           {isAnalysing && (
             <View className="mt-16">
               <LumiThinking wingColor={COLORS.parchment} veinColor={COLORS.ink} />
+            </View>
+          )}
+
+          {/* ── Error ── */}
+          {hasError && (
+            <View className="mt-16 items-center gap-4 px-4">
+              <IconAlertTriangle size={32} color={COLORS.ash} strokeWidth={1.5} />
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ash, textAlign: 'center', lineHeight: 20 }}>
+                Lumi couldn't complete the analysis. Check your connection and try again.
+              </Text>
+              <Pressable
+                onPress={() => analyse()}
+                className="flex-row items-center gap-2 rounded-xl px-5 py-3"
+                style={{ backgroundColor: COLORS.inkRaised }}>
+                <IconRefresh size={14} color={COLORS.parchment} strokeWidth={1.5} />
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.parchment }}>
+                  Try again
+                </Text>
+              </Pressable>
             </View>
           )}
 

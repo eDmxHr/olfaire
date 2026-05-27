@@ -239,6 +239,13 @@ export default function ProfileScreen() {
           )}
 
           {/* ── Most worn ── */}
+          {items.length > 0 && mostWorn.length === 0 && (
+            <Text
+              className="mt-7"
+              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, textAlign: 'center' }}>
+              Wear some fragrances to see your most worn.
+            </Text>
+          )}
           {mostWorn.length > 0 && (
             <>
               <SectionLabel className="mb-2.5 mt-7">Most worn</SectionLabel>

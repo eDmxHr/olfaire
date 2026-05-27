@@ -65,6 +65,7 @@ export default function BottleQuickAddModal() {
   const [formValues, setFormValues] = useState<ManualFragranceFormValues>(INITIAL_FORM);
 
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
+  const [addError, setAddError] = useState<string | null>(null);
 
   type SaveStep = 'idle' | 'looking-up' | 'saving' | 'done';
   const [saveStep, setSaveStep] = useState<SaveStep>('idle');
@@ -176,6 +177,7 @@ export default function BottleQuickAddModal() {
   }
 
   async function confirm() {
+    setAddError(null);
     setSaveStep('saving');
     try {
       if (manualMode) {
@@ -200,6 +202,7 @@ export default function BottleQuickAddModal() {
     } catch (err: any) {
       console.error('confirm add bottle error:', err?.message ?? err);
       setSaveStep('idle');
+      setAddError("Couldn't add bottle. Please try again.");
     }
   }
 
@@ -254,7 +257,7 @@ export default function BottleQuickAddModal() {
               <FlatList
                 data={results}
                 keyExtractor={(item) => String(item.id)}
-                className="max-h-[280px]"
+                style={{ maxHeight: 280 }}
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
                   <Pressable
@@ -306,6 +309,13 @@ export default function BottleQuickAddModal() {
               <View className="mb-6">
                 <StockLevelPicker value={stockLevel} onChange={setStockLevel} />
               </View>
+
+              {/* Error */}
+              {addError && (
+                <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red, marginBottom: 8, textAlign: 'center' }}>
+                  {addError}
+                </Text>
+              )}
 
               {/* Actions */}
               <View className="flex-row gap-2.5">

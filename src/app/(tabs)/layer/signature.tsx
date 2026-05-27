@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -28,6 +28,7 @@ export default function SignatureScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isFetchingNames, setIsFetchingNames] = useState(false);
+  const [nameSuggestionsError, setNameSuggestionsError] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function SignatureScreen() {
   async function loadSuggestions() {
     if (!fragA || !fragB || !analysis) return;
     setIsFetchingNames(true);
+    setNameSuggestionsError(false);
     try {
       const result = await fetchSignatureNames({
         bottleAName: fragA.name,
@@ -53,7 +55,7 @@ export default function SignatureScreen() {
       });
       setSuggestions(result.suggestions);
     } catch {
-      // silently fail — user can still type manually
+      setNameSuggestionsError(true);
     } finally {
       setIsFetchingNames(false);
     }
@@ -78,7 +80,10 @@ export default function SignatureScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScreenHeader title="Signature" />
 
       <ScrollView
@@ -119,6 +124,11 @@ export default function SignatureScreen() {
           <SectionLabel>Name your blend</SectionLabel>
           {isFetchingNames && <SpinningLoader size={14} color={COLORS.ash} />}
           {!isFetchingNames && suggestions.length > 0 && <SectionLabel>Lumi suggests</SectionLabel>}
+          {!isFetchingNames && nameSuggestionsError && (
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
+              Couldn't load suggestions
+            </Text>
+          )}
         </View>
         {!isFetchingNames && suggestions.length > 0 && (
           <View className="mb-3 flex-row flex-wrap gap-2">
@@ -207,5 +217,6 @@ export default function SignatureScreen() {
         </Pressable>
       </View>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
