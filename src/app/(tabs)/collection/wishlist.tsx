@@ -1,17 +1,17 @@
-import { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { IconCheck, IconX } from '@tabler/icons-react-native';
-import { Lumi } from '@/components/lumi';
-import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LumiQuote } from '@/components/ui/lumi-quote';
+import { FragranceName } from '@/components/ui/fragrance-name';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
-import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
@@ -30,7 +30,7 @@ const FAMILY_GAP_HINTS: Record<string, string> = {
 const GENERIC_HINT =
   'Build out your wishlist and Lumi will start spotting gaps in your rotation.';
 
-function WishlistRow({
+const WishlistRow = React.memo(function WishlistRow({
   item,
   onMove,
   onRemove,
@@ -40,69 +40,35 @@ function WishlistRow({
   onRemove: () => void;
 }) {
   const frag = item.fragrance;
-  const sub = [frag?.house, frag?.family].filter(Boolean).join(' · ');
+  const sub = [frag?.house, frag?.family].filter(Boolean).join(' · ') || null;
 
   return (
     <View
-      style={{
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: COLORS.dust,
-      }}
+      style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.dust }}
       className="flex-row items-center py-3.5">
-      <View style={{ flex: 1 }}>
-        {frag?.house ? (
-          <SectionLabel>{frag.house}</SectionLabel>
-        ) : null}
-        <Text
-          style={{
-            fontFamily: FONTS.displayLightItalic,
-            fontSize: 17,
-            lineHeight: 22,
-            color: COLORS.ink,
-          }}>
-          {frag?.name ?? '—'}
-        </Text>
-        {sub ? (
-          <Text className="mt-0.5" style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-            {sub}
-          </Text>
-        ) : null}
+      <View className="flex-1">
+        <FragranceName house={frag?.house} name={frag?.name ?? '—'} subtitle={sub} />
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8, marginLeft: 12 }}>
-        {/* Move to collection */}
+      <View className="ml-3 flex-row gap-2">
         <Pressable
           onPress={onMove}
           hitSlop={8}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: COLORS.amber,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          className="h-8 w-8 items-center justify-center rounded-full"
+          style={{ backgroundColor: COLORS.amber }}>
           <IconCheck size={16} color={COLORS.parchment} strokeWidth={2.5} />
         </Pressable>
-
-        {/* Remove */}
         <Pressable
           onPress={onRemove}
           hitSlop={8}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: COLORS.linen,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          className="h-8 w-8 items-center justify-center rounded-full"
+          style={{ backgroundColor: COLORS.linen }}>
           <IconX size={16} color={COLORS.ash} strokeWidth={1.5} />
         </Pressable>
       </View>
     </View>
   );
-}
+});
 
 export default function WishlistScreen() {
   const wishlist = useCollectionStore((s) => s.wishlist);
@@ -114,6 +80,9 @@ export default function WishlistScreen() {
   useEffect(() => {
     trigger();
   }, []);
+
+  const handleMove = useCallback((id: string) => moveToCollection(id), [moveToCollection]);
+  const handleRemove = useCallback((id: string) => removeBottle(id), [removeBottle]);
 
   const gapHint = dna?.dominant_family
     ? (FAMILY_GAP_HINTS[dna.dominant_family] ?? GENERIC_HINT)
@@ -128,66 +97,36 @@ export default function WishlistScreen() {
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
 
           {wishlist.length === 0 ? (
-            /* Empty state */
-            <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: 16 }}>
-              <Lumi size={48} />
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 20,
-                  color: COLORS.ink,
-                  lineHeight: 28,
-                  textAlign: 'center',
-                }}>
-                Your wishlist is empty.
-              </Text>
-              <Button
-                variant="outline"
-                onPress={() => router.push('/(tabs)/collection/add?wishlist=true' as any)}>
-                <Text style={{ fontFamily: FONTS.ui }}>Browse & add</Text>
-              </Button>
-            </View>
+            <EmptyState
+              title="Your wishlist is empty."
+              action={{ label: 'Browse & add', onPress: () => router.push('/(tabs)/collection/add?wishlist=true' as any) }}
+            />
           ) : (
             <>
-              {/* Lumi gap insight */}
-              <View
-                style={{
-                  backgroundColor: COLORS.ink,
-                  borderRadius: 16,
-                  padding: 16,
-                  marginBottom: 20,
-                }}>
-                <SectionLabel className="mb-2">Gap insight</SectionLabel>
-                <Text
-                  style={{
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 16,
-                    color: COLORS.parchment,
-                    lineHeight: 22,
-                  }}>
-                  {gapHint}
-                </Text>
+              <View className="mb-5">
+                <LumiQuote label="Gap insight" body={gapHint} />
               </View>
 
-              {/* Wishlist items */}
               <View>
                 {wishlist.map((item) => (
                   <WishlistRow
                     key={item.id}
                     item={item}
-                    onMove={() => moveToCollection(item.id)}
-                    onRemove={() => removeBottle(item.id)}
+                    onMove={() => handleMove(item.id)}
+                    onRemove={() => handleRemove(item.id)}
                   />
                 ))}
               </View>
 
-              {/* Add more CTA */}
-              <View style={{ marginTop: 24, alignItems: 'center' }}>
-                <Button
-                  variant="outline"
-                  onPress={() => router.push('/(tabs)/collection/add?wishlist=true' as any)}>
-                  <Text style={{ fontFamily: FONTS.ui }}>Add to wishlist</Text>
-                </Button>
+              <View className="mt-6 items-center">
+                <Pressable
+                  onPress={() => router.push('/(tabs)/collection/add?wishlist=true' as any)}
+                  className="rounded-full border px-5 py-2.5"
+                  style={{ borderColor: COLORS.dust }}>
+                  <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ink }}>
+                    Add to wishlist
+                  </Text>
+                </Pressable>
               </View>
             </>
           )}

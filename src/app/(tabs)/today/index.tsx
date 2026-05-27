@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -42,14 +42,14 @@ export default function TodayScreen() {
     }
   }, [store.todayLog]);
 
-  async function handleMoodSelect(mood: Mood) {
+  const handleMoodSelect = useCallback(async (mood: Mood) => {
     setHasError(false);
     try {
       await selectMood(mood);
     } catch {
       setHasError(true);
     }
-  }
+  }, [selectMood]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { View, Pressable, ScrollView, TextInput } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconPlus, IconSparkles, IconSearch } from '@tabler/icons-react-native';
-import { Lumi } from '@/components/lumi';
-import { Button } from '@/components/ui/button';
+import { IconPlus, IconSparkles } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { BottleRow } from '@/components/collection/bottle-row';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SearchInput } from '@/components/ui/search-input';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
@@ -54,24 +54,10 @@ export default function CollectionScreen() {
         className="flex-1"
         style={{ backgroundColor: COLORS.parchment }}
         edges={['top']}>
-        <View className="flex-1 items-center justify-center gap-4 px-8">
-          <Lumi size={48} />
-          <Text
-            className="text-center"
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 20,
-              color: COLORS.ink,
-              lineHeight: 28,
-            }}>
-            Start your collection.
-          </Text>
-          <Button
-            variant="outline"
-            onPress={() => router.navigate('/modals/bottle-quick-add' as any)}>
-            <Text style={{ fontFamily: FONTS.ui }}>Add a bottle</Text>
-          </Button>
-        </View>
+        <EmptyState
+          title="Start your collection."
+          action={{ label: 'Add a bottle', onPress: () => router.navigate('/modals/bottle-quick-add' as any) }}
+        />
       </SafeAreaView>
     );
   }
@@ -144,19 +130,12 @@ export default function CollectionScreen() {
           </Pressable>
 
           {/* Search */}
-          <View
-            className="mt-4 flex-row items-center gap-2.5 rounded-[14px] px-3.5 py-2.5"
-            style={{ backgroundColor: COLORS.linen }}>
-            <IconSearch size={18} color={COLORS.ash} strokeWidth={1.5} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search your collection…"
-              placeholderTextColor={COLORS.ash}
-              className="flex-1 p-0"
-              style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}
-            />
-          </View>
+          <SearchInput
+            className="mt-4"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search your collection…"
+          />
 
           {/* Filter chips */}
           <View className="mt-4">

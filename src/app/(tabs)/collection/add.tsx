@@ -1,54 +1,24 @@
 import { useState, useRef } from 'react';
-import { View, TextInput, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { IconSearch } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
+import { SearchInput } from '@/components/ui/search-input';
+import { FragranceName } from '@/components/ui/fragrance-name';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useCollection } from '@/hooks/useCollection';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance } from '@/lib/supabase';
 
-function ResultRow({
-  frag,
-  onPress,
-}: {
-  frag: Fragrance;
-  onPress: () => void;
-}) {
-  const sub = [frag.house, frag.family].filter(Boolean).join(' · ');
+function ResultRow({ frag, onPress }: { frag: Fragrance; onPress: () => void }) {
+  const sub = [frag.house, frag.family].filter(Boolean).join(' · ') || null;
   return (
     <Pressable
       onPress={onPress}
       style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.dust }}
       className="py-3.5">
-      {frag.house ? (
-        <Text
-          style={{
-            fontFamily: FONTS.uiMedium,
-            fontSize: 10,
-            color: COLORS.ash,
-            letterSpacing: 0.8,
-            textTransform: 'uppercase',
-          }}>
-          {frag.house}
-        </Text>
-      ) : null}
-      <Text
-        style={{
-          fontFamily: FONTS.displayLightItalic,
-          fontSize: 17,
-          lineHeight: 22,
-          color: COLORS.ink,
-        }}>
-        {frag.name}
-      </Text>
-      {sub ? (
-        <Text className="mt-0.5" style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
-          {sub}
-        </Text>
-      ) : null}
+      <FragranceName house={frag.house} name={frag.name} subtitle={sub} />
     </Pressable>
   );
 }
@@ -90,33 +60,12 @@ export default function AddPerfumeScreen() {
       <ScreenHeader title={isWishlist ? 'Add to wishlist' : 'Add perfume'} />
 
       <View style={{ paddingHorizontal: 20, paddingBottom: 12 }}>
-        {/* Search input */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: COLORS.linen,
-            borderRadius: 14,
-            paddingHorizontal: 14,
-            paddingVertical: 12,
-            gap: 10,
-          }}>
-          <IconSearch size={18} color={COLORS.ash} strokeWidth={1.5} />
-          <TextInput
-            value={query}
-            onChangeText={handleChangeText}
-            placeholder="Search by name or house…"
-            placeholderTextColor={COLORS.ash}
-            autoFocus
-            style={{
-              flex: 1,
-              fontFamily: FONTS.ui,
-              fontSize: 15,
-              color: COLORS.ink,
-              padding: 0,
-            }}
-          />
-        </View>
+        <SearchInput
+          value={query}
+          onChangeText={handleChangeText}
+          placeholder="Search by name or house…"
+          autoFocus
+        />
       </View>
 
       <ScrollView

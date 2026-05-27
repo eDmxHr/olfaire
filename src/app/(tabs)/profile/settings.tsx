@@ -230,7 +230,7 @@ export default function SettingsScreen() {
             </Pressable>
 
             {/* Name */}
-            <View style={{ flex: 1 }}>
+            <View className="flex-1">
               {editing ? (
                 <TextInput
                   value={draftName}

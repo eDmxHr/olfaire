@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { IconNotes, IconShare3, IconTrash } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useLayering } from '@/hooks/useLayering';
 import { COLORS, FONTS, TYPE } from '@/lib/theme';
@@ -24,10 +25,10 @@ export default function SignaturesScreen() {
       <ScreenHeader title="Signatures" onBack={() => router.navigate('/(tabs)/profile')} />
 
       {signatures.length === 0 ? (
-        <View className="flex-1 items-center justify-center gap-2.5">
-          <IconNotes size={40} color={COLORS.ash} strokeWidth={1.2} />
-          <Text style={{ ...TYPE.bodyS, color: COLORS.ash }}>No signatures yet</Text>
-        </View>
+        <EmptyState
+          icon={<IconNotes size={40} color={COLORS.ash} strokeWidth={1.2} />}
+          title="No signatures yet"
+        />
       ) : (
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48, paddingTop: 8 }}

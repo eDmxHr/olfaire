@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -41,28 +41,34 @@ export default function ProfileScreen() {
     : null;
 
   const hasDNA = dna && Object.keys(dna.families ?? {}).length > 0;
-  const topFamilies = hasDNA
-    ? Object.entries(dna!.families)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3)
-    : [];
+
+  const topFamilies = useMemo(
+    () =>
+      hasDNA
+        ? Object.entries(dna!.families).sort(([, a], [, b]) => b - a).slice(0, 3)
+        : [],
+    [dna, hasDNA]
+  );
 
   const isNewUser = signatures.length === 0;
 
-  const mostWorn = [...items]
-    .filter((i) => i.wear_count > 0)
-    .sort((a, b) => b.wear_count - a.wear_count)
-    .slice(0, 3);
+  const mostWorn = useMemo(
+    () =>
+      [...items]
+        .filter((i) => i.wear_count > 0)
+        .sort((a, b) => b.wear_count - a.wear_count)
+        .slice(0, 3),
+    [items]
+  );
 
-  const checklistItems = [
-    {
-      label: 'Add your first bottle',
-      done: items.length > 0,
-      route: '/(tabs)/collection' as const,
-    },
-    { label: 'Choose a mood', done: !!todayLog?.mood, route: '/(tabs)/today' as const },
-    { label: 'Try layering', done: signatures.length > 0, route: '/(tabs)/layer' as const },
-  ];
+  const checklistItems = useMemo(
+    () => [
+      { label: 'Add your first bottle', done: items.length > 0, route: '/(tabs)/collection' as const },
+      { label: 'Choose a mood', done: !!todayLog?.mood, route: '/(tabs)/today' as const },
+      { label: 'Try layering', done: signatures.length > 0, route: '/(tabs)/layer' as const },
+    ],
+    [items.length, todayLog?.mood, signatures.length]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>

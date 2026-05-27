@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { LumiQuote } from '@/components/ui/lumi-quote';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { COLORS, FONTS } from '@/lib/theme';
@@ -57,21 +57,8 @@ export default function WearingScreen() {
 
         {/* Lumi tip — wearing context */}
         {lumiLine ? (
-          <View className="mb-6 gap-2 rounded-2xl p-5" style={{ backgroundColor: COLORS.ink }}>
-            <Text
-              className="text-xs uppercase tracking-widest"
-              style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
-              Lumi says
-            </Text>
-            <Text
-              style={{
-                fontFamily: FONTS.displayLightItalic,
-                fontSize: 18,
-                color: COLORS.parchment,
-                lineHeight: 26,
-              }}>
-              {lumiLine}
-            </Text>
+          <View className="mb-6">
+            <LumiQuote body={lumiLine} />
           </View>
         ) : null}
 

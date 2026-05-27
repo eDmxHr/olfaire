@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconX, IconCheck, IconSearch } from '@tabler/icons-react-native';
+import { IconX, IconCheck } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SearchInput } from '@/components/ui/search-input';
 
 import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
@@ -36,7 +38,7 @@ interface BottleRowProps {
   onToggle: () => void;
 }
 
-function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
+const BottleRow = React.memo(function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
   const frag = item.fragrance;
   const sub = [frag?.house, frag?.family].filter(Boolean).join(' · ');
 
@@ -80,7 +82,7 @@ function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
       </View>
     </Pressable>
   );
-}
+});
 
 // ── LayerScreen ──────────────────────────────────────────────────────────────
 
@@ -95,6 +97,11 @@ export default function LayerScreen() {
   const [isGateChecking, setIsGateChecking] = useState(false);
   const { bottom: bottomInset } = useSafeAreaInsets();
   const { query, setQuery, filtered: filteredItems, visible: visibleItems, hasMore, setShowAll } = useCollectionSearch(items);
+
+  const selectedIds = useMemo(
+    () => new Set(selectedItems.map((i) => i.id)),
+    [selectedItems]
+  );
 
   const { animStyle, trigger } = useScreenAnimation(16);
 
@@ -141,22 +148,10 @@ export default function LayerScreen() {
         className="flex-1"
         style={{ backgroundColor: COLORS.parchment }}
         edges={['top']}>
-        <View className="flex-1 items-center justify-center gap-4 px-8">
-          <Lumi size={48} />
-          <Text
-            className="text-center"
-            style={{
-              fontFamily: FONTS.displayLightItalic,
-              fontSize: 20,
-              color: COLORS.ink,
-              lineHeight: 28,
-            }}>
-            Add some bottles to your collection first.
-          </Text>
-          <Button variant="outline" onPress={() => router.push('/modals/bottle-quick-add')}>
-            <Text style={{ fontFamily: FONTS.ui }}>Add a bottle</Text>
-          </Button>
-        </View>
+        <EmptyState
+          title="Add some bottles to your collection first."
+          action={{ label: 'Add a bottle', onPress: () => router.push('/modals/bottle-quick-add') }}
+        />
       </SafeAreaView>
     );
   }
@@ -224,17 +219,12 @@ export default function LayerScreen() {
           </View>
 
           {/* Search */}
-          <View className="mt-3 flex-row items-center gap-2.5 rounded-[14px] px-3.5 py-2.5" style={{ backgroundColor: COLORS.linen }}>
-            <IconSearch size={18} color={COLORS.ash} strokeWidth={1.5} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search your collection…"
-              placeholderTextColor={COLORS.ash}
-              className="flex-1 p-0"
-              style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}
-            />
-          </View>
+          <SearchInput
+            className="mt-3"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search your collection…"
+          />
 
           {/* Section label */}
           <SectionLabel className="mb-1 mt-3">Your collection</SectionLabel>
@@ -242,7 +232,7 @@ export default function LayerScreen() {
           {/* Bottle list */}
           <View>
             {visibleItems.map((item) => {
-              const isSelected = selectedItems.some((s) => s.id === item.id);
+              const isSelected = selectedIds.has(item.id);
               const isDisabled = selectedItems.length >= 3 && !isSelected;
               return (
                 <BottleRow

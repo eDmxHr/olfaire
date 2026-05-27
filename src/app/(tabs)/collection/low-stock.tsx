@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { IconCheck } from '@tabler/icons-react-native';
-import { Lumi } from '@/components/lumi';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LumiQuote } from '@/components/ui/lumi-quote';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
@@ -45,66 +46,32 @@ export default function LowStockScreen() {
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
 
           {items.length === 0 ? (
-            /* All stocked up state */
-            <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: 16 }}>
-              <View
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
-                  backgroundColor: colorWithOpacity(COLORS.amber, 0.13),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <IconCheck size={24} color={COLORS.amber} strokeWidth={2} />
-              </View>
-              <Text
-                style={{
-                  fontFamily: FONTS.displayLightItalic,
-                  fontSize: 20,
-                  color: COLORS.ink,
-                  lineHeight: 28,
-                  textAlign: 'center',
-                }}>
-                All stocked up.
-              </Text>
-              <Text
-                style={{
-                  fontFamily: FONTS.ui,
-                  fontSize: 14,
-                  color: COLORS.ash,
-                  textAlign: 'center',
-                  lineHeight: 20,
-                }}>
-                None of your bottles are running low right now.
-              </Text>
-            </View>
+            <EmptyState
+              icon={
+                <View
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 24,
+                    backgroundColor: colorWithOpacity(COLORS.amber, 0.13),
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <IconCheck size={24} color={COLORS.amber} strokeWidth={2} />
+                </View>
+              }
+              title="All stocked up."
+              subtitle="None of your bottles are running low right now."
+            />
           ) : (
             <>
-              {/* Lumi reassurance */}
-              <View
-                style={{
-                  backgroundColor: COLORS.linen,
-                  borderRadius: 16,
-                  padding: 16,
-                  flexDirection: 'row',
-                  alignItems: 'flex-start',
-                  gap: 12,
-                  marginBottom: 20,
-                }}>
-                <View style={{ transform: [{ rotate: '12deg' }] }}>
-                  <Lumi size={20} />
-                </View>
-                <Text
-                  style={{
-                    flex: 1,
-                    fontFamily: FONTS.displayLightItalic,
-                    fontSize: 16,
-                    color: COLORS.ink,
-                    lineHeight: 22,
-                  }}>
-                  Here's what's running low. Time to restock or discover something new.
-                </Text>
+              <View className="mb-5">
+                <LumiQuote
+                  body="Here's what's running low. Time to restock or discover something new."
+                  background={COLORS.linen}
+                  textColor={COLORS.ink}
+                  showLumi
+                />
               </View>
 
               {/* Low stock list */}

@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import {
   View,
   Pressable,
-  TextInput,
   FlatList,
   ScrollView,
   ActivityIndicator,
@@ -12,8 +11,11 @@ import {
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconSearch, IconX, IconCheck } from '@tabler/icons-react-native';
+import { IconX, IconCheck } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
+import { SearchInput } from '@/components/ui/search-input';
+import { StockLevelPicker } from '@/components/ui/stock-level-picker';
+import { FragranceName } from '@/components/ui/fragrance-name';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { supabase, getCurrentUserId } from '@/lib/supabase';
@@ -26,13 +28,6 @@ import {
 import type { UserProvidedFragranceData } from '@/lib/claudeApi';
 import { COLORS, FONTS } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
-
-const STOCK_LEVELS: { value: StockLevel; label: string }[] = [
-  { value: 'full', label: 'Full' },
-  { value: 'medium', label: 'Half' },
-  { value: 'low', label: 'Low' },
-  { value: 'empty', label: 'Empty' },
-];
 
 const INITIAL_FORM: ManualFragranceFormValues = {
   house: '',
@@ -247,22 +242,14 @@ export default function BottleQuickAddModal() {
 
           {step === 'search' && (
             <>
-              <View
-                className="mb-2 flex-row items-center gap-2.5 rounded-xl px-3.5 py-2.5"
-                style={{ backgroundColor: COLORS.linen }}>
-                <IconSearch size={16} color={COLORS.ash} strokeWidth={1.5} />
-                <TextInput
-                  className="flex-1"
-                  style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, padding: 0 }}
-                  placeholder="Search by name or house…"
-                  placeholderTextColor={COLORS.ash}
-                  value={query}
-                  onChangeText={search}
-                  autoFocus
-                  returnKeyType="search"
-                />
-                {searching && <ActivityIndicator size="small" color={COLORS.ash} />}
-              </View>
+              <SearchInput
+                className="mb-2"
+                value={query}
+                onChangeText={search}
+                placeholder="Search by name or house…"
+                autoFocus
+                loading={searching}
+              />
 
               <FlatList
                 data={results}
@@ -275,16 +262,7 @@ export default function BottleQuickAddModal() {
                     style={{ borderBottomColor: COLORS.dust }}
                     onPress={() => selectFragrance(item)}>
                     <View className="flex-1">
-                      <SectionLabel>{item.house}</SectionLabel>
-                      <Text
-                        style={{
-                          fontFamily: FONTS.displayLightItalic,
-                          fontSize: 16,
-                          lineHeight: 20,
-                          color: COLORS.ink,
-                        }}>
-                        {item.name}
-                      </Text>
+                      <FragranceName house={item.house} name={item.name} />
                     </View>
                     <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
                       {item.family}
@@ -319,43 +297,14 @@ export default function BottleQuickAddModal() {
                 {manualMode ? (
                   <ManualFragranceForm values={formValues} onChange={handleFormChange} />
                 ) : (
-                  <View>
-                    <SectionLabel>{selected?.house}</SectionLabel>
-                    <Text
-                      style={{
-                        fontFamily: FONTS.displayLightItalic,
-                        fontSize: 18,
-                        lineHeight: 20,
-                        color: COLORS.ink,
-                      }}>
-                      {selected?.name}
-                    </Text>
-                  </View>
+                  <FragranceName house={selected?.house} name={selected?.name ?? ''} />
                 )}
               </View>
 
               {/* Stock level picker */}
               <SectionLabel className="mb-2.5">Initial stock level</SectionLabel>
-              <View className="mb-6 flex-row gap-2">
-                {STOCK_LEVELS.map(({ value, label }) => {
-                  const active = stockLevel === value;
-                  return (
-                    <Pressable
-                      key={value}
-                      className="flex-1 items-center rounded-full py-2.5"
-                      style={{ backgroundColor: active ? COLORS.amber : COLORS.dust }}
-                      onPress={() => setStockLevel(value)}>
-                      <Text
-                        style={{
-                          fontFamily: active ? FONTS.uiMedium : FONTS.ui,
-                          fontSize: 13,
-                          color: active ? COLORS.parchment : COLORS.ink,
-                        }}>
-                        {label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+              <View className="mb-6">
+                <StockLevelPicker value={stockLevel} onChange={setStockLevel} />
               </View>
 
               {/* Actions */}
