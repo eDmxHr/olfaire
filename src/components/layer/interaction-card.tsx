@@ -13,8 +13,8 @@ export interface NoteInteraction {
 
 const INTERACTION_COLORS: Record<InteractionType, string> = {
   anchor: COLORS.amber,
-  amplify: '#6B8F6B',
-  contrast: '#8F6B6B',
+  amplify: COLORS.amplify,
+  contrast: COLORS.contrast,
   neutral: COLORS.inkRaised,
 };
 
@@ -37,7 +37,7 @@ export function InteractionCard({ interaction }: { interaction: NoteInteraction 
             style={{
               fontFamily: FONTS.uiMedium,
               fontSize: 10,
-              color: isNeutral ? COLORS.ash : '#fff',
+              color: isNeutral ? COLORS.ash : COLORS.parchment,
             }}>
             {interaction.type}
           </Text>

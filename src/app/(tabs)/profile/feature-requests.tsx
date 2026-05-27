@@ -7,7 +7,7 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { ShimmerLine } from '@/components/today/shimmer-line';
 import { useFeatureRequests, type FeatureRequestWithVote } from '@/hooks/useFeatureRequests';
-import { COLORS, FONTS, TYPE } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, OPACITY } from '@/lib/theme';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -190,7 +190,7 @@ export default function FeatureRequestsScreen() {
               className="items-center rounded-xl py-[11px]"
               style={{
                 backgroundColor: COLORS.amber,
-                opacity: !title.trim() || submitting ? 0.5 : 1,
+                opacity: !title.trim() || submitting ? OPACITY.disabled : 1,
               }}>
               {submitting ? (
                 <ActivityIndicator size="small" color={COLORS.parchment} />

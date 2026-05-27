@@ -8,7 +8,7 @@ import { StockLevelPicker } from '@/components/ui/stock-level-picker';
 import { FragranceName } from '@/components/ui/fragrance-name';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, OPACITY } from '@/lib/theme';
 import type { StockLevel } from '@/lib/supabase';
 
 export default function StockUpdateModal() {
@@ -51,7 +51,7 @@ export default function StockUpdateModal() {
 
       <Pressable
         className="items-center justify-center rounded-xl py-3.5"
-        style={{ backgroundColor: COLORS.amber, opacity: saving ? 0.6 : 1 }}
+        style={{ backgroundColor: COLORS.amber, opacity: saving ? OPACITY.loading : 1 }}
         onPress={save}
         disabled={saving}>
         {saving ? (

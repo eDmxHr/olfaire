@@ -2,7 +2,7 @@ import { Pressable, ScrollView } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { MOODS } from '@/data/moods';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, OPACITY } from '@/lib/theme';
 import type { Mood } from '@/lib/supabase';
 
 export function MoodGrid({
@@ -58,7 +58,7 @@ function MoodCard({
         style={{
           backgroundColor: mood.tint,
           borderColor: selected ? mood.activeBorder : 'transparent',
-          opacity: disabled && !selected ? 0.5 : 1,
+          opacity: disabled && !selected ? OPACITY.disabled : 1,
         }}>
         <Icon size={20} color={COLORS.ink} strokeWidth={1.5} />
         <Text style={{ fontFamily: selected ? FONTS.uiMedium : FONTS.ui, fontSize: 12, color: COLORS.ink }}>

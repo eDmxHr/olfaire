@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, colorWithOpacity, OPACITY } from '@/lib/theme';
 import type { CollectionItem } from '@/lib/supabase';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ const BottleRow = React.memo(function BottleRow({ item, isSelected, isDisabled, 
         backgroundColor: isSelected ? colorWithOpacity(COLORS.amber, 0.07) : 'transparent',
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: COLORS.dust,
-        opacity: isDisabled ? 0.35 : 1,
+        opacity: isDisabled ? OPACITY.disabled : 1,
       }}
       className="flex-row items-center py-3.5">
       <View className="flex-1">

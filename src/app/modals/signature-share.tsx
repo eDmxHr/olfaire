@@ -11,7 +11,7 @@ import { SpinningLoader } from '@/components/spinning-loader';
 import { useAuthStore } from '@/store/authStore';
 import { uploadSignatureCardImage } from '@/lib/supabase';
 import { supabase } from '@/lib/supabase';
-import { COLORS, FONTS, TYPE } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, OPACITY } from '@/lib/theme';
 
 interface CardData {
   blendName: string;
@@ -187,7 +187,7 @@ export default function SignatureShareModal() {
           onPress={handleShare}
           disabled={isSharing || isLoadingData}
           className="flex-row items-center justify-center gap-2 rounded-xl py-3.5"
-          style={{ backgroundColor: COLORS.amber, opacity: isSharing || isLoadingData ? 0.6 : 1 }}>
+          style={{ backgroundColor: COLORS.amber, opacity: isSharing || isLoadingData ? OPACITY.loading : 1 }}>
           {isSharing && <SpinningLoader size={14} color={COLORS.ink} />}
           <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.ink }}>
             {isSharing ? 'Preparing…' : 'Share'}

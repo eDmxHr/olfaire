@@ -126,7 +126,7 @@ export default function PickScreen() {
             style={{
               fontFamily: FONTS.displayLightItalic,
               fontSize: 15,
-              color: COLORS.amber,
+              color: COLORS.parchment,
               lineHeight: 22,
               marginBottom: 16,
             }}>

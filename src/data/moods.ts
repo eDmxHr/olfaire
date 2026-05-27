@@ -10,6 +10,7 @@ import {
 } from '@tabler/icons-react-native';
 import type { ComponentType } from 'react';
 import type { Mood } from '@/lib/supabase';
+import { COLORS } from '@/lib/theme';
 
 export const MOODS: {
   key: Mood;
@@ -18,12 +19,12 @@ export const MOODS: {
   tint: string;
   activeBorder: string;
 }[] = [
-  { key: 'soft',       label: 'Soft',       icon: IconFeather,  tint: '#F5EDE8', activeBorder: '#C4937A' },
-  { key: 'bold',       label: 'Bold',       icon: IconFlame,    tint: '#F0E8DC', activeBorder: '#B8895A' },
-  { key: 'cosy',       label: 'Cosy',       icon: IconCloud,    tint: '#EAE8E0', activeBorder: '#9C9480' },
-  { key: 'sharp',      label: 'Sharp',      icon: IconBolt,     tint: '#E8EAEC', activeBorder: '#7A8FA0' },
-  { key: 'mysterious', label: 'Mysterious', icon: IconMoon,     tint: '#E5E0EA', activeBorder: '#8A72A8' },
-  { key: 'fresh',      label: 'Fresh',      icon: IconWind,     tint: '#E8F0EC', activeBorder: '#6A9E80' },
-  { key: 'dark',       label: 'Dark',       icon: IconSparkles, tint: '#E0E0E8', activeBorder: '#6E6E96' },
-  { key: 'romantic',   label: 'Romantic',   icon: IconHeart,    tint: '#EDE8EE', activeBorder: '#A882B4' },
+  { key: 'soft',       label: 'Soft',       icon: IconFeather,  tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'bold',       label: 'Bold',       icon: IconFlame,    tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'cosy',       label: 'Cosy',       icon: IconCloud,    tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'sharp',      label: 'Sharp',      icon: IconBolt,     tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'mysterious', label: 'Mysterious', icon: IconMoon,     tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'fresh',      label: 'Fresh',      icon: IconWind,     tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'dark',       label: 'Dark',       icon: IconSparkles, tint: COLORS.linen, activeBorder: COLORS.amber },
+  { key: 'romantic',   label: 'Romantic',   icon: IconHeart,    tint: COLORS.linen, activeBorder: COLORS.amber },
 ];

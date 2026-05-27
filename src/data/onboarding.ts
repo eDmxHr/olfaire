@@ -78,6 +78,8 @@ export const LUMI_COLLECTION_QUOTES: Record<number, string> = {
   10: '"Ten bottles. Now the layering gets interesting."',
 };
 
+// Data-viz palette — intentionally uses distinct hues for per-family discrimination.
+// These are NOT brand colors and must not be used outside taste-profile-chart.tsx.
 export const FAMILY_COLORS: Record<string, string> = {
   Floral:    '#E8A4B8',
   Woody:     '#8B6F47',

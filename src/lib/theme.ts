@@ -89,6 +89,15 @@ export const COLORS = {
   ash: '#8C8680',
   dust: '#D4CFC8',
   red: '#C4503A',
+  // Semantic interaction-type colors — intentional palette exceptions for data-viz semantics.
+  // Used only in interaction-card.tsx. Not general-purpose.
+  amplify: '#6B8F6B',  // warm olive — "adds to" relationship
+  contrast: '#8F6B6B', // warm rose — "opposes" relationship
+} as const;
+
+export const OPACITY = {
+  disabled: 0.4, // element is disabled/unavailable
+  loading: 0.6,  // element is in a saving/submitting state
 } as const;
 
 export function colorWithOpacity(hex: string, opacity: number): string {

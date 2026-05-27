@@ -26,7 +26,7 @@ import {
   type ManualFragranceFormValues,
 } from '@/components/collection/manual-fragrance-form';
 import type { UserProvidedFragranceData } from '@/lib/claudeApi';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, OPACITY } from '@/lib/theme';
 import type { Fragrance, StockLevel } from '@/lib/supabase';
 
 const INITIAL_FORM: ManualFragranceFormValues = {
@@ -319,7 +319,7 @@ export default function BottleQuickAddModal() {
                 </Pressable>
                 <Pressable
                   className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3.5"
-                  style={{ backgroundColor: COLORS.amber, opacity: !canConfirm ? 0.4 : 1 }}
+                  style={{ backgroundColor: COLORS.amber, opacity: !canConfirm ? OPACITY.disabled : 1 }}
                   onPress={confirm}
                   disabled={!canConfirm || saveStep !== 'idle'}>
                   {saveStep !== 'idle' ? (

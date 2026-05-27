@@ -1,5 +1,6 @@
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import { COLORS } from '@/lib/theme';
 import * as AccordionPrimitive from '@rn-primitives/accordion';
 import { IconChevronDown } from '@tabler/icons-react-native';
 import { Platform, Pressable, View } from 'react-native';
@@ -93,7 +94,7 @@ function AccordionTrigger({
             )}>
             <>{children}</>
             <Animated.View style={chevronStyle}>
-              <IconChevronDown size={16} color="#8C8680" strokeWidth={1.5} />
+              <IconChevronDown size={16} color={COLORS.ash} strokeWidth={1.5} />
             </Animated.View>
           </Trigger>
         </AccordionPrimitive.Trigger>

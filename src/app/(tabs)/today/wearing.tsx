@@ -105,7 +105,7 @@ export default function WearingScreen() {
           </Text>
           <Text
             className="mt-0.5 text-[13px]"
-            style={{ fontFamily: FONTS.ui, color: COLORS.amber }}>
+            style={{ fontFamily: FONTS.ui, color: COLORS.ink }}>
             Open Layer
           </Text>
         </Pressable>

@@ -96,7 +96,7 @@ export default function CollectionScreen() {
             <StatCard
               value={lowCount}
               label="Low stock"
-              valueColor={lowCount > 0 ? COLORS.red : undefined}
+              valueColor={lowCount > 0 ? COLORS.amber : undefined}
               onPress={() => router.push('/(tabs)/collection/low-stock')}
             />
           </View>

@@ -1,7 +1,7 @@
 import { Modal, View, Pressable } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@/components/ui/text';
-import { COLORS, FONTS } from '@/lib/theme';
+import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 
 interface TimePickerModalProps {
   visible: boolean;
@@ -13,7 +13,7 @@ interface TimePickerModalProps {
 export function TimePickerModal({ visible, value, onChange, onClose }: TimePickerModalProps) {
   return (
     <Modal transparent animationType="slide" visible={visible} onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }} onPress={onClose} />
+      <Pressable style={{ flex: 1, backgroundColor: colorWithOpacity(COLORS.ink, 0.5) }} onPress={onClose} />
       <View style={{ backgroundColor: COLORS.parchment, paddingBottom: 32, alignItems: 'center' }}>
         <View
           style={{

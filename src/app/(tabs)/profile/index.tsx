@@ -180,7 +180,7 @@ export default function ProfileScreen() {
             <SectionLabel>Signatures</SectionLabel>
             {signatures.length >= 3 && (
               <Pressable onPress={() => router.push('/(tabs)/profile/signatures')}>
-                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.amber }}>
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ash }}>
                   View all
                 </Text>
               </Pressable>

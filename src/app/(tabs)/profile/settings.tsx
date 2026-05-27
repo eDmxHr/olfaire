@@ -310,7 +310,7 @@ export default function SettingsScreen() {
                 <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
                   Reminder time
                 </Text>
-                <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.amber }}>
+                <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}>
                   {formatTime(profile.notification_time ?? '08:00')}
                 </Text>
               </Pressable>
@@ -435,7 +435,7 @@ export default function SettingsScreen() {
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
               {isPremium ? 'Olfaire Pro' : 'Free plan'}
             </Text>
-            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.amber }}>
+            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ink }}>
               {isPremium ? 'Active' : 'Upgrade'}
             </Text>
           </Pressable>

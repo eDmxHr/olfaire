@@ -10,7 +10,7 @@ import { useLayering } from '@/hooks/useLayering';
 import { fetchSignatureNames } from '@/lib/claudeApi';
 import { SpinningLoader } from '@/components/spinning-loader';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, FONTS, TYPE } from '@/lib/theme';
+import { COLORS, FONTS, TYPE, OPACITY } from '@/lib/theme';
 
 const PRESET_TAGS = ['Daytime', 'Evening', 'Work', 'Date night', 'Weekend', 'Seasonal'];
 
@@ -199,7 +199,7 @@ export default function SignatureScreen() {
             borderRadius: 10,
             paddingVertical: 14,
             alignItems: 'center',
-            opacity: isSaving ? 0.6 : 1,
+            opacity: isSaving ? OPACITY.loading : 1,
           }}>
           <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 15, color: COLORS.parchment }}>
             {isSaving ? 'Saving…' : 'Save signature'}
