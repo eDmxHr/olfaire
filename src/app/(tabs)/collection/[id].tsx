@@ -26,7 +26,7 @@ export default function BottleDetailScreen() {
   const item = getById(id);
   const { removeBottle } = useCollection();
 
-  const [removing, setRemoving] = useState(false);
+  const [isRemoving, setRemoving] = useState(false);
   const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
@@ -211,7 +211,7 @@ export default function BottleDetailScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push(`/modals/stock-update?collectionId=${item.id}` as any)}
+              onPress={() => router.push({ pathname: '/modals/stock-update', params: { collectionId: item.id } })}
               style={{
                 flex: 1,
                 backgroundColor: COLORS.linen,
@@ -230,9 +230,9 @@ export default function BottleDetailScreen() {
           {/* Remove */}
           <Pressable
             onPress={confirmRemove}
-            disabled={removing}
+            disabled={isRemoving}
             style={{ alignItems: 'center', marginTop: 28, paddingVertical: 16, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
-            {removing
+            {isRemoving
               ? <ActivityIndicator size="small" color={COLORS.red} />
               : <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
                   Remove from collection

@@ -111,7 +111,7 @@ export default function FeatureRequestsScreen() {
   const { requests, loading, submitting, currentUserId, fetchRequests, submitRequest, vote } =
     useFeatureRequests();
 
-  const [showForm, setShowForm] = useState(false);
+  const [isFormVisible, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -143,7 +143,7 @@ export default function FeatureRequestsScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
         {/* Suggest button / form */}
-        {showForm ? (
+        {isFormVisible ? (
           <View className="mb-4 mt-3 rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
             <View className="mb-3 flex-row items-center">
               <Text

@@ -49,6 +49,7 @@ export function SuggestionCard({
     transform: [{ translateY: translateY.value }],
   }));
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     opacity.value = withDelay(60, withTiming(1, { duration: 350 }));
     translateY.value = withDelay(60, withTiming(0, { duration: 350 }));

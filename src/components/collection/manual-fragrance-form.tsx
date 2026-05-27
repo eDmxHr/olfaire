@@ -152,7 +152,7 @@ const selectTriggerStyle = {
   backgroundColor: 'transparent',
   paddingHorizontal: 0,
   paddingVertical: 0,
-  height: 'auto' as any,
+  height: 'auto' as import('react-native').DimensionValue,
   marginBottom: 10,
   shadowOpacity: 0,
 };

@@ -33,6 +33,7 @@ export default function TodayScreen() {
 
   const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     trigger();
     fetchSignatures();
@@ -42,7 +43,7 @@ export default function TodayScreen() {
     if (store.hasMoodToday() && !store.suggestion && !store.isLoadingSuggestion) {
       fetchSuggestion();
     }
-  }, [store.todayLog]);
+  }, [store.todayLog, fetchSuggestion]);
 
   const handleMoodSelect = useCallback(async (mood: Mood) => {
     setHasError(false);

@@ -1,6 +1,12 @@
-import { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withTiming, withDelay, type AnimatedStyle } from 'react-native-reanimated';
+import type { ViewStyle } from 'react-native';
 
-export function useScreenAnimation(initialY: number = 8) {
+interface UseScreenAnimationReturn {
+  animStyle: AnimatedStyle<ViewStyle>;
+  trigger: () => void;
+}
+
+export function useScreenAnimation(initialY: number = 8): UseScreenAnimationReturn {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(initialY);
 

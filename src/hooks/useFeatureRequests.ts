@@ -5,7 +5,17 @@ export interface FeatureRequestWithVote extends FeatureRequest {
   userVote: 1 | -1 | null;
 }
 
-export function useFeatureRequests() {
+interface UseFeatureRequestsReturn {
+  requests: FeatureRequestWithVote[];
+  loading: boolean;
+  submitting: boolean;
+  currentUserId: string | null;
+  fetchRequests: () => Promise<void>;
+  submitRequest: (title: string, description?: string) => Promise<boolean>;
+  vote: (requestId: string, v: 1 | -1) => Promise<void>;
+}
+
+export function useFeatureRequests(): UseFeatureRequestsReturn {
   const [requests, setRequests] = useState<FeatureRequestWithVote[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -17,7 +27,7 @@ export function useFeatureRequests() {
       const userId = await getCurrentUserId();
       setCurrentUserId(userId);
 
-      const { data: rows, error } = await (supabase as any)
+      const { data: rows, error } = await supabase
         .from('feature_requests')
         .select('*')
         .order('upvotes', { ascending: false });
@@ -26,7 +36,7 @@ export function useFeatureRequests() {
 
       let voteMap: Record<string, 1 | -1> = {};
       if (userId) {
-        const { data: votes } = await (supabase as any)
+        const { data: votes } = await supabase
           .from('feature_request_votes')
           .select('request_id, vote')
           .eq('user_id', userId);
@@ -56,7 +66,7 @@ export function useFeatureRequests() {
     if (!userId) return false;
     setSubmitting(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('feature_requests')
         .insert({ title, description: description || null, created_by: userId })
         .select('*')
@@ -112,16 +122,18 @@ export function useFeatureRequests() {
 
     try {
       if (isSameVote) {
-        await (supabase as any)
+        const { error } = await supabase
           .from('feature_request_votes')
           .delete()
           .eq('user_id', userId)
           .eq('request_id', requestId);
+        if (error) throw error;
       } else {
-        await (supabase as any).from('feature_request_votes').upsert(
+        const { error } = await supabase.from('feature_request_votes').upsert(
           { user_id: userId, request_id: requestId, vote: v },
           { onConflict: 'user_id,request_id' }
         );
+        if (error) throw error;
       }
 
     } catch (err) {

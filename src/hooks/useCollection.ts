@@ -1,23 +1,39 @@
-import { supabase, getCurrentUserId, uploadBottleImage, type CollectionItem, type StockLevel } from '@/lib/supabase';
+import { supabase, getCurrentUserId, uploadBottleImage, type CollectionItem, type Fragrance, type StockLevel } from '@/lib/supabase';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { fetchDNAInsight } from '@/lib/claudeApi';
 
-export function useCollection() {
+interface UseCollectionReturn {
+  fetchCollection: () => Promise<void>;
+  fetchDNA: () => Promise<void>;
+  computeAndSaveDNA: () => Promise<void>;
+  addBottle: (fragranceId: number, isWishlist?: boolean) => Promise<void>;
+  removeBottle: (collectionId: string) => Promise<void>;
+  updateStock: (collectionId: string, level: StockLevel) => Promise<void>;
+  updateRating: (collectionId: string, rating: number) => Promise<void>;
+  updateNotes: (collectionId: string, notes: string) => Promise<void>;
+  moveToCollection: (collectionId: string) => Promise<void>;
+  uploadImage: (collectionId: string, uri: string) => Promise<void>;
+  searchFragrances: (query: string) => Promise<void>;
+  clearSearch: () => void;
+}
+
+export function useCollection(): UseCollectionReturn {
   const store = useCollectionStore();
 
   async function fetchCollection() {
     store.setLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('user_collection')
         .select('*, fragrance:fragrances(*)')
         .order('added_at', { ascending: false });
 
       if (error) throw error;
       if (data) {
+        const items = data as CollectionItem[];
         store.setItems(
-          data.filter((i: CollectionItem) => !i.is_wishlist),
-          data.filter((i: CollectionItem) => i.is_wishlist)
+          items.filter((i) => !i.is_wishlist),
+          items.filter((i) => i.is_wishlist)
         );
       }
     } catch (err) {
@@ -78,7 +94,7 @@ export function useCollection() {
     }
 
     try {
-      const { error } = await (supabase as any).from('dna_profiles').upsert(
+      const { error } = await supabase.from('dna_profiles').upsert(
         { user_id, families, dominant_family, lumi_insight, updated_at: new Date().toISOString() },
         { onConflict: 'user_id' }
       );
@@ -92,7 +108,7 @@ export function useCollection() {
   async function addBottle(fragranceId: number, isWishlist = false) {
     store.setSyncing(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('user_collection')
         .insert({ fragrance_id: fragranceId, is_wishlist: isWishlist })
         .select('*, fragrance:fragrances(*)')
@@ -100,10 +116,11 @@ export function useCollection() {
 
       if (error) throw error;
       if (data) {
+        const item = data as CollectionItem;
         if (isWishlist) {
-          store.prependWishlist(data);
+          store.prependWishlist(item);
         } else {
-          store.prependItem(data);
+          store.prependItem(item);
         }
       }
     } finally {
@@ -130,7 +147,7 @@ export function useCollection() {
     store.updateItem(collectionId, { stock_level: level });
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_collection')
         .update({ stock_level: level })
         .eq('id', collectionId);
@@ -146,7 +163,7 @@ export function useCollection() {
     store.updateItem(collectionId, { personal_rating: rating });
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_collection')
         .update({ personal_rating: rating })
         .eq('id', collectionId);
@@ -162,7 +179,7 @@ export function useCollection() {
     store.updateItem(collectionId, { notes });
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_collection')
         .update({ notes })
         .eq('id', collectionId);
@@ -180,7 +197,7 @@ export function useCollection() {
     store.moveWishlistToCollection(collectionId);
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_collection')
         .update({ is_wishlist: false })
         .eq('id', collectionId);
@@ -205,10 +222,11 @@ export function useCollection() {
 
       store.updateItem(collectionId, { custom_image_url: url });
 
-      await (supabase as any)
+      const { error } = await supabase
         .from('user_collection')
         .update({ custom_image_url: url })
         .eq('id', collectionId);
+      if (error) throw error;
     } catch (err) {
       console.error('uploadImage error:', err);
     }
@@ -228,7 +246,7 @@ export function useCollection() {
         .limit(10);
 
       if (error) throw error;
-      store.setSearchResults(data ?? []);
+      store.setSearchResults((data ?? []) as Fragrance[]);
     } catch (err) {
       store.clearSearch();
     }

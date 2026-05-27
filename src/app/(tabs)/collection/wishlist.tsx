@@ -99,7 +99,7 @@ export default function WishlistScreen() {
           {wishlist.length === 0 ? (
             <EmptyState
               title="Your wishlist is empty."
-              action={{ label: 'Browse & add', onPress: () => router.push('/(tabs)/collection/add?wishlist=true' as any) }}
+              action={{ label: 'Browse & add', onPress: () => router.push({ pathname: '/(tabs)/collection/add', params: { wishlist: 'true' } }) }}
             />
           ) : (
             <>
@@ -120,7 +120,7 @@ export default function WishlistScreen() {
 
               <View className="mt-6 items-center">
                 <Pressable
-                  onPress={() => router.push('/(tabs)/collection/add?wishlist=true' as any)}
+                  onPress={() => router.push({ pathname: '/(tabs)/collection/add', params: { wishlist: 'true' } })}
                   className="rounded-full border px-5 py-2.5"
                   style={{ borderColor: COLORS.dust }}>
                   <Text style={{ fontFamily: FONTS.ui, fontSize: 14, color: COLORS.ink }}>

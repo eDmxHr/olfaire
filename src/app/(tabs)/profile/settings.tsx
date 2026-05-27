@@ -66,12 +66,12 @@ export default function SettingsScreen() {
   const { setTheme, setSkinType, setNotifications, uploadAvatar, updateProfile, signOut } =
     useProfile();
 
-  const [editing, setEditing] = useState(false);
+  const [isEditing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [savingName, setSavingName] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [isUploadingAvatar, setUploadingAvatar] = useState(false);
 
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [isTimePickerVisible, setShowTimePicker] = useState(false);
 
   function startEditing() {
     setDraftName(profile?.display_name ?? '');
@@ -178,7 +178,7 @@ export default function SettingsScreen() {
           }}>
           <View className="flex-row items-center gap-3">
             {/* Avatar */}
-            <Pressable onPress={editing ? pickAvatar : undefined} style={{ position: 'relative' }}>
+            <Pressable onPress={isEditing ? pickAvatar : undefined} style={{ position: 'relative' }}>
               <Avatar
                 key={profile?.avatar_url ?? 'no-avatar'}
                 style={{ width: 48, height: 48, borderRadius: 24 }}
@@ -201,7 +201,7 @@ export default function SettingsScreen() {
                   </Text>
                 </AvatarFallback>
               </Avatar>
-              {editing && (
+              {isEditing && (
                 <View
                   style={{
                     position: 'absolute',
@@ -214,7 +214,7 @@ export default function SettingsScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  {uploadingAvatar ? (
+                  {isUploadingAvatar ? (
                     <ActivityIndicator size="small" color={COLORS.parchment} />
                   ) : (
                     <IconCamera size={11} color={COLORS.parchment} strokeWidth={2} />
@@ -225,7 +225,7 @@ export default function SettingsScreen() {
 
             {/* Name */}
             <View className="flex-1">
-              {editing ? (
+              {isEditing ? (
                 <TextInput
                   value={draftName}
                   onChangeText={setDraftName}
@@ -249,7 +249,7 @@ export default function SettingsScreen() {
             </View>
 
             {/* Edit / Save / Cancel */}
-            {editing ? (
+            {isEditing ? (
               <View className="flex-row gap-2">
                 <Pressable
                   onPress={cancelEditing}
@@ -332,7 +332,7 @@ export default function SettingsScreen() {
               {/* iOS: modal bottom sheet */}
               {Platform.OS === 'ios' && (
                 <TimePickerModal
-                  visible={showTimePicker}
+                  visible={isTimePickerVisible}
                   value={timeStringToDate(profile.notification_time ?? '08:00')}
                   onChange={onTimeChange}
                   onClose={() => setShowTimePicker(false)}
@@ -340,7 +340,7 @@ export default function SettingsScreen() {
               )}
 
               {/* Android: native picker, conditional */}
-              {Platform.OS === 'android' && showTimePicker && (
+              {Platform.OS === 'android' && isTimePickerVisible && (
                 <DateTimePicker
                   mode="time"
                   display="default"

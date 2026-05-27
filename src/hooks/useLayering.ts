@@ -3,6 +3,13 @@ import { useAuthStore } from '@/store/authStore';
 import { fetchLayeringAnalysis } from '@/lib/claudeApi';
 import { useLayeringStore, type LayeringAnalysis } from '@/store/LayeringStore';
 
+interface UseLayeringReturn {
+  analyse: () => Promise<void>;
+  fetchSignatures: () => Promise<void>;
+  saveSignature: (name: string, tags: string[]) => Promise<string | null>;
+  deleteSignature: (id: string) => Promise<void>;
+}
+
 // ── Cache helpers ─────────────────────────────────────────────────
 
 async function checkCache(
@@ -12,7 +19,7 @@ async function checkCache(
   const least = Math.min(idA, idB);
   const greatest = Math.max(idA, idB);
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('layering_cache')
     .select('*')
     .eq('fragrance_a_id', least)
@@ -31,7 +38,7 @@ async function writeCache(
   const least = Math.min(idA, idB);
   const greatest = Math.max(idA, idB);
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('layering_cache')
     .insert({
       fragrance_a_id: least,
@@ -54,7 +61,7 @@ async function writeCache(
 
 // ── Hook ──────────────────────────────────────────────────────────
 
-export function useLayering() {
+export function useLayering(): UseLayeringReturn {
   const store = useLayeringStore();
   const profile = useAuthStore((s) => s.profile);
 
@@ -111,7 +118,7 @@ export function useLayering() {
 
   async function fetchSignatures() {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('signatures')
         .select(`*, layering_cache:layering_cache_id(fragrance_a:fragrance_a_id(name), fragrance_b:fragrance_b_id(name))`)
         .order('created_at', { ascending: false });
@@ -132,13 +139,13 @@ export function useLayering() {
 
   async function saveSignature(name: string, tags: string[]): Promise<string | null> {
     const { cacheId, analysis } = store;
-    if (!cacheId || !analysis) return null;
+    if (!cacheId || !analysis || !profile) return null;
 
     store.setSaving(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('signatures')
-        .insert({ layering_cache_id: cacheId, name, tags, user_id: profile?.id })
+        .insert({ layering_cache_id: cacheId, name, tags, user_id: profile.id })
         .select()
         .single();
 

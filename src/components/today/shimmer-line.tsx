@@ -7,6 +7,7 @@ export function ShimmerLine({ width }: { width: `${number}%` | number }) {
   const opacity = useSharedValue(0.5);
   const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     opacity.value = withRepeat(withTiming(0.2, { duration: 900 }), -1, true);
   }, []);

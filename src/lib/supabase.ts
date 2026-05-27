@@ -1,6 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import type { Database as GeneratedDatabase, Json } from './database.types';
 
 // ── Environment variables ─────────────────────────────────────────
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
@@ -16,14 +17,39 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // ── Database types ────────────────────────────────────────────────
 export type SkinType = 'dry' | 'normal' | 'oily';
 export type Lifestyle =
-  | 'office' | 'outdoor' | 'creative' | 'home'
-  | 'gym' | 'formal' | 'casual' | 'luxury' | 'nightlife'
-  | 'dating' | 'travel' | 'beach' | 'minimal' | 'streetwear'
-  | 'sporty' | 'elegant' | 'party' | 'relaxed' | 'business'
-  | 'romantic' | 'winter' | 'summer';
+  | 'office'
+  | 'outdoor'
+  | 'creative'
+  | 'home'
+  | 'gym'
+  | 'formal'
+  | 'casual'
+  | 'luxury'
+  | 'nightlife'
+  | 'dating'
+  | 'travel'
+  | 'beach'
+  | 'minimal'
+  | 'streetwear'
+  | 'sporty'
+  | 'elegant'
+  | 'party'
+  | 'relaxed'
+  | 'business'
+  | 'romantic'
+  | 'winter'
+  | 'summer';
 export type Theme = 'light' | 'dark' | 'system';
 export type StockLevel = 'full' | 'medium' | 'low' | 'empty';
-export type Mood = 'soft' | 'bold' | 'cosy' | 'sharp' | 'mysterious' | 'fresh' | 'dark' | 'romantic';
+export type Mood =
+  | 'soft'
+  | 'bold'
+  | 'cosy'
+  | 'sharp'
+  | 'mysterious'
+  | 'fresh'
+  | 'dark'
+  | 'romantic';
 export type WearRating = 'loved' | 'neutral' | 'disliked';
 
 export interface Profile {
@@ -47,24 +73,23 @@ export interface Profile {
 
 export interface Fragrance {
   id: number;
-  source_url: string | null;
-  house: string;
-  name: string;
+  house: string | null;
+  name: string | null;
   concentration: string | null;
   year: number | null;
-  family: string;
+  family: string | null;
   subfamily: string | null;
   gender: string | null;
-  notes_top: string[];
-  notes_heart: string[];
-  notes_base: string[];
-  longevity: number | null; // 1–5
-  sillage: number | null; // 1–5
-  season_tags: string[];
-  occasion_tags: string[];
-  is_user_contributed: boolean;
-  is_verified: boolean;
-  created_at: string;
+  notes_top: string[] | null;
+  notes_heart: string[] | null;
+  notes_base: string[] | null;
+  longevity: number | null;
+  sillage: number | null;
+  season_tags: string[] | null;
+  occasion_tags: string[] | null;
+  is_user_contributed: boolean | null;
+  is_verified: boolean | null;
+  created_at: string | null;
 }
 
 export interface CollectionItem {
@@ -95,7 +120,7 @@ export interface DailyLog {
   weather_temp_c: number | null;
   weather_humidity: number | null;
   lumi_suggestion_text: string | null;
-  reasoning_tags: string[];
+  reasoning_tags: string[] | null;
   wear_rating: WearRating | null;
   calendar_event: string | null;
   created_at: string;
@@ -130,7 +155,7 @@ export interface Signature {
 
 export interface DNAProfile {
   user_id: string;
-  families: Record<string, number>; // e.g. { "Floral": 72.5, "Woody": 58.0 }
+  families: Json; // e.g. { "Floral": 72.5, "Woody": 58.0 }
   dominant_family: string | null;
   lumi_insight: string | null;
   updated_at: string;
@@ -163,68 +188,11 @@ export interface FeatureRequestVote {
   vote: 1 | -1;
 }
 
-type R = Record<string, unknown>;
-
-// ── Database schema type ──────────────────────────────────────────
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: Profile;
-        Insert: Omit<Profile, 'created_at' | 'updated_at'>;
-        Update: Omit<Partial<Profile>, 'id' | 'created_at' | 'updated_at'>;
-      };
-      fragrances: {
-        Row: Fragrance;
-        Insert: Omit<Fragrance, 'id' | 'created_at'>;
-        Update: Omit<Partial<Fragrance>, 'id' | 'created_at'>;
-      };
-      user_collection: {
-        Row: CollectionItem;
-        Insert: Omit<CollectionItem, 'id' | 'added_at'>;
-        Update: Omit<Partial<CollectionItem>, 'id' | 'added_at'>;
-      };
-      daily_log: {
-        Row: DailyLog;
-        Insert: Omit<DailyLog, 'id' | 'created_at'>;
-        Update: Omit<Partial<DailyLog>, 'id' | 'created_at'>;
-      };
-      layering_cache: {
-        Row: LayeringCache;
-        Insert: Omit<LayeringCache, 'id' | 'created_at'>;
-        Update: Omit<Partial<LayeringCache>, 'id' | 'created_at'>;
-      };
-      signatures: {
-        Row: Signature;
-        Insert: Omit<Signature, 'id' | 'created_at'>;
-        Update: Omit<Partial<Signature>, 'id' | 'created_at'>;
-      };
-      dna_profiles: {
-        Row: DNAProfile;
-        Insert: Omit<DNAProfile, 'updated_at'>;
-        Update: Omit<Partial<DNAProfile>, 'user_id' | 'updated_at'>;
-      };
-      fragrance_contributions: {
-        Row: FragranceContribution;
-        Insert: Omit<FragranceContribution, 'id' | 'created_at'>;
-        Update: Omit<Partial<FragranceContribution>, 'id' | 'created_at'>;
-      };
-    };
-    Functions: {
-      get_daily_layering_count: {
-        Args: { p_user_id: string };
-        Returns: number;
-      };
-      increment_wear_count: {
-        Args: { p_fragrance_id: number };
-        Returns: void;
-      };
-    };
-  };
-};
+// ── Database schema type (generated) ─────────────────────────────
+export type { GeneratedDatabase as Database };
 
 // ── Supabase client ───────────────────────────────────────────────
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<GeneratedDatabase>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
@@ -341,16 +309,26 @@ export async function uploadSignatureCardImage(
  * Use this for quick checks — for reactive auth state use onAuthStateChange.
  */
 export async function getCurrentSession() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return session;
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+    if (error) return null;
+    return session;
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Returns the current user's ID or null if not signed in.
  */
 export async function getCurrentUserId(): Promise<string | null> {
-  const session = await getCurrentSession();
-  return session?.user?.id ?? null;
+  try {
+    const session = await getCurrentSession();
+    return session?.user?.id ?? null;
+  } catch {
+    return null;
+  }
 }

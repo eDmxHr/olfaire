@@ -28,34 +28,38 @@ export default function SignatureShareModal() {
   const cardRef = useRef<View>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [shareError, setShareError] = useState(false);
+  const [hasShareError, setHasShareError] = useState(false);
   const [cardData, setCardData] = useState<CardData | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const { data: sig } = await (supabase as any)
+        const { data: sig, error: sigError } = await supabase
           .from('signatures')
           .select('name, layering_cache_id, card_image_url')
           .eq('id', signatureId)
           .single();
-
+        if (sigError) throw sigError;
         if (!sig) return;
 
-        const { data: cache } = await (supabase as any)
+        const { data: cache, error: cacheError } = await supabase
           .from('layering_cache')
           .select(
             'fragrance_a_id, fragrance_b_id, compatibility_score, overall_character, analysis_json'
           )
           .eq('id', sig.layering_cache_id)
           .single();
+        if (cacheError) throw cacheError;
 
         const fragIds = [cache?.fragrance_a_id, cache?.fragrance_b_id].filter(Boolean);
-        const { data: frags } = fragIds.length
-          ? await (supabase as any).from('fragrances').select('id, name').in('id', fragIds)
-          : { data: [] };
+        const { data: frags, error: fragsError } = fragIds.length
+          ? await supabase.from('fragrances').select('id, name').in('id', fragIds)
+          : { data: [], error: null };
+        if (fragsError) throw fragsError;
 
-        const fragMap = Object.fromEntries((frags ?? []).map((f: any) => [f.id, f.name]));
+        const fragMap = Object.fromEntries(
+          (frags ?? []).map((f: { id: number; name: string | null }) => [f.id, f.name ?? ''])
+        );
         const nameA = fragMap[cache?.fragrance_a_id] ?? '';
         const nameB = fragMap[cache?.fragrance_b_id] ?? '';
 
@@ -63,9 +67,11 @@ export default function SignatureShareModal() {
           blendName: nameA && nameB ? `${nameA} × ${nameB}` : sig.name,
           overallCharacter: cache?.overall_character ?? null,
           compatibilityScore: cache?.compatibility_score ?? null,
-          lumiSummary: (cache?.analysis_json as any)?.lumi_summary ?? null,
+          lumiSummary: (cache?.analysis_json as Record<string, unknown>)?.lumi_summary as string ?? null,
           cardImageUrl: sig.card_image_url ?? null,
         });
+      } catch {
+        setHasShareError(true);
       } finally {
         setIsLoadingData(false);
       }
@@ -88,7 +94,7 @@ export default function SignatureShareModal() {
         if (profile?.id && signatureId) {
           uploadSignatureCardImage(profile.id, signatureId, localUri).then((cardUrl) => {
             if (cardUrl && signatureId) {
-              (supabase as any)
+              supabase
                 .from('signatures')
                 .update({ card_image_url: cardUrl })
                 .eq('id', signatureId);
@@ -100,12 +106,12 @@ export default function SignatureShareModal() {
       await Sharing.shareAsync(localUri, { mimeType: 'image/jpeg' });
 
       if (signatureId) {
-        const { data: sig } = await (supabase as any)
+        const { data: sig } = await supabase
           .from('signatures')
           .select('share_count')
           .eq('id', signatureId)
           .single();
-        await (supabase as any)
+        await supabase
           .from('signatures')
           .update({ share_count: (sig?.share_count ?? 0) + 1 })
           .eq('id', signatureId);
@@ -114,7 +120,7 @@ export default function SignatureShareModal() {
       router.back();
     } catch (err) {
       console.error('handleShare error:', err);
-      setShareError(true);
+      setHasShareError(true);
     } finally {
       setIsSharing(false);
     }
@@ -185,7 +191,7 @@ export default function SignatureShareModal() {
         </View>
 
         {/* Share error */}
-        {shareError && (
+        {hasShareError && (
           <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red, textAlign: 'center', marginBottom: 8 }}>
             Couldn't share. Please try again.
           </Text>
@@ -193,7 +199,7 @@ export default function SignatureShareModal() {
 
         {/* Share button */}
         <Pressable
-          onPress={() => { setShareError(false); handleShare(); }}
+          onPress={() => { setHasShareError(false); handleShare(); }}
           disabled={isSharing || isLoadingData}
           className="flex-row items-center justify-center gap-2 rounded-xl py-3.5"
           style={{ backgroundColor: COLORS.amber, opacity: isSharing || isLoadingData ? OPACITY.loading : 1 }}>

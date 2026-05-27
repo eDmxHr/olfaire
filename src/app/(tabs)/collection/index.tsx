@@ -56,7 +56,7 @@ export default function CollectionScreen() {
         edges={['top']}>
         <EmptyState
           title="Start your collection."
-          action={{ label: 'Add a bottle', onPress: () => router.navigate('/modals/bottle-quick-add' as any) }}
+          action={{ label: 'Add a bottle', onPress: () => router.navigate('/modals/bottle-quick-add') }}
         />
       </SafeAreaView>
     );
@@ -75,7 +75,7 @@ export default function CollectionScreen() {
               Collection
             </Text>
             <Pressable
-              onPress={() => router.navigate('/modals/bottle-quick-add' as any)}
+              onPress={() => router.navigate('/modals/bottle-quick-add')}
               hitSlop={8}
               style={{
                 width: 36,
@@ -182,7 +182,7 @@ export default function CollectionScreen() {
                 <BottleRow
                   key={item.id}
                   item={item}
-                  onPress={() => router.push(`/collection/${item.id}` as any)}
+                  onPress={() => router.push({ pathname: '/collection/[id]', params: { id: item.id } })}
                 />
               ))}
             </View>

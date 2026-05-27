@@ -1,5 +1,5 @@
 import { Modal, View, Pressable } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Text } from '@/components/ui/text';
 import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 

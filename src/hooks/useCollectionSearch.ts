@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import type { CollectionItem } from '@/lib/supabase';
 
-export function useCollectionSearch(items: CollectionItem[], pageSize = 8) {
+interface UseCollectionSearchReturn {
+  query: string;
+  setQuery: (q: string) => void;
+  isSearching: boolean;
+  filtered: CollectionItem[];
+  visible: CollectionItem[];
+  hasMore: boolean;
+  showAll: boolean;
+  setShowAll: (v: boolean) => void;
+}
+
+export function useCollectionSearch(items: CollectionItem[], pageSize = 8): UseCollectionSearchReturn {
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
 

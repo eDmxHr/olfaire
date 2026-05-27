@@ -25,7 +25,7 @@ export default function AddPerfumeScreen() {
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [addingId, setAddingId] = useState<number | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
-  const [searching, setSearching] = useState(false);
+  const [isSearching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { searchFragrances, addBottle, removeBottle, clearSearch, fetchCollection } =
@@ -199,7 +199,7 @@ export default function AddPerfumeScreen() {
         })}
         {results.length === 0 && query.length >= 2 && (
           <View className="items-center py-4">
-            {searching ? (
+            {isSearching ? (
               <SpinningLoader size={20} color={COLORS.ash} />
             ) : (
               <Icon icon={IconSearchOff} size={20} color={COLORS.ash} />

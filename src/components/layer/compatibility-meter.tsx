@@ -16,7 +16,7 @@ function SegmentBar({ filled, delay }: { filled: boolean; delay: number }) {
 
   useEffect(() => {
     opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
-  }, []);
+  }, [delay]);
 
   return (
     <Animated.View

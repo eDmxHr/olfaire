@@ -24,9 +24,10 @@ export async function syncPremiumStatus(): Promise<void> {
       updatePayload.premium_expires_at = null;
     }
 
-    await (supabase.from('profiles') as any)
+    const { error: updateError } = await (supabase.from('profiles') as any)
       .update(updatePayload)
       .eq('id', userId);
+    if (updateError) throw updateError;
 
     const current = useAuthStore.getState().profile;
     if (current) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -32,6 +32,7 @@ export function LumiThinking({
   const lumiStyle = useAnimatedStyle(() => ({
     transform: [{ scale: lumiScale.value }],
   }));
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     lumiScale.value = withRepeat(
@@ -47,14 +48,17 @@ export function LumiThinking({
 
     const interval = setInterval(() => {
       textOpacity.value = withTiming(0, { duration: FADE_OUT });
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setPhraseIndex((i) => (i + 1) % phrases.length);
         textOpacity.value = withTiming(1, { duration: FADE_IN });
       }, FADE_OUT + PAUSE);
     }, INTERVAL);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearInterval(interval);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [phrases]);
 
   return (
     <View className="items-center gap-3">

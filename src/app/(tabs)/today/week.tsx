@@ -40,7 +40,7 @@ export default function WeekScreen() {
     if (!ids.length) return;
     setNamesLoading(true);
     (async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('fragrances')
         .select('id, house, name')
         .in('id', ids);

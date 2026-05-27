@@ -59,9 +59,9 @@ export default function BottleQuickAddModal() {
   const [step, setStep] = useState<Step>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Fragrance[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [isSearching, setSearching] = useState(false);
   const [selected, setSelected] = useState<Fragrance | null>(null);
-  const [manualMode, setManualMode] = useState(false);
+  const [isManualMode, setManualMode] = useState(false);
   const [formValues, setFormValues] = useState<ManualFragranceFormValues>(INITIAL_FORM);
 
   const [stockLevel, setStockLevel] = useState<StockLevel>('full');
@@ -92,7 +92,7 @@ export default function BottleQuickAddModal() {
     }
     setSearching(true);
     try {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('fragrances')
         .select('*')
         .or(`name.ilike.%${text}%,house.ilike.%${text}%`)
@@ -120,7 +120,7 @@ export default function BottleQuickAddModal() {
     name: string,
     userProvided: UserProvidedFragranceData
   ) {
-    const { data: existing } = await (supabase as any)
+    const { data: existing } = await supabase
       .from('fragrances')
       .select('id')
       .ilike('house', house)
@@ -136,7 +136,7 @@ export default function BottleQuickAddModal() {
     const enriched = await enrichFragrance(house, name, userProvided);
     setSaveStep('saving');
 
-    const { data: newFragrance, error } = await (supabase as any)
+    const { data: newFragrance, error } = await supabase
       .from('fragrances')
       .insert({
         house,
@@ -163,11 +163,11 @@ export default function BottleQuickAddModal() {
 
     const userId = await getCurrentUserId();
     if (userId) {
-      await (supabase as any).from('fragrance_contributions').insert({
+      await supabase.from('fragrance_contributions').insert({
         submitted_by: userId,
         house,
         name,
-        raw_data: { input: userProvided, enriched },
+        raw_data: { input: userProvided, enriched } as unknown as import('@/lib/database.types').Json,
         status: enriched.confidence === 'low' ? 'pending' : 'verified',
         merged_into: newFragrance.id,
       });
@@ -180,7 +180,7 @@ export default function BottleQuickAddModal() {
     setAddError(null);
     setSaveStep('saving');
     try {
-      if (manualMode) {
+      if (isManualMode) {
         const house = formValues.house.trim() || 'Unknown';
         const name = formValues.name.trim();
         const userProvided: UserProvidedFragranceData = {
@@ -211,17 +211,17 @@ export default function BottleQuickAddModal() {
       await addBottle(fragranceId);
       return;
     }
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('user_collection')
       .insert({ fragrance_id: fragranceId, stock_level: stockLevel, is_wishlist: false })
       .select('*, fragrance:fragrances(*)')
       .single();
 
     if (error) throw error;
-    if (data) useCollectionStore.getState().prependItem(data);
+    if (data) useCollectionStore.getState().prependItem(data as import('@/lib/supabase').CollectionItem);
   }
 
-  const canConfirm = manualMode ? formValues.name.trim().length > 0 : selected !== null;
+  const canConfirm = isManualMode ? formValues.name.trim().length > 0 : selected !== null;
 
   return (
     <KeyboardAvoidingView
@@ -251,12 +251,13 @@ export default function BottleQuickAddModal() {
                 onChangeText={search}
                 placeholder="Search by name or house…"
                 autoFocus
-                loading={searching}
+                loading={isSearching}
               />
 
               <FlatList
                 data={results}
                 keyExtractor={(item) => String(item.id)}
+                getItemLayout={(_, index) => ({ length: 56, offset: 56 * index, index })}
                 style={{ maxHeight: 280 }}
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
@@ -265,7 +266,7 @@ export default function BottleQuickAddModal() {
                     style={{ borderBottomColor: COLORS.dust }}
                     onPress={() => selectFragrance(item)}>
                     <View className="flex-1">
-                      <FragranceName house={item.house} name={item.name} />
+                      <FragranceName house={item.house ?? undefined} name={item.name ?? '—'} />
                     </View>
                     <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
                       {item.family}
@@ -273,7 +274,7 @@ export default function BottleQuickAddModal() {
                   </Pressable>
                 )}
                 ListEmptyComponent={
-                  query.length >= 2 && !searching ? (
+                  query.length >= 2 && !isSearching ? (
                     <Text
                       className="py-4 text-center"
                       style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
@@ -297,7 +298,7 @@ export default function BottleQuickAddModal() {
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ paddingBottom: 8 }}>
               <View className="mb-5 rounded-xl p-4" style={{ backgroundColor: COLORS.linen }}>
-                {manualMode ? (
+                {isManualMode ? (
                   <ManualFragranceForm values={formValues} onChange={handleFormChange} />
                 ) : (
                   <FragranceName house={selected?.house} name={selected?.name ?? ''} />

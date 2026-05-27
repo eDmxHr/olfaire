@@ -20,7 +20,7 @@ export default function PickScreen() {
   const { confirmWearing, requestAnother, submitRating } = useToday();
   const [fragrance, setFragrance] = useState<Fragrance | null>(null);
   const [loading, setLoading] = useState(true);
-  const [navigatedBack, setNavigatedBack] = useState(false);
+  const [hasNavigatedBack, setNavigatedBack] = useState(false);
 
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -28,7 +28,7 @@ export default function PickScreen() {
   const snapPoints = useMemo(() => ['92%'], []);
 
   useEffect(() => {
-    if (!suggestion && !navigatedBack) router.back();
+    if (!suggestion && !hasNavigatedBack) router.back();
   }, [suggestion]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function PickScreen() {
     (async () => {
       setLoading(true);
       try {
-        const { data } = await (supabase as any)
+        const { data } = await supabase
           .from('fragrances')
           .select('*')
           .eq('id', suggestion.fragrance_id)
@@ -49,8 +49,8 @@ export default function PickScreen() {
   }, [suggestion?.fragrance_id]);
 
   const handleSheetClose = useCallback(() => {
-    if (!navigatedBack) router.back();
-  }, [navigatedBack]);
+    if (!hasNavigatedBack) router.back();
+  }, [hasNavigatedBack]);
 
   if (!suggestion) return null;
 

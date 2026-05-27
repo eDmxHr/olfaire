@@ -1,7 +1,19 @@
 import { supabase, uploadAvatarImage, type Profile, type Theme, type SkinType, type Lifestyle } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 
-export function useProfile() {
+interface UseProfileReturn {
+  fetchProfile: () => Promise<void>;
+  updateProfile: (updates: Partial<Profile>) => Promise<void>;
+  uploadAvatar: (uri: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  setTheme: (theme: Theme) => Promise<void>;
+  setSkinType: (skin_type: SkinType) => Promise<void>;
+  setLifestyle: (lifestyle: Lifestyle) => Promise<void>;
+  setNotifications: (enabled: boolean, time?: string) => Promise<void>;
+  completeOnboarding: () => Promise<void>;
+}
+
+export function useProfile(): UseProfileReturn {
   const setProfile = useAuthStore((s) => s.setProfile);
   const setLoading = useAuthStore((s) => s.setLoading);
   const profile = useAuthStore((s) => s.profile);
@@ -10,7 +22,7 @@ export function useProfile() {
   async function fetchProfile() {
     setLoading(true);
     try {
-      const { data, error } = await (supabase as any).from('profiles').select('*').single();
+      const { data, error } = await supabase.from('profiles').select('*').single();
       if (error) throw error;
       if (data) setProfile(data as Profile);
     } catch (err) {
@@ -25,7 +37,7 @@ export function useProfile() {
     const prev = profile;
     setProfile({ ...profile, ...updates });
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', profile.id);
@@ -63,8 +75,12 @@ export function useProfile() {
 
   async function uploadAvatar(uri: string): Promise<void> {
     if (!profile) return;
-    const publicUrl = await uploadAvatarImage(profile.id, uri);
-    if (publicUrl) await updateProfile({ avatar_url: publicUrl });
+    try {
+      const publicUrl = await uploadAvatarImage(profile.id, uri);
+      if (publicUrl) await updateProfile({ avatar_url: publicUrl });
+    } catch (err) {
+      console.error('uploadAvatar error:', err);
+    }
   }
 
   return {

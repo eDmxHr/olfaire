@@ -139,7 +139,7 @@ export default function LowStockScreen() {
                               router.push({
                                 pathname: '/(tabs)/collection/where-to-buy',
                                 params: { name: frag?.name ?? '', house: frag?.house ?? '' },
-                              } as any)
+                              })
                             }>
                             <Text
                               style={{

@@ -121,7 +121,7 @@ export default function LayerScreen() {
       if (!isPremium) {
         const userId = profile?.id ?? (await supabase.auth.getUser()).data.user?.id;
         if (!userId) return;
-        const { data, error } = await (supabase as any).rpc('get_daily_layering_count', {
+        const { data, error } = await supabase.rpc('get_daily_layering_count', {
           p_user_id: userId,
         });
         if (!error && (data as number) >= 3) {

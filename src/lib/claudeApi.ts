@@ -93,7 +93,8 @@ async function callClaude({
   userMessage: string;
   maxTokens?: number;
 }): Promise<string> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
   if (!session) throw new Error('Not authenticated');
 
   const res = await fetch(LUMI_FUNCTION_URL, {

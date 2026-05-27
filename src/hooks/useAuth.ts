@@ -5,7 +5,14 @@ import { supabase } from '@/lib/supabase';
 
 type AuthProvider = 'apple' | 'google';
 
-export function useAuth() {
+interface UseAuthReturn {
+  signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  loading: AuthProvider | null;
+  error: string | null;
+}
+
+export function useAuth(): UseAuthReturn {
   const [loading, setLoading] = useState<AuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,10 +38,11 @@ export function useAuth() {
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
         if (accessToken && refreshToken) {
-          await supabase.auth.setSession({
+          const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
+          if (sessionError) throw sessionError;
         }
       }
     } catch (err: any) {

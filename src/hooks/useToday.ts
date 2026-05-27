@@ -1,8 +1,27 @@
-import { supabase, type CollectionItem, type Mood, type WearRating } from '@/lib/supabase';
+import {
+  supabase,
+  type CollectionItem,
+  type DailyLog,
+  type Mood,
+  type WearRating,
+  type Database,
+} from '@/lib/supabase';
 import { fetchLumiOpeningLine, fetchDailySuggestion } from '@/lib/claudeApi';
 import { useTodayStore } from '@/store/TodayStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCollectionStore } from '@/store/Collectionstore';
+
+interface UseTodayReturn {
+  fetchTodayLog: () => Promise<void>;
+  fetchWeekLogs: () => Promise<void>;
+  fetchWeather: (city: string) => Promise<void>;
+  fetchLumiOpening: () => Promise<void>;
+  selectMood: (mood: Mood, occasion?: string) => Promise<void>;
+  fetchSuggestion: () => Promise<void>;
+  confirmWearing: (fragranceId: number) => Promise<void>;
+  submitRating: (rating: WearRating) => Promise<void>;
+  requestAnother: () => Promise<void>;
+}
 
 function todayDate(): string {
   return new Date().toISOString().split('T')[0];
@@ -16,7 +35,7 @@ function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' | 'night' {
   return 'night';
 }
 
-export function useToday() {
+export function useToday(): UseTodayReturn {
   const store = useTodayStore();
   const profile = useAuthStore((s) => s.profile);
   const dna = useCollectionStore((s) => s.dna);
@@ -24,26 +43,34 @@ export function useToday() {
   async function fetchTodayLog() {
     store.setLoadingLog(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('daily_log')
-        .select('*, suggested_fragrance:suggested_fragrance_id ( id, house, name, family )')
+        .select('*')
         .eq('log_date', todayDate())
         .maybeSingle();
 
       if (error) throw error;
       if (data) {
-        const { suggested_fragrance, ...log } = data;
-        store.setTodayLog(log ?? null);
+        const log = data as DailyLog;
+        store.setTodayLog(log);
 
         // Rehydrate suggestion from persisted log so we never re-fetch on reload
-        if (log.suggested_fragrance_id && log.lumi_suggestion_text && suggested_fragrance) {
-          store.setSuggestion({
-            fragrance_id: log.suggested_fragrance_id,
-            fragrance_house: suggested_fragrance.house,
-            fragrance_name: suggested_fragrance.name,
-            lumi_line: log.lumi_suggestion_text,
-            reasoning_tags: log.reasoning_tags ?? [],
-          });
+        if (log.suggested_fragrance_id && log.lumi_suggestion_text) {
+          // Fetch the suggested fragrance details separately to avoid FK ambiguity
+          const { data: sf } = await supabase
+            .from('fragrances')
+            .select('id, house, name')
+            .eq('id', log.suggested_fragrance_id)
+            .single();
+          if (sf) {
+            store.setSuggestion({
+              fragrance_id: log.suggested_fragrance_id,
+              fragrance_house: sf.house ?? '',
+              fragrance_name: sf.name ?? '',
+              lumi_line: log.lumi_suggestion_text,
+              reasoning_tags: log.reasoning_tags ?? [],
+            });
+          }
         }
       } else {
         store.setTodayLog(null);
@@ -68,7 +95,7 @@ export function useToday() {
         .order('log_date', { ascending: false });
 
       if (error) throw error;
-      store.setWeekLogs(data ?? []);
+      store.setWeekLogs((data ?? []) as DailyLog[]);
     } catch (err) {
       console.error('fetchWeekLogs error:', err);
     }
@@ -107,7 +134,7 @@ export function useToday() {
     const { todayLog, weather } = useTodayStore.getState();
     if (!todayLog?.id || !weather || todayLog.weather_condition) return;
     try {
-      await (supabase as any)
+      await supabase
         .from('daily_log')
         .update({
           weather_condition: weather.condition,
@@ -150,7 +177,7 @@ export function useToday() {
 
     store.setLoadingSuggestion(true);
     try {
-      const { data: collection } = await (supabase as any)
+      const { data: collection } = await supabase
         .from('user_collection')
         .select('*, fragrance:fragrances(*)')
         .eq('is_wishlist', false)
@@ -160,8 +187,8 @@ export function useToday() {
 
       if (!collection?.length) return;
 
-      const collectionContext = collection
-        .map((item: CollectionItem) => {
+      const collectionContext = (collection as CollectionItem[])
+        .map((item) => {
           const f = item.fragrance as any;
           return `- [ID:${item.fragrance_id}] ${f.house} ${f.name} | ${f.family} ${f.concentration}
   Top: ${f.notes_top?.join(', ')} | Heart: ${f.notes_heart?.join(', ')} | Base: ${f.notes_base?.join(', ')}
@@ -197,7 +224,7 @@ export function useToday() {
 
       store.setSuggestion(result);
 
-      await (supabase as any)
+      await supabase
         .from('daily_log')
         .update({
           suggested_fragrance_id: result.fragrance_id,
@@ -213,29 +240,31 @@ export function useToday() {
   }
 
   async function selectMood(mood: Mood, occasion?: string) {
+    if (!profile) return;
     const { weather } = store;
     const today = todayDate();
 
     store.setSuggestion(null);
 
     try {
-      const upsertData: any = {
-        user_id: profile?.id,
+      const upsertData: Omit<
+        Database['public']['Tables']['daily_log']['Insert'],
+        'reasoning_tags' | 'calendar_event'
+      > = {
+        user_id: profile.id,
         log_date: today,
         mood,
         worn_fragrance_id: null,
         wear_rating: null,
         suggested_fragrance_id: null,
         lumi_suggestion_text: null,
-        ...(occasion && { occasion }),
-        ...(weather && {
-          weather_condition: weather.condition,
-          weather_temp_c: weather.temp_c,
-          weather_humidity: weather.humidity,
-        }),
+        occasion: occasion ?? null,
+        weather_condition: weather?.condition ?? null,
+        weather_temp_c: weather?.temp_c ?? null,
+        weather_humidity: weather?.humidity ?? null,
       };
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('daily_log')
         .upsert(upsertData, { onConflict: 'user_id,log_date' })
         .select()
@@ -243,7 +272,7 @@ export function useToday() {
 
       if (error) throw error;
       if (data) {
-        store.setTodayLog(data);
+        store.setTodayLog(data as DailyLog);
         store.setLoadingSuggestion(true);
         void backfillWeather();
         await waitForWeather(3000);
@@ -262,14 +291,17 @@ export function useToday() {
     store.patchTodayLog({ worn_fragrance_id: fragranceId });
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('daily_log')
         .update({ worn_fragrance_id: fragranceId })
         .eq('id', todayLog.id);
 
       if (error) throw error;
 
-      await (supabase as any).rpc('increment_wear_count', { p_fragrance_id: fragranceId });
+      const { error: rpcError } = await supabase.rpc('increment_wear_count', {
+        p_fragrance_id: fragranceId,
+      });
+      if (rpcError) throw rpcError;
     } catch (err) {
       store.setTodayLog(prev);
       console.error('confirmWearing error:', err);
@@ -284,7 +316,7 @@ export function useToday() {
     store.patchTodayLog({ wear_rating: rating });
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('daily_log')
         .update({ wear_rating: rating })
         .eq('id', todayLog.id);
@@ -298,7 +330,11 @@ export function useToday() {
 
   async function requestAnother() {
     store.setSuggestion(null);
-    await fetchSuggestion();
+    try {
+      await fetchSuggestion();
+    } catch (err) {
+      console.error('requestAnother error:', err);
+    }
   }
 
   return {

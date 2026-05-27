@@ -12,6 +12,7 @@ import { Icon } from '@/components/ui/icon';
 export function SpinningLoader({ size, color }: { size: number; color: string }) {
   const rotation = useSharedValue(0);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     rotation.value = withRepeat(withTiming(360, { duration: 800, easing: Easing.linear }), -1);
   }, []);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { COLORS } from '@/lib/theme';
@@ -120,9 +120,9 @@ function Dot({ x, y, color, outlined = false }: DotPoint & { color: string; outl
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function BodyMap({ placementFirst, placementSecond }: BodyMapProps) {
-  const firstDots = resolveZones(placementFirst);
-  const secondDots = resolveZones(placementSecond);
-  const firstSet = new Set(firstDots.map((d) => `${d.x}-${d.y}`));
+  const firstDots = useMemo(() => resolveZones(placementFirst), [placementFirst]);
+  const secondDots = useMemo(() => resolveZones(placementSecond), [placementSecond]);
+  const firstSet = useMemo(() => new Set(firstDots.map((d) => `${d.x}-${d.y}`)), [firstDots]);
 
   const lc = COLORS.ash; // line color
   const sw = 1.4; // base stroke width
