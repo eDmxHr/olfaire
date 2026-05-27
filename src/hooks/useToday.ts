@@ -201,10 +201,10 @@ export function useToday(): UseTodayReturn {
       // Build computed DNA string from dna_profiles.families — top 3 by score
       let computedDNA: string | null = null;
       if (collection.length >= 3 && dna?.families && Object.keys(dna.families).length > 0) {
-        computedDNA = Object.entries(dna.families)
-          .sort(([, a], [, b]) => (b as number) - (a as number))
+        computedDNA = Object.entries(dna.families as Record<string, number>)
+          .sort(([, a], [, b]) => b - a)
           .slice(0, 3)
-          .map(([family, score]) => `${family} ${Math.round(score as number)}%`)
+          .map(([family, score]) => `${family} ${Math.round(score)}%`)
           .join(', ');
       }
 

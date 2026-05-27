@@ -1,4 +1,4 @@
-import { View, Platform, Pressable } from 'react-native';
+import { View, Platform, Pressable, Linking } from 'react-native';
 import { router } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Screen } from '@/components/screen-wrapper';
@@ -7,7 +7,7 @@ import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/hooks/useAuth';
-import { FONTS } from '@/lib/theme';
+import { COLORS, FONTS } from '@/lib/theme';
 import { IconChevronLeft, IconLoader } from '@tabler/icons-react-native';
 
 export default function SignInScreen() {
@@ -72,6 +72,22 @@ export default function SignInScreen() {
               {error}
             </Text>
           )}
+        </View>
+      </View>
+
+      <View style={{ alignItems: 'center', paddingBottom: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <Pressable onPress={() => Linking.openURL('https://olfaire.co/terms')} hitSlop={8}>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+              Terms & Conditions
+            </Text>
+          </Pressable>
+          <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>·</Text>
+          <Pressable onPress={() => Linking.openURL('https://olfaire.co/privacy')} hitSlop={8}>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+              Privacy Policy
+            </Text>
+          </Pressable>
         </View>
       </View>
     </Screen>

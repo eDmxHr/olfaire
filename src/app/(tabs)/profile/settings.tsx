@@ -509,6 +509,37 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
+        {/* ── Legal ── */}
+        <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Legal</SectionLabel>
+        <View
+          style={{
+            backgroundColor: COLORS.linen,
+            borderRadius: 12,
+            paddingHorizontal: 14,
+          }}>
+          <Pressable
+            onPress={() => Linking.openURL('https://olfaire.co/terms')}
+            className="flex-row items-center gap-3"
+            style={{ paddingVertical: 14 }}>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
+              Terms & Conditions
+            </Text>
+            <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} />
+          </Pressable>
+
+          <RowDivider />
+
+          <Pressable
+            onPress={() => Linking.openURL('https://olfaire.co/privacy')}
+            className="flex-row items-center gap-3"
+            style={{ paddingVertical: 14 }}>
+            <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
+              Privacy Policy
+            </Text>
+            <IconChevronRight size={16} color={COLORS.ash} strokeWidth={1.5} />
+          </Pressable>
+        </View>
+
         {/* ── Account actions ── */}
         <SectionLabel style={{ marginTop: 28, marginBottom: 10 }}>Account</SectionLabel>
         <View

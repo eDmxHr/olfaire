@@ -45,7 +45,7 @@ export default function ProfileScreen() {
   const topFamilies = useMemo(
     () =>
       hasDNA
-        ? Object.entries(dna!.families).sort(([, a], [, b]) => b - a).slice(0, 3)
+        ? Object.entries(dna!.families as Record<string, number>).sort(([, a], [, b]) => b - a).slice(0, 3)
         : [],
     [dna, hasDNA]
   );

@@ -24,7 +24,7 @@ export default function DNAScreen() {
 
   const hasDNA = dna && Object.keys(dna.families ?? {}).length > 0;
   const allFamilies = hasDNA
-    ? Object.entries(dna!.families).sort(([, a], [, b]) => b - a)
+    ? Object.entries(dna!.families as Record<string, number>).sort(([, a], [, b]) => b - a)
     : [];
   const familyCount = allFamilies.length;
 
