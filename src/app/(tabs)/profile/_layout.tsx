@@ -4,6 +4,7 @@ export default function ProfileLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="dna" />
       <Stack.Screen name="signatures" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="feature-requests" />

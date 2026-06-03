@@ -30,7 +30,11 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 canPreventDefault: true,
               });
               if (!event.defaultPrevented) {
-                navigation.navigate(route.name, route.params);
+                if (focused) {
+                  navigation.reset({ index: 0, routes: [{ name: route.name }] });
+                } else {
+                  navigation.navigate(route.name, route.params);
+                }
               }
             }}
             onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}

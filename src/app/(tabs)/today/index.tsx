@@ -43,7 +43,7 @@ export default function TodayScreen() {
     if (store.hasMoodToday() && !store.suggestion && !store.isLoadingSuggestion) {
       fetchSuggestion();
     }
-  }, [store.todayLog, fetchSuggestion]);
+  }, [store.todayLog?.mood]);
 
   const handleMoodSelect = useCallback(async (mood: Mood) => {
     setHasError(false);

@@ -33,16 +33,22 @@ export function useAuth(): UseAuthReturn {
       const result = await WebBrowser.openAuthSessionAsync(data.url, 'olfaire://auth/callback');
 
       if (result.type === 'success') {
-        const hash = new URL(result.url).hash.slice(1);
-        const params = new URLSearchParams(hash);
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
+        const url = new URL(result.url);
+        const hashParams = new URLSearchParams(url.hash.slice(1));
+        const accessToken = hashParams.get('access_token') ?? url.searchParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token') ?? url.searchParams.get('refresh_token');
+
         if (accessToken && refreshToken) {
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
           if (sessionError) throw sessionError;
+        } else {
+          // PKCE flow: Supabase exchanged the code internally, just confirm the session exists
+          const { data, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) throw sessionError;
+          if (!data.session) throw new Error('Sign-in completed but no session was established.');
         }
       }
     } catch (err: any) {

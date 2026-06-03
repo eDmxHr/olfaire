@@ -3,7 +3,7 @@ import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconSettings, IconCheck } from '@tabler/icons-react-native';
+import { IconSettings, IconCheck, IconChevronRight } from '@tabler/icons-react-native';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/text';
 import { useAuthStore } from '@/store/authStore';
@@ -42,14 +42,6 @@ export default function ProfileScreen() {
 
   const hasDNA = dna && Object.keys(dna.families ?? {}).length > 0;
 
-  const topFamilies = useMemo(
-    () =>
-      hasDNA
-        ? Object.entries(dna!.families as Record<string, number>).sort(([, a], [, b]) => b - a).slice(0, 3)
-        : [],
-    [dna, hasDNA]
-  );
-
   const isNewUser = signatures.length === 0;
 
   const mostWorn = useMemo(
@@ -63,7 +55,11 @@ export default function ProfileScreen() {
 
   const checklistItems = useMemo(
     () => [
-      { label: 'Add your first bottle', done: items.length > 0, route: '/(tabs)/collection' as const },
+      {
+        label: 'Add your first bottle',
+        done: items.length > 0,
+        route: '/(tabs)/collection' as const,
+      },
       { label: 'Choose a mood', done: !!todayLog?.mood, route: '/(tabs)/today' as const },
       { label: 'Try layering', done: signatures.length > 0, route: '/(tabs)/layer' as const },
     ],
@@ -111,46 +107,36 @@ export default function ProfileScreen() {
           </View>
 
           {/* ── DNA card (dark) ── */}
-          <View className="mt-5 rounded-2xl p-4" style={{ backgroundColor: COLORS.ink }}>
-            <SectionLabel>Fragrance DNA</SectionLabel>
+          <Pressable
+            style={{ marginTop: 20, borderRadius: 16, padding: 16, backgroundColor: COLORS.ink }}
+            onPress={hasDNA ? () => router.push('/(tabs)/profile/dna') : undefined}>
+            <View className="flex-row items-center justify-between">
+              <SectionLabel style={{ color: colorWithOpacity(COLORS.parchment, 0.5) }}>
+                Fragrance DNA
+              </SectionLabel>
+              {hasDNA && (
+                <IconChevronRight
+                  size={16}
+                  color={colorWithOpacity(COLORS.parchment, 0.45)}
+                  strokeWidth={1.5}
+                />
+              )}
+            </View>
 
             {hasDNA ? (
               <>
-                <Text
-                  className="mt-1"
-                  style={[TYPE.displayM, { color: COLORS.parchment }]}>
+                <Text className="mt-1" style={[TYPE.displayL, { color: COLORS.parchment }]}>
                   {dna!.dominant_family}
                 </Text>
-
-                {topFamilies.map(([family, score]) => (
-                  <View key={family} className="mt-3">
-                    <View className="mb-1.5 flex-row items-center justify-between">
-                      <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash }}>
-                        {family}
-                      </Text>
-                      <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 11, color: COLORS.ash }}>
-                        {Math.round(score)}
-                      </Text>
-                    </View>
-                    <View
-                      className="rounded-full"
-                      style={{ height: 3, backgroundColor: colorWithOpacity(COLORS.ash, 0.19) }}>
-                      <View
-                        className="rounded-full"
-                        style={{
-                          height: 3,
-                          backgroundColor: COLORS.amber,
-                          width: `${Math.min(score, 100)}%`,
-                        }}
-                      />
-                    </View>
-                  </View>
-                ))}
-
                 {dna!.lumi_insight ? (
                   <Text
                     className="mt-3"
-                    style={[TYPE.displayS, { color: COLORS.parchment }]}>
+                    style={{
+                      fontFamily: FONTS.displayLightItalic,
+                      fontSize: 17,
+                      color: colorWithOpacity(COLORS.parchment, 0.8),
+                      lineHeight: 24,
+                    }}>
                     "{dna!.lumi_insight}"
                   </Text>
                 ) : null}
@@ -173,7 +159,7 @@ export default function ProfileScreen() {
                 </Pressable>
               </>
             )}
-          </View>
+          </Pressable>
 
           {/* ── Signatures header ── */}
           <View className="mb-2.5 mt-7 flex-row items-center justify-between">
@@ -201,9 +187,7 @@ export default function ProfileScreen() {
           ) : (
             /* Getting started checklist */
             <View className="rounded-2xl p-4" style={{ backgroundColor: COLORS.linen }}>
-              <Text
-                className="mb-3.5"
-                style={[TYPE.displayM, { color: COLORS.ink }]}>
+              <Text className="mb-3.5" style={[TYPE.displayM, { color: COLORS.ink }]}>
                 Getting started
               </Text>
               {checklistItems.map((item) => (
@@ -242,7 +226,12 @@ export default function ProfileScreen() {
           {items.length > 0 && mostWorn.length === 0 && (
             <Text
               className="mt-7"
-              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, textAlign: 'center' }}>
+              style={{
+                fontFamily: FONTS.ui,
+                fontSize: 13,
+                color: COLORS.ash,
+                textAlign: 'center',
+              }}>
               Wear some fragrances to see your most worn.
             </Text>
           )}

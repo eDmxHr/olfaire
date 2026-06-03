@@ -172,7 +172,7 @@ export function useToday(): UseTodayReturn {
   }
 
   async function fetchSuggestion() {
-    const { todayLog, weather } = store;
+    const { todayLog, weather } = useTodayStore.getState();
     if (!todayLog?.mood) return;
 
     store.setLoadingSuggestion(true);

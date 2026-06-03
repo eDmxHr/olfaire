@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconPlus, IconSparkles } from '@tabler/icons-react-native';
+import { IconPlus } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { BottleRow } from '@/components/collection/bottle-row';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -100,28 +100,6 @@ export default function CollectionScreen() {
               onPress={() => router.push('/(tabs)/collection/low-stock')}
             />
           </View>
-
-          {/* DNA card */}
-          <Pressable
-            onPress={() => router.push('/(tabs)/collection/dna')}
-            style={{
-              marginTop: 14,
-              backgroundColor: COLORS.ink,
-              borderRadius: 14,
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <IconSparkles size={18} color={COLORS.amber} strokeWidth={1.5} />
-              <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.parchment }}>
-                Your Fragrance DNA
-              </Text>
-            </View>
-            <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 14, color: COLORS.amber }}>→</Text>
-          </Pressable>
 
           {/* Search */}
           <SearchInput
