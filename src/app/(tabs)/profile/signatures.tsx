@@ -2,7 +2,7 @@ import { Alert, View, ScrollView, Pressable, ActivityIndicator } from 'react-nat
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { IconNotes, IconShare3, IconTrash } from '@tabler/icons-react-native';
+import { IconShare3, IconTrash, IconSignature } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -37,9 +37,13 @@ export default function SignaturesScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScreenHeader title="Signatures" onBack={() => router.back()} />
 
-      {signatures.length === 0 ? (
+      {true || signatures.length === 0 ? (
         <EmptyState
-          icon={<IconNotes size={40} color={COLORS.ash} strokeWidth={1.2} />}
+          icon={
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>
+              <IconSignature size={36} color={COLORS.ash} strokeWidth={1.2} />
+            </View>
+          }
           title="No signatures yet"
         />
       ) : (

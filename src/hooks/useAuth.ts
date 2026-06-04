@@ -2,6 +2,7 @@ import { useState } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/lib/supabase';
+import { triggerPostSignIn } from '@/app/_layout';
 
 type AuthProvider = 'apple' | 'google';
 
@@ -39,16 +40,18 @@ export function useAuth(): UseAuthReturn {
         const refreshToken = hashParams.get('refresh_token') ?? url.searchParams.get('refresh_token');
 
         if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabase.auth.setSession({
+          const { data: { session }, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
           if (sessionError) throw sessionError;
+          if (session && triggerPostSignIn) await triggerPostSignIn(session);
         } else {
           // PKCE flow: Supabase exchanged the code internally, just confirm the session exists
           const { data, error: sessionError } = await supabase.auth.getSession();
           if (sessionError) throw sessionError;
           if (!data.session) throw new Error('Sign-in completed but no session was established.');
+          if (triggerPostSignIn) await triggerPostSignIn(data.session);
         }
       }
     } catch (err: any) {
@@ -69,11 +72,12 @@ export function useAuth(): UseAuthReturn {
         ],
       });
       if (!credential.identityToken) throw new Error('No identity token from Apple.');
-      const { error: supaError } = await supabase.auth.signInWithIdToken({
+      const { data: { session }, error: supaError } = await supabase.auth.signInWithIdToken({
         provider: 'apple',
         token: credential.identityToken,
       });
       if (supaError) throw supaError;
+      if (session && triggerPostSignIn) await triggerPostSignIn(session);
     } catch (err: any) {
       if (err.code !== 'ERR_REQUEST_CANCELED')
         setError(err.message ?? 'Apple sign-in failed. Please try again.');

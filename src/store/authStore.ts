@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type Session } from '@supabase/supabase-js';
 import { type Profile } from '@/lib/supabase';
 
@@ -23,42 +21,32 @@ interface AuthState {
 }
 
 // ── Store ─────────────────────────────────────────────────────────
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      session: null,
-      profile: null,
-      isLoading: false,
+// No persistence — Supabase client owns session persistence via AsyncStorage.
+// Profile is fetched fresh on every SIGNED_IN event.
+export const useAuthStore = create<AuthState>()((set, get) => ({
+  session: null,
+  profile: null,
+  isLoading: false,
 
-      // ── Computed ───────────────────────────────────────────────
-      isPremium: () => {
-        const profile = get().profile;
-        if (!profile?.is_premium) return false;
-        if (!profile.premium_expires_at) return true;
-        return new Date(profile.premium_expires_at) > new Date();
-      },
+  // ── Computed ───────────────────────────────────────────────
+  isPremium: () => {
+    const profile = get().profile;
+    if (!profile?.is_premium) return false;
+    if (!profile.premium_expires_at) return true;
+    return new Date(profile.premium_expires_at) > new Date();
+  },
 
-      isDarkMode: () => {
-        const theme = get().profile?.theme ?? 'light';
-        if (theme === 'dark') return true;
-        if (theme === 'light') return false;
-        // 'system' — caller should use Appearance.getColorScheme()
-        return false;
-      },
+  isDarkMode: () => {
+    const theme = get().profile?.theme ?? 'light';
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    // 'system' — caller should use Appearance.getColorScheme()
+    return false;
+  },
 
-      // ── Pure setters ───────────────────────────────────────────
-      setSession: (session) => set({ session }),
-      setProfile: (profile) => set({ profile }),
-      setLoading: (isLoading) => set({ isLoading }),
-      clearAll: () => set({ session: null, profile: null, isLoading: false }),
-    }),
-    {
-      name: 'olfaire-auth',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        session: state.session,
-        profile: state.profile,
-      }),
-    }
-  )
-);
+  // ── Pure setters ───────────────────────────────────────────
+  setSession: (session) => set({ session }),
+  setProfile: (profile) => set({ profile }),
+  setLoading: (isLoading) => set({ isLoading }),
+  clearAll: () => set({ session: null, profile: null, isLoading: false }),
+}));

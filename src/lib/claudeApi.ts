@@ -4,6 +4,7 @@
 // The Anthropic key lives server-side in the `lumi` edge function — never in the client bundle.
 
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/authStore';
 
 const LUMI_FUNCTION_URL = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/lumi`;
 
@@ -93,15 +94,23 @@ async function callClaude({
   userMessage: string;
   maxTokens?: number;
 }): Promise<string> {
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError) throw sessionError;
-  if (!session) throw new Error('Not authenticated');
+  // Use the store's token first — it's rehydrated from AsyncStorage before
+  // supabase's own client catches up on cold launch, avoiding a race condition.
+  const storeToken = useAuthStore.getState().session?.access_token;
+  let accessToken = storeToken;
+
+  if (!accessToken) {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    if (!session) throw new Error('Not authenticated');
+    accessToken = session.access_token;
+  }
 
   const res = await fetch(LUMI_FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
+      'Authorization': `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       model,

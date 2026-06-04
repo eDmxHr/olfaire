@@ -518,7 +518,7 @@ export default function SettingsScreen() {
             paddingHorizontal: 14,
           }}>
           <Pressable
-            onPress={() => Linking.openURL('https://olfaire.co/terms')}
+            onPress={() => Linking.openURL('https://olfaire.app/terms')}
             className="flex-row items-center gap-3"
             style={{ paddingVertical: 14 }}>
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>
@@ -530,7 +530,7 @@ export default function SettingsScreen() {
           <RowDivider />
 
           <Pressable
-            onPress={() => Linking.openURL('https://olfaire.co/privacy')}
+            onPress={() => Linking.openURL('https://olfaire.app/privacy')}
             className="flex-row items-center gap-3"
             style={{ paddingVertical: 14 }}>
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink, flex: 1 }}>

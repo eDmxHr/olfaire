@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Image } from 'react-native';
 import { IconChevronRight } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { SectionLabel } from '@/components/ui/section-label';
@@ -9,6 +9,8 @@ interface Props {
   item: CollectionItem;
   onPress: () => void;
 }
+
+const BOTTLE_PLACEHOLDER = require('../../../assets/images/perume-bottle-circle.png');
 
 export function BottleRow({ item, onPress }: Props) {
   const frag = item.fragrance;
@@ -21,6 +23,17 @@ export function BottleRow({ item, onPress }: Props) {
         borderBottomColor: COLORS.dust,
       }}
       className="flex-row items-center py-3.5">
+      <Image
+        source={item.custom_image_url ? { uri: item.custom_image_url } : BOTTLE_PLACEHOLDER}
+        style={{
+          width: 64,
+          height: 64,
+          borderRadius: 8,
+          marginRight: 12,
+          backgroundColor: COLORS.linen,
+        }}
+        resizeMode="contain"
+      />
       <View className="flex-1">
         {frag?.house ? <SectionLabel>{frag.house}</SectionLabel> : null}
         <Text

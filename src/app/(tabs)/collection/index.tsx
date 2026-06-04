@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconPlus } from '@tabler/icons-react-native';
+import { IconPlus, IconMoodEmpty } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { BottleRow } from '@/components/collection/bottle-row';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -48,15 +48,23 @@ export default function CollectionScreen() {
   const familyCount = families.length;
   const lowCount = lowStockItems().length;
 
-  if (items.length === 0) {
+  if (true || items.length === 0) {
     return (
       <SafeAreaView
         className="flex-1"
         style={{ backgroundColor: COLORS.parchment }}
         edges={['top']}>
         <EmptyState
+          icon={
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>
+              <IconMoodEmpty size={36} color={COLORS.ash} strokeWidth={1.2} />
+            </View>
+          }
           title="Start your collection."
-          action={{ label: 'Add a bottle', onPress: () => router.navigate('/modals/bottle-quick-add') }}
+          action={{
+            label: 'Add a bottle',
+            onPress: () => router.navigate('/modals/bottle-quick-add'),
+          }}
         />
       </SafeAreaView>
     );
@@ -71,9 +79,7 @@ export default function CollectionScreen() {
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
           {/* Header */}
           <View className="mt-5 flex-row items-center justify-between">
-            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
-              Collection
-            </Text>
+            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>Collection</Text>
             <Pressable
               onPress={() => router.navigate('/modals/bottle-quick-add')}
               hitSlop={8}
@@ -160,7 +166,9 @@ export default function CollectionScreen() {
                 <BottleRow
                   key={item.id}
                   item={item}
-                  onPress={() => router.push({ pathname: '/collection/[id]', params: { id: item.id } })}
+                  onPress={() =>
+                    router.push({ pathname: '/collection/[id]', params: { id: item.id } })
+                  }
                 />
               ))}
             </View>

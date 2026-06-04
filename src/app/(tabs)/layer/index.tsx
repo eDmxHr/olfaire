@@ -3,7 +3,7 @@ import { View, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconX, IconCheck } from '@tabler/icons-react-native';
+import { IconX, IconCheck, IconSpray } from '@tabler/icons-react-native';
 import { Lumi } from '@/components/lumi';
 import { SpinningLoader } from '@/components/spinning-loader';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,12 @@ interface BottleRowProps {
   onToggle: () => void;
 }
 
-const BottleRow = React.memo(function BottleRow({ item, isSelected, isDisabled, onToggle }: BottleRowProps) {
+const BottleRow = React.memo(function BottleRow({
+  item,
+  isSelected,
+  isDisabled,
+  onToggle,
+}: BottleRowProps) {
   const frag = item.fragrance;
   const sub = [frag?.house, frag?.family].filter(Boolean).join(' · ');
 
@@ -55,9 +60,7 @@ const BottleRow = React.memo(function BottleRow({ item, isSelected, isDisabled, 
       }}
       className="flex-row items-center py-3.5">
       <View className="flex-1">
-        <Text style={[TYPE.displayS, { color: COLORS.ink }]}>
-          {frag?.name ?? '—'}
-        </Text>
+        <Text style={[TYPE.displayS, { color: COLORS.ink }]}>{frag?.name ?? '—'}</Text>
         {sub ? (
           <Text
             className="mt-0.5"
@@ -91,12 +94,16 @@ export default function LayerScreen() {
   const isPremium = useAuthStore((s) => s.isPremium());
   const [isGateChecking, setIsGateChecking] = useState(false);
   const { bottom: bottomInset } = useSafeAreaInsets();
-  const { query, setQuery, filtered: filteredItems, visible: visibleItems, hasMore, setShowAll } = useCollectionSearch(items);
+  const {
+    query,
+    setQuery,
+    filtered: filteredItems,
+    visible: visibleItems,
+    hasMore,
+    setShowAll,
+  } = useCollectionSearch(items);
 
-  const selectedIds = useMemo(
-    () => new Set(selectedItems.map((i) => i.id)),
-    [selectedItems]
-  );
+  const selectedIds = useMemo(() => new Set(selectedItems.map((i) => i.id)), [selectedItems]);
 
   const { animStyle, trigger } = useScreenAnimation(16);
 
@@ -138,13 +145,18 @@ export default function LayerScreen() {
     }
   }
 
-  if (items.length === 0) {
+  if (true || items.length === 0) {
     return (
       <SafeAreaView
         className="flex-1"
         style={{ backgroundColor: COLORS.parchment }}
         edges={['top']}>
         <EmptyState
+          icon={
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>
+              <IconSpray size={36} color={COLORS.ash} strokeWidth={1.2} />
+            </View>
+          }
           title="Add some bottles to your collection first."
           action={{ label: 'Add a bottle', onPress: () => router.push('/modals/bottle-quick-add') }}
         />
@@ -163,9 +175,7 @@ export default function LayerScreen() {
         <Animated.View style={animStyle}>
           {/* Header */}
           <View className="mt-5 items-center">
-            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
-              Layer
-            </Text>
+            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>Layer</Text>
             {selectedItems.length > 0 && (
               <Text
                 className="mt-0.5"
@@ -190,7 +200,10 @@ export default function LayerScreen() {
                   <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 12, color: COLORS.ink }}>
                     {item.fragrance?.name ?? '—'}
                   </Text>
-                  <Pressable onPress={() => deselectBottle(item.id)} hitSlop={16} className="ml-0.5">
+                  <Pressable
+                    onPress={() => deselectBottle(item.id)}
+                    hitSlop={16}
+                    className="ml-0.5">
                     <IconX size={14} color={COLORS.ash} strokeWidth={1.5} />
                   </Pressable>
                 </View>
@@ -203,7 +216,9 @@ export default function LayerScreen() {
             <View style={{ transform: [{ rotate: '12deg' }] }}>
               <Lumi size={24} />
             </View>
-            <Text className="flex-1" style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, lineHeight: 20 }}>
+            <Text
+              className="flex-1"
+              style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ash, lineHeight: 20 }}>
               {LUMI_NUDGE[nudgeKey]}
             </Text>
           </View>
@@ -239,7 +254,7 @@ export default function LayerScreen() {
                 onPress={() => setShowAll(true)}
                 className="items-center py-3.5"
                 style={{ borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.dust }}>
-                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ash }} >
+                <Text style={{ fontFamily: FONTS.uiMedium, fontSize: 13, color: COLORS.ash }}>
                   Show {filteredItems.length - visibleItems.length} more
                 </Text>
               </Pressable>

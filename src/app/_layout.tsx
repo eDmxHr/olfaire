@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import type { Session } from '@supabase/supabase-js';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from 'expo-font';
@@ -21,6 +22,10 @@ import { useToday } from '@/hooks/useToday';
 
 SplashScreen.preventAutoHideAsync();
 
+// Module-level ref so useAuth.ts can trigger post-sign-in fetching after
+// supabase.auth.setSession() fully resolves (avoids deadlock in onAuthStateChange).
+export let triggerPostSignIn: ((session: Session) => Promise<void>) | null = null;
+
 // ── Auth gate ─────────────────────────────────────────────────────
 function useAuthRedirect() {
   const session = useAuthStore((s) => s.session);
@@ -37,30 +42,70 @@ function useAuthRedirect() {
 
   const segments = useSegments();
 
-  const [hydrated, setHydrated] = useState(false);
+  // isReady flips true once INITIAL_SESSION fires — prevents routing before Supabase rehydrates
+  const [isReady, setIsReady] = useState(false);
 
+  // Post-sign-in data fetching — called from useAuth after setSession/signInWithIdToken resolves
+  const onSignedIn = useRef(async (newSession: Session) => {
+    setSession(newSession);
+    await fetchProfile();
+    await fetchCollection();
+    await fetchTodayLog();
+    await Purchases.logIn(newSession.user.id);
+    await syncPremiumStatus();
+  });
+
+  // Keep the ref current so it always closes over latest hooks
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
-    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
-    return () => unsub();
+    onSignedIn.current = async (newSession: Session) => {
+      setSession(newSession);
+      await fetchProfile();
+      await fetchCollection();
+      await fetchTodayLog();
+      await Purchases.logIn(newSession.user.id);
+      await syncPremiumStatus();
+    };
+  });
+
+  // Wire module-level ref so useAuth.ts can call it
+  useEffect(() => {
+    triggerPostSignIn = (s) => onSignedIn.current(s);
+    return () => { triggerPostSignIn = null; };
   }, []);
 
-  // Auth state listener
+  // Auth state listener — only updates store state, no data fetching (avoids deadlock)
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (event === 'INITIAL_SESSION') return; // handled by hydration
+      if (event === 'INITIAL_SESSION') {
+        setSession(newSession);
+        try {
+          if (newSession) {
+            const found = await fetchProfile();
+            if (!found) {
+              await supabase.auth.signOut();
+              return;
+            }
+            await Purchases.logIn(newSession.user.id);
+            await syncPremiumStatus();
+          }
+        } finally {
+          setIsReady(true);
+        }
+        return;
+      }
 
-      setSession(newSession);
+      // SIGNED_IN fired by manual setSession — do NOT call any supabase.* methods here
+      // (deadlock). Data fetching is done by triggerPostSignIn in useAuth.ts instead.
+      if (event === 'SIGNED_IN') {
+        setSession(newSession);
+        return;
+      }
 
-      if (event === 'SIGNED_IN' && newSession) {
-        await fetchProfile();
-        await fetchCollection();
-        await fetchTodayLog();
-        const userId = newSession.user.id;
-        await Purchases.logIn(userId);
-        await syncPremiumStatus();
+      if (event === 'TOKEN_REFRESHED') {
+        setSession(newSession);
+        return;
       }
 
       if (event === 'SIGNED_OUT') {
@@ -74,24 +119,11 @@ function useAuthRedirect() {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session && useAuthStore.getState().session) {
-        clearAuth();
-        resetCollection();
-        resetToday();
-        resetLayering();
-      } else if (session) {
-        setSession(session);
-        Purchases.logIn(session.user.id).catch(() => {});
-        fetchProfile().then(() => syncPremiumStatus());
-      }
-    });
-
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!isReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
@@ -113,7 +145,7 @@ function useAuthRedirect() {
     if (!inTabsGroup && !inModalsGroup) {
       router.replace('/(tabs)/today');
     }
-  }, [hydrated, session, profile, segments]);
+  }, [isReady, session, profile, segments]);
 
   useEffect(() => {
     if (!session || !profile?.onboarding_completed) return;

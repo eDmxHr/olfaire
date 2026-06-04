@@ -18,7 +18,7 @@ import type { Lifestyle, SkinType } from '@/lib/supabase';
 export default function LifestyleScreen() {
   const [lifestyle, setLifestyle] = useState<Lifestyle | null>(null);
   const [skinType, setSkinType] = useState<SkinType | null>(null);
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState('Malé');
   const [saving, setSaving] = useState(false);
   const { updateProfile } = useProfile();
 
@@ -92,6 +92,7 @@ export default function LifestyleScreen() {
           onChangeText={setCity}
           autoCapitalize="words"
           returnKeyType="done"
+          defaultValue={city}
         />
         <Text style={{ fontFamily: FONTS.ui, fontSize: 11, color: COLORS.ash }}>
           Helps Lumi factor in weather when choosing your scent.

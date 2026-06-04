@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAuth } from '@/hooks/useAuth';
 import { COLORS, FONTS } from '@/lib/theme';
-import { IconChevronLeft, IconLoader } from '@tabler/icons-react-native';
+import { IconChevronLeft } from '@tabler/icons-react-native';
+import { SpinningLoader } from '@/components/spinning-loader';
 
 export default function SignInScreen() {
   const { signInWithGoogle, signInWithApple, loading, error } = useAuth();
@@ -61,7 +62,7 @@ export default function SignInScreen() {
             className="w-full flex-row gap-3"
             onPress={signInWithGoogle}
             disabled={loading !== null}>
-            {loading === 'google' ? <Icon icon={IconLoader} size={18} /> : <GoogleLogo size={18} />}
+            {loading === 'google' ? <SpinningLoader size={18} color={COLORS.ink} /> : <GoogleLogo size={18} />}
             <Text style={{ fontFamily: FONTS.uiMedium }} className="text-base text-foreground">
               Continue with Google
             </Text>
@@ -77,13 +78,13 @@ export default function SignInScreen() {
 
       <View style={{ alignItems: 'center', paddingBottom: 8 }}>
         <View style={{ flexDirection: 'row', gap: 12 }}>
-          <Pressable onPress={() => Linking.openURL('https://olfaire.co/terms')} hitSlop={8}>
+          <Pressable onPress={() => Linking.openURL('https://olfaire.app/terms')} hitSlop={8}>
             <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
               Terms & Conditions
             </Text>
           </Pressable>
           <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>·</Text>
-          <Pressable onPress={() => Linking.openURL('https://olfaire.co/privacy')} hitSlop={8}>
+          <Pressable onPress={() => Linking.openURL('https://olfaire.app/privacy')} hitSlop={8}>
             <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
               Privacy Policy
             </Text>

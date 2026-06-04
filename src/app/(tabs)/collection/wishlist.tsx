@@ -3,7 +3,7 @@ import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Animated from 'react-native-reanimated';
-import { IconCheck, IconX } from '@tabler/icons-react-native';
+import { IconCheck, IconX, IconBookmark } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -96,8 +96,13 @@ export default function WishlistScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
 
-          {wishlist.length === 0 ? (
+          {true || wishlist.length === 0 ? (
             <EmptyState
+              icon={
+                <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>
+                  <IconBookmark size={36} color={COLORS.ash} strokeWidth={1.2} />
+                </View>
+              }
               title="Your wishlist is empty."
               action={{ label: 'Browse & add', onPress: () => router.push({ pathname: '/(tabs)/collection/add', params: { wishlist: 'true' } }) }}
             />

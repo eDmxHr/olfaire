@@ -2,7 +2,7 @@ import { supabase, uploadAvatarImage, type Profile, type Theme, type SkinType, t
 import { useAuthStore } from '@/store/authStore';
 
 interface UseProfileReturn {
-  fetchProfile: () => Promise<void>;
+  fetchProfile: () => Promise<boolean>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
   uploadAvatar: (uri: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -19,14 +19,19 @@ export function useProfile(): UseProfileReturn {
   const profile = useAuthStore((s) => s.profile);
   const clearAll = useAuthStore((s) => s.clearAll);
 
-  async function fetchProfile() {
+  async function fetchProfile(): Promise<boolean> {
     setLoading(true);
     try {
       const { data, error } = await supabase.from('profiles').select('*').single();
       if (error) throw error;
-      if (data) setProfile(data as Profile);
+      if (data) {
+        setProfile(data as Profile);
+        return true;
+      }
+      return false;
     } catch (err) {
       console.error('fetchProfile error:', err);
+      return false;
     } finally {
       setLoading(false);
     }
