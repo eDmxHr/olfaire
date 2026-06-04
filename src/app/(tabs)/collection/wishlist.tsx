@@ -96,7 +96,7 @@ export default function WishlistScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
 
-          {true || wishlist.length === 0 ? (
+          {wishlist.length === 0 ? (
             <EmptyState
               icon={
                 <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>

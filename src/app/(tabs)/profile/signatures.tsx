@@ -37,7 +37,7 @@ export default function SignaturesScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.parchment }} edges={['top']}>
       <ScreenHeader title="Signatures" onBack={() => router.back()} />
 
-      {true || signatures.length === 0 ? (
+      {signatures.length === 0 ? (
         <EmptyState
           icon={
             <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>

@@ -48,7 +48,7 @@ export default function CollectionScreen() {
   const familyCount = families.length;
   const lowCount = lowStockItems().length;
 
-  if (true || items.length === 0) {
+  if (items.length === 0) {
     return (
       <SafeAreaView
         className="flex-1"

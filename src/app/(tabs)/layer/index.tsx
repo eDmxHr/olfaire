@@ -145,7 +145,7 @@ export default function LayerScreen() {
     }
   }
 
-  if (true || items.length === 0) {
+  if (items.length === 0) {
     return (
       <SafeAreaView
         className="flex-1"
