@@ -89,6 +89,7 @@ export interface Fragrance {
   occasion_tags: string[] | null;
   is_user_contributed: boolean | null;
   is_verified: boolean | null;
+  image_url: string | null;
   created_at: string | null;
 }
 
@@ -200,6 +201,22 @@ export const supabase = createClient<GeneratedDatabase>(supabaseUrl, supabaseAno
     detectSessionInUrl: false, // must be false for React Native
   },
 });
+
+// ── Image source helper ───────────────────────────────────────────
+
+const BOTTLE_PLACEHOLDER = require('../../assets/images/perume-bottle-circle.png');
+
+/**
+ * Priority: custom user photo > canonical fragrance image > placeholder.
+ */
+export function getFragranceImageSource(
+  fragrance?: Pick<Fragrance, 'image_url'> | null,
+  customImageUrl?: string | null,
+): { uri: string } | number {
+  if (customImageUrl) return { uri: customImageUrl };
+  if (fragrance?.image_url) return { uri: fragrance.image_url };
+  return BOTTLE_PLACEHOLDER;
+}
 
 // ── Storage helpers ───────────────────────────────────────────────
 

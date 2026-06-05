@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
@@ -18,7 +19,7 @@ import { StockLevelPicker } from '@/components/ui/stock-level-picker';
 import { FragranceName } from '@/components/ui/fragrance-name';
 import { useCollection } from '@/hooks/useCollection';
 import { useCollectionStore } from '@/store/Collectionstore';
-import { supabase, getCurrentUserId } from '@/lib/supabase';
+import { supabase, getCurrentUserId, getFragranceImageSource } from '@/lib/supabase';
 import { enrichFragrance } from '@/lib/claudeApi';
 import { SectionLabel } from '@/components/ui/section-label';
 import {
@@ -71,10 +72,10 @@ export default function BottleQuickAddModal() {
   const [saveStep, setSaveStep] = useState<SaveStep>('idle');
 
   const SAVE_STEP_LABEL: Record<SaveStep, string | null> = {
-    'idle': null,
+    idle: null,
     'looking-up': 'Lumi is looking this up…',
-    'saving': 'Saving…',
-    'done': 'Done!',
+    saving: 'Saving…',
+    done: 'Done!',
   };
 
   function handleFormChange<K extends keyof ManualFragranceFormValues>(
@@ -145,7 +146,9 @@ export default function BottleQuickAddModal() {
         family: userProvided.family || enriched.family || 'Unknown',
         subfamily: enriched.subfamily,
         notes_top: userProvided.notesTop?.length ? userProvided.notesTop : enriched.notes_top,
-        notes_heart: userProvided.notesHeart?.length ? userProvided.notesHeart : enriched.notes_heart,
+        notes_heart: userProvided.notesHeart?.length
+          ? userProvided.notesHeart
+          : enriched.notes_heart,
         notes_base: userProvided.notesBase?.length ? userProvided.notesBase : enriched.notes_base,
         longevity: enriched.longevity,
         sillage: enriched.sillage,
@@ -167,7 +170,10 @@ export default function BottleQuickAddModal() {
         submitted_by: userId,
         house,
         name,
-        raw_data: { input: userProvided, enriched } as unknown as import('@/lib/database.types').Json,
+        raw_data: {
+          input: userProvided,
+          enriched,
+        } as unknown as import('@/lib/database.types').Json,
         status: enriched.confidence === 'low' ? 'pending' : 'verified',
         merged_into: newFragrance.id,
       });
@@ -186,9 +192,24 @@ export default function BottleQuickAddModal() {
         const userProvided: UserProvidedFragranceData = {
           year: formValues.year.trim() ? parseInt(formValues.year.trim(), 10) : undefined,
           concentration: formValues.concentration?.value,
-          notesTop: formValues.notesTop.trim() ? formValues.notesTop.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
-          notesHeart: formValues.notesHeart.trim() ? formValues.notesHeart.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
-          notesBase: formValues.notesBase.trim() ? formValues.notesBase.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          notesTop: formValues.notesTop.trim()
+            ? formValues.notesTop
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : undefined,
+          notesHeart: formValues.notesHeart.trim()
+            ? formValues.notesHeart
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : undefined,
+          notesBase: formValues.notesBase.trim()
+            ? formValues.notesBase
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : undefined,
           family: formValues.family.trim() || undefined,
           gender: formValues.gender?.value,
         };
@@ -218,7 +239,8 @@ export default function BottleQuickAddModal() {
       .single();
 
     if (error) throw error;
-    if (data) useCollectionStore.getState().prependItem(data as import('@/lib/supabase').CollectionItem);
+    if (data)
+      useCollectionStore.getState().prependItem(data as import('@/lib/supabase').CollectionItem);
   }
 
   const canConfirm = isManualMode ? formValues.name.trim().length > 0 : selected !== null;
@@ -257,7 +279,7 @@ export default function BottleQuickAddModal() {
               <FlatList
                 data={results}
                 keyExtractor={(item) => String(item.id)}
-                getItemLayout={(_, index) => ({ length: 56, offset: 56 * index, index })}
+                getItemLayout={(_, index) => ({ length: 64, offset: 64 * index, index })}
                 style={{ maxHeight: 280 }}
                 keyboardShouldPersistTaps="handled"
                 renderItem={({ item }) => (
@@ -265,6 +287,16 @@ export default function BottleQuickAddModal() {
                     className="flex-row items-center border-b py-3"
                     style={{ borderBottomColor: COLORS.dust }}
                     onPress={() => selectFragrance(item)}>
+                    <Image
+                      source={getFragranceImageSource(item)}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 6,
+                        marginRight: 10,
+                      }}
+                      resizeMode="contain"
+                    />
                     <View className="flex-1">
                       <FragranceName house={item.house ?? undefined} name={item.name ?? '—'} />
                     </View>
@@ -313,7 +345,14 @@ export default function BottleQuickAddModal() {
 
               {/* Error */}
               {addError && (
-                <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red, marginBottom: 8, textAlign: 'center' }}>
+                <Text
+                  style={{
+                    fontFamily: FONTS.ui,
+                    fontSize: 13,
+                    color: COLORS.red,
+                    marginBottom: 8,
+                    textAlign: 'center',
+                  }}>
                   {addError}
                 </Text>
               )}
@@ -330,7 +369,10 @@ export default function BottleQuickAddModal() {
                 </Pressable>
                 <Pressable
                   className="flex-1 flex-row items-center justify-center gap-2 rounded-xl py-3.5"
-                  style={{ backgroundColor: COLORS.amber, opacity: !canConfirm ? OPACITY.disabled : 1 }}
+                  style={{
+                    backgroundColor: COLORS.amber,
+                    opacity: !canConfirm ? OPACITY.disabled : 1,
+                  }}
                   onPress={confirm}
                   disabled={!canConfirm || saveStep !== 'idle'}>
                   {saveStep !== 'idle' ? (

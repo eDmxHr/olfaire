@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Pressable, ScrollView, StyleSheet, Alert, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useAuthStore } from '@/store/authStore';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFragranceImageSource } from '@/lib/supabase';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { SectionLabel } from '@/components/ui/section-label';
@@ -59,6 +59,16 @@ const BottleRow = React.memo(function BottleRow({
         opacity: isDisabled ? OPACITY.disabled : 1,
       }}
       className="flex-row items-center py-3.5">
+      <Image
+        source={getFragranceImageSource(frag, item.custom_image_url)}
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 8,
+          marginRight: 12,
+        }}
+        resizeMode="contain"
+      />
       <View className="flex-1">
         <Text style={[TYPE.displayS, { color: COLORS.ink }]}>{frag?.name ?? '—'}</Text>
         {sub ? (
@@ -153,7 +163,15 @@ export default function LayerScreen() {
         edges={['top']}>
         <EmptyState
           icon={
-            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.linen, alignItems: 'center', justifyContent: 'center' }}>
+            <View
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 40,
+                backgroundColor: COLORS.linen,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
               <IconSpray size={36} color={COLORS.ash} strokeWidth={1.2} />
             </View>
           }

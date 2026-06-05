@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Text } from '@/components/ui/text';
@@ -9,6 +9,7 @@ import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
 import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import { RATINGS, RATING_CONFIG } from '@/data/ratings';
+import { getFragranceImageSource } from '@/lib/supabase';
 
 export default function WearingScreen() {
   const todayLog = useTodayStore((s) => s.todayLog);
@@ -25,6 +26,7 @@ export default function WearingScreen() {
   const lumiLine = suggestion?.lumi_line ?? todayLog.lumi_suggestion_text;
   const house = suggestion?.fragrance_house ?? null;
   const name = suggestion?.fragrance_name ?? 'Unknown fragrance';
+  const imageUrl = suggestion?.fragrance_image_url ?? null;
   const rating = todayLog.wear_rating;
   const ratingConfig = rating ? RATING_CONFIG[rating] : null;
 
@@ -35,18 +37,27 @@ export default function WearingScreen() {
         className="flex-1"
         contentContainerClassName="px-5 pb-12"
         showsVerticalScrollIndicator={false}>
-        {/* Fragrance name */}
-        <View className="mb-6 gap-1">
-          {house ? (
-            <Text
-              className="text-xs uppercase tracking-widest"
-              style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
-              {house}
-            </Text>
-          ) : null}
-          <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>
-            {name}
-          </Text>
+        {/* Fragrance name + bottle thumbnail */}
+        <View className="mb-6 flex-row items-center gap-4">
+          <Image
+            source={getFragranceImageSource({ image_url: imageUrl })}
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 10,
+            }}
+            resizeMode="contain"
+          />
+          <View className="flex-1 gap-1">
+            {house ? (
+              <Text
+                className="text-xs uppercase tracking-widest"
+                style={{ fontFamily: FONTS.uiMedium, color: COLORS.ash }}>
+                {house}
+              </Text>
+            ) : null}
+            <Text style={[TYPE.displayXL, { color: COLORS.ink }]}>{name}</Text>
+          </View>
         </View>
 
         {/* Lumi tip — wearing context */}
@@ -103,9 +114,7 @@ export default function WearingScreen() {
           <Text style={[TYPE.displayS, { color: COLORS.ink }]}>
             Curious how this pairs with something else?
           </Text>
-          <Text
-            className="mt-0.5 text-[13px]"
-            style={{ fontFamily: FONTS.ui, color: COLORS.ink }}>
+          <Text className="mt-0.5 text-[13px]" style={{ fontFamily: FONTS.ui, color: COLORS.ink }}>
             Open Layer
           </Text>
         </Pressable>

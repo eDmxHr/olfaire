@@ -59,7 +59,7 @@ export function useToday(): UseTodayReturn {
           // Fetch the suggested fragrance details separately to avoid FK ambiguity
           const { data: sf } = await supabase
             .from('fragrances')
-            .select('id, house, name')
+            .select('id, house, name, image_url')
             .eq('id', log.suggested_fragrance_id)
             .single();
           if (sf) {
@@ -67,6 +67,7 @@ export function useToday(): UseTodayReturn {
               fragrance_id: log.suggested_fragrance_id,
               fragrance_house: sf.house ?? '',
               fragrance_name: sf.name ?? '',
+              fragrance_image_url: sf.image_url ?? null,
               lumi_line: log.lumi_suggestion_text,
               reasoning_tags: log.reasoning_tags ?? [],
             });
@@ -222,7 +223,17 @@ export function useToday(): UseTodayReturn {
         calendarEvent: todayLog.calendar_event ?? null,
       });
 
-      store.setSuggestion(result);
+      // Fetch image_url for the suggested fragrance
+      const { data: suggestedFrag } = await supabase
+        .from('fragrances')
+        .select('image_url')
+        .eq('id', result.fragrance_id)
+        .single();
+
+      store.setSuggestion({
+        ...result,
+        fragrance_image_url: suggestedFrag?.image_url ?? null,
+      });
 
       await supabase
         .from('daily_log')

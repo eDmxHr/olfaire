@@ -3,14 +3,12 @@ import { IconChevronRight } from '@tabler/icons-react-native';
 import { Text } from '@/components/ui/text';
 import { SectionLabel } from '@/components/ui/section-label';
 import { COLORS, FONTS } from '@/lib/theme';
-import type { CollectionItem } from '@/lib/supabase';
+import { getFragranceImageSource, type CollectionItem } from '@/lib/supabase';
 
 interface Props {
   item: CollectionItem;
   onPress: () => void;
 }
-
-const BOTTLE_PLACEHOLDER = require('../../../assets/images/perume-bottle-circle.png');
 
 export function BottleRow({ item, onPress }: Props) {
   const frag = item.fragrance;
@@ -24,13 +22,12 @@ export function BottleRow({ item, onPress }: Props) {
       }}
       className="flex-row items-center py-3.5">
       <Image
-        source={item.custom_image_url ? { uri: item.custom_image_url } : BOTTLE_PLACEHOLDER}
+        source={getFragranceImageSource(frag, item.custom_image_url)}
         style={{
           width: 64,
           height: 64,
           borderRadius: 8,
           marginRight: 12,
-          backgroundColor: COLORS.linen,
         }}
         resizeMode="contain"
       />

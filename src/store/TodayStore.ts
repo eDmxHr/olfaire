@@ -12,6 +12,7 @@ export interface Suggestion {
   fragrance_id: number;
   fragrance_house: string;
   fragrance_name: string;
+  fragrance_image_url: string | null;
   lumi_line: string;
   reasoning_tags: string[];
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable, Alert, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import Animated from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import {
   IconLayersIntersect,
   IconDroplet,
   IconInfoCircle,
+  IconCamera,
 } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
@@ -19,14 +20,16 @@ import { SectionLabel } from '@/components/ui/section-label';
 import { StatCard } from '@/components/ui/stat-card';
 import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
+import { getFragranceImageSource } from '@/lib/supabase';
 
 export default function BottleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const getById = useCollectionStore((s) => s.getById);
   const item = getById(id);
-  const { removeBottle } = useCollection();
+  const { removeBottle, uploadImage } = useCollection();
 
   const [isRemoving, setRemoving] = useState(false);
+  const [isUploadingImage, setUploadingImage] = useState(false);
   const { animStyle, trigger } = useScreenAnimation(8);
 
   useEffect(() => {
@@ -53,6 +56,30 @@ export default function BottleDetailScreen() {
     : 'Never';
 
   const ratingLabel = item.personal_rating ? `${item.personal_rating} / 5` : '—';
+
+  async function pickBottleImage() {
+    const { default: ImagePicker } = await import('expo-image-picker');
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please allow photo access to add a bottle photo.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (result.canceled || !item) return;
+    setUploadingImage(true);
+    try {
+      await uploadImage(item.id, result.assets[0].uri);
+    } catch {
+      Alert.alert('Upload failed', 'Could not update the bottle photo. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   function confirmRemove() {
     Alert.alert('Remove bottle?', 'This will remove it from your collection.', [
@@ -82,35 +109,76 @@ export default function BottleDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
         <Animated.View style={[animStyle, { overflow: 'visible' }]}>
-
           {/* Dark hero card */}
-          <View style={{ backgroundColor: COLORS.ink, borderRadius: 16, padding: 20 }}>
-            {frag?.house ? (
-              <SectionLabel>{frag.house}</SectionLabel>
-            ) : null}
-            <Text style={[TYPE.displayL, { color: COLORS.parchment, marginTop: 2 }]}>
-              {frag?.name ?? '—'}
-            </Text>
-
-            {(frag?.concentration || frag?.year) ? (
-              <Text
-                style={{
-                  fontFamily: FONTS.ui,
-                  fontSize: 12,
-                  color: COLORS.ash,
-                  marginTop: 6,
-                }}>
-                {[frag.concentration, frag.year].filter(Boolean).join(' · ')}
+          <View
+            style={{
+              backgroundColor: COLORS.ink,
+              borderRadius: 16,
+              padding: 20,
+              overflow: 'hidden',
+            }}>
+            {/* Text content — right padding reserves space for the absolute image */}
+            <View style={{ paddingRight: 116 }}>
+              {frag?.house ? <SectionLabel>{frag.house}</SectionLabel> : null}
+              <Text style={[TYPE.displayL, { color: COLORS.parchment, marginTop: 2 }]}>
+                {frag?.name ?? '—'}
               </Text>
-            ) : null}
 
-            {(frag?.family || frag?.subfamily) ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
-                {[frag.family, frag.subfamily].filter(Boolean).map((tag, i) => (
-                  <TagChip key={i} label={tag!} variant="muted" />
-                ))}
+              {frag?.concentration || frag?.year ? (
+                <Text
+                  style={{
+                    fontFamily: FONTS.ui,
+                    fontSize: 12,
+                    color: COLORS.ash,
+                    marginTop: 6,
+                  }}>
+                  {[frag.concentration, frag.year].filter(Boolean).join(' · ')}
+                </Text>
+              ) : null}
+
+              {frag?.family || frag?.subfamily ? (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+                  {[frag.family, frag.subfamily].filter(Boolean).map((tag, i) => (
+                    <TagChip key={i} label={tag!} variant="muted" />
+                  ))}
+                </View>
+              ) : null}
+            </View>
+
+            {/* Bottle image — absolutely fills the right side of the card */}
+            <Pressable
+              onPress={pickBottleImage}
+              style={{
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                bottom: 20,
+                width: 100,
+                backgroundColor: colorWithOpacity(COLORS.parchment, 0.06),
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              {isUploadingImage ? (
+                <ActivityIndicator size="small" color={COLORS.parchment} />
+              ) : (
+                <Image
+                  source={getFragranceImageSource(frag, item.custom_image_url)}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="contain"
+                />
+              )}
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  backgroundColor: colorWithOpacity(COLORS.ink, 0.6),
+                  borderRadius: 99,
+                  padding: 4,
+                }}>
+                <IconCamera size={20} color={COLORS.parchment} strokeWidth={1.5} />
               </View>
-            ) : null}
+            </Pressable>
           </View>
 
           {/* AI data warning */}
@@ -189,13 +257,13 @@ export default function BottleDetailScreen() {
                 gap: 6,
               }}>
               <IconSparkles size={20} color={COLORS.ink} strokeWidth={1.5} />
-              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>
-                Wear
-              </Text>
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>Wear</Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/layer', params: { preselect: item.id } })}
+              onPress={() =>
+                router.push({ pathname: '/(tabs)/layer', params: { preselect: item.id } })
+              }
               style={{
                 flex: 1,
                 backgroundColor: COLORS.linen,
@@ -205,13 +273,13 @@ export default function BottleDetailScreen() {
                 gap: 6,
               }}>
               <IconLayersIntersect size={20} color={COLORS.ink} strokeWidth={1.5} />
-              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>
-                Layer
-              </Text>
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>Layer</Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/modals/stock-update', params: { collectionId: item.id } })}
+              onPress={() =>
+                router.push({ pathname: '/modals/stock-update', params: { collectionId: item.id } })
+              }
               style={{
                 flex: 1,
                 backgroundColor: COLORS.linen,
@@ -221,9 +289,7 @@ export default function BottleDetailScreen() {
                 gap: 6,
               }}>
               <IconDroplet size={20} color={COLORS.ink} strokeWidth={1.5} />
-              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>
-                Stock
-              </Text>
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.ink }}>Stock</Text>
             </Pressable>
           </View>
 
@@ -231,15 +297,22 @@ export default function BottleDetailScreen() {
           <Pressable
             onPress={confirmRemove}
             disabled={isRemoving}
-            style={{ alignItems: 'center', marginTop: 28, paddingVertical: 16, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
-            {isRemoving
-              ? <ActivityIndicator size="small" color={COLORS.red} />
-              : <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
-                  Remove from collection
-                </Text>
-            }
+            style={{
+              alignItems: 'center',
+              marginTop: 28,
+              paddingVertical: 16,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              gap: 6,
+            }}>
+            {isRemoving ? (
+              <ActivityIndicator size="small" color={COLORS.red} />
+            ) : (
+              <Text style={{ fontFamily: FONTS.ui, fontSize: 13, color: COLORS.red }}>
+                Remove from collection
+              </Text>
+            )}
           </Pressable>
-
         </Animated.View>
       </ScrollView>
     </SafeAreaView>

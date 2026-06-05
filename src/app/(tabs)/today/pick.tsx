@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
 import { router } from 'expo-router';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { IconRefresh } from '@tabler/icons-react-native';
@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import { NotesPyramid } from '@/components/today/notes-pyramid';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFragranceImageSource } from '@/lib/supabase';
 import { SectionLabel } from '@/components/ui/section-label';
 import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS, TYPE } from '@/lib/theme';
@@ -89,11 +89,26 @@ export default function PickScreen() {
         <BottomSheetScrollView
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48, paddingTop: 8 }}>
           {/* House + Name + Identity metadata */}
-          <View style={{ gap: 4, marginBottom: 16 }}>
-            <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
-            <Text style={[TYPE.displayXL, { color: COLORS.parchment }]}>
-              {suggestion.fragrance_name}
-            </Text>
+          <View style={{ marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <Image
+                source={getFragranceImageSource(
+                  fragrance ?? { image_url: suggestion.fragrance_image_url }
+                )}
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 10,
+                }}
+                resizeMode="contain"
+              />
+              <View style={{ flex: 1, gap: 4 }}>
+                <SectionLabel>{suggestion.fragrance_house}</SectionLabel>
+                <Text style={[TYPE.displayXL, { color: COLORS.parchment }]}>
+                  {suggestion.fragrance_name}
+                </Text>
+              </View>
+            </View>
 
             {/* Family · concentration · longevity · sillage */}
             {fragrance && (
@@ -102,7 +117,7 @@ export default function PickScreen() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 6,
-                  marginTop: 6,
+                  marginTop: 10,
                   flexWrap: 'wrap',
                 }}>
                 {[fragrance.family, fragrance.concentration].filter(Boolean).map((item, i) => (

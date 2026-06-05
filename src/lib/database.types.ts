@@ -324,6 +324,7 @@ export type Database = {
           gender: string | null
           house: string | null
           id: number
+          image_url: string | null
           is_user_contributed: boolean | null
           is_verified: boolean | null
           longevity: number | null
@@ -345,6 +346,7 @@ export type Database = {
           gender?: string | null
           house?: string | null
           id?: number
+          image_url?: string | null
           is_user_contributed?: boolean | null
           is_verified?: boolean | null
           longevity?: number | null
@@ -366,6 +368,7 @@ export type Database = {
           gender?: string | null
           house?: string | null
           id?: number
+          image_url?: string | null
           is_user_contributed?: boolean | null
           is_verified?: boolean | null
           longevity?: number | null
