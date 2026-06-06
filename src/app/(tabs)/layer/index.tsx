@@ -14,6 +14,7 @@ import { Text } from '@/components/ui/text';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { useLayeringStore } from '@/store/LayeringStore';
 import { useAuthStore } from '@/store/authStore';
+import { useConfigStore } from '@/store/configStore';
 import { supabase, getFragranceImageSource } from '@/lib/supabase';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
@@ -141,7 +142,8 @@ export default function LayerScreen() {
         const { data, error } = await supabase.rpc('get_daily_layering_count', {
           p_user_id: userId,
         });
-        if (!error && (data as number) >= 3) {
+        const { layeringPerDay } = useConfigStore.getState().freeTier;
+        if (!error && (data as number) >= layeringPerDay) {
           router.push('/modals/premium-gate');
           return;
         }

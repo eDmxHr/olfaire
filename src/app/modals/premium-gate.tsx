@@ -13,13 +13,14 @@ import { COLORS, FONTS, colorWithOpacity } from '@/lib/theme';
 // ── Constants ─────────────────────────────────────────────────────
 
 const FEATURES = [
-  'Unlimited collection — every bottle you own',
-  'Unlimited layering chemistry with Lumi',
-  'Full application guide and body placement',
-  'Weekly rotation planned around your shelf',
-  'Your Fragrance DNA, completely mapped',
+  'Unlimited collection',
+  'Unlimited layering chemistry',
+  'Full chemistry breakdown + application guide',
   'Unlimited saved signatures',
-  "Morning ritual — Lumi's daily note",
+  'Weekly rotation planner',
+  'Fragrance DNA profile',
+  'Morning ritual push notification',
+  'Early access to new features',
 ];
 
 const PKG_ORDER = ['LIFETIME', 'ANNUAL', 'MONTHLY'];

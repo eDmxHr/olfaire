@@ -1,6 +1,9 @@
+import { router } from 'expo-router';
 import { supabase, getCurrentUserId, uploadBottleImage, type CollectionItem, type Fragrance, type StockLevel } from '@/lib/supabase';
 import { useCollectionStore } from '@/store/Collectionstore';
 import { fetchDNAInsight } from '@/lib/claudeApi';
+import { useAuthStore } from '@/store/authStore';
+import { useConfigStore } from '@/store/configStore';
 
 interface UseCollectionReturn {
   fetchCollection: () => Promise<void>;
@@ -106,6 +109,14 @@ export function useCollection(): UseCollectionReturn {
   }
 
   async function addBottle(fragranceId: number, isWishlist = false) {
+    if (!isWishlist && !useAuthStore.getState().isPremium()) {
+      const { collectionCap } = useConfigStore.getState().freeTier;
+      if (store.items.length >= collectionCap) {
+        router.push('/modals/premium-gate');
+        return;
+      }
+    }
+
     store.setSyncing(true);
     try {
       const { data, error } = await supabase

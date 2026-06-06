@@ -1,5 +1,7 @@
+import { router } from 'expo-router';
 import { supabase, type LayeringCache } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { useConfigStore } from '@/store/configStore';
 import { fetchLayeringAnalysis } from '@/lib/claudeApi';
 import { useLayeringStore, type LayeringAnalysis } from '@/store/LayeringStore';
 
@@ -140,6 +142,14 @@ export function useLayering(): UseLayeringReturn {
   async function saveSignature(name: string, tags: string[]): Promise<string | null> {
     const { cacheId, analysis } = store;
     if (!cacheId || !analysis || !profile) return null;
+
+    if (!useAuthStore.getState().isPremium()) {
+      const { signatureLimit } = useConfigStore.getState().freeTier;
+      if (store.signatures.length >= signatureLimit) {
+        router.push('/modals/premium-gate');
+        return null;
+      }
+    }
 
     store.setSaving(true);
     try {

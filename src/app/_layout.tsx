@@ -19,6 +19,7 @@ import { useTodayStore } from '@/store/TodayStore';
 import { useProfile } from '@/hooks/useProfile';
 import { useCollection } from '@/hooks/useCollection';
 import { useToday } from '@/hooks/useToday';
+import { fetchAppConfig } from '@/hooks/useAppConfig';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -89,6 +90,7 @@ function useAuthRedirect() {
             }
             await Purchases.logIn(newSession.user.id);
             await syncPremiumStatus();
+            void fetchAppConfig();
           }
         } finally {
           setIsReady(true);

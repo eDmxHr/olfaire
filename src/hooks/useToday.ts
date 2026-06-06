@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import {
   supabase,
   type CollectionItem,
@@ -340,6 +341,10 @@ export function useToday(): UseTodayReturn {
   }
 
   async function requestAnother() {
+    if (!useAuthStore.getState().isPremium()) {
+      router.push('/modals/premium-gate');
+      return;
+    }
     store.setSuggestion(null);
     try {
       await fetchSuggestion();

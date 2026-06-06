@@ -65,17 +65,21 @@ Olfaire is a personal fragrance intelligence app that turns any perfume collecti
 
 **Free tier:** Up to 10 perfumes, daily suggestion, basic layering (3 uses/day), 1 saved signature, shareable cards.
 
-**Olfaire Premium:** $4.99/month or $39.99/year (33% saving).
+**Olfaire Premium features:**
 - Unlimited collection
-- Weather + calendar integration
-- Full layering chemistry, unlimited
-- Weekly rotation planner
+- Unlimited layering chemistry
+- Full chemistry breakdown + application guide
 - Unlimited saved signatures
-- Full social profile + following
+- Weekly rotation planner
 - Fragrance DNA profile
-- Morning ritual push
+- Morning ritual push notification
+- Early access to new features
 
-**Launch pricing:** $2.99/month for first 500 subscribers, then $4.99.
+**Early adopter pricing** (first 500 subscribers): $2.99/month · $29.99/year · $79.99 lifetime.
+
+**Regular pricing:** $4.99/month · $39.99/year (33% saving).
+
+Pricing is managed in App Store Connect and RevenueCat — no app changes needed to switch. Existing subscribers keep their grandfathered rate when prices update.
 
 ---
 
