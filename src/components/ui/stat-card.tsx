@@ -1,7 +1,7 @@
 import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SectionLabel } from '@/components/ui/section-label';
-import { COLORS, TYPE } from '@/lib/theme';
+import { COLORS, FONTS, TYPE } from '@/lib/theme';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 interface StatCardProps {
@@ -15,7 +15,8 @@ interface StatCardProps {
 
 export function StatCard({ value, label, valueColor, size = 'default', onPress, style }: StatCardProps) {
   const valueStyle = size === 'sm' ? TYPE.displayM : TYPE.displayL;
-  const Container = onPress ? Pressable : View;
+  const isClickable = !!onPress;
+  const Container = isClickable ? Pressable : View;
 
   return (
     <Container
@@ -24,6 +25,11 @@ export function StatCard({ value, label, valueColor, size = 'default', onPress, 
       style={[{ backgroundColor: COLORS.linen }, style]}>
       <SectionLabel>{label}</SectionLabel>
       <Text style={[valueStyle, { color: valueColor ?? COLORS.ink, marginTop: 2 }]}>{value}</Text>
+      {isClickable && (
+        <Text style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.amber, marginTop: 4 }}>
+          View all →
+        </Text>
+      )}
     </Container>
   );
 }

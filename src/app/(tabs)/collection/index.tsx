@@ -103,7 +103,7 @@ export default function CollectionScreen() {
               value={lowCount}
               label="Low stock"
               valueColor={lowCount > 0 ? COLORS.amber : undefined}
-              onPress={() => router.push('/(tabs)/collection/low-stock')}
+              onPress={lowCount > 0 ? () => router.push('/(tabs)/collection/low-stock') : undefined}
             />
           </View>
 
