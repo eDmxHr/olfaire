@@ -122,7 +122,7 @@ export function useLayering(): UseLayeringReturn {
     try {
       const { data, error } = await supabase
         .from('signatures')
-        .select(`*, layering_cache:layering_cache_id(fragrance_a:fragrance_a_id(name), fragrance_b:fragrance_b_id(name))`)
+        .select(`*, layering_cache:layering_cache_id(fragrance_a:fragrance_a_id(name), fragrance_b:fragrance_b_id(name), analysis_json)`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -131,6 +131,7 @@ export function useLayering(): UseLayeringReturn {
         ...row,
         fragrance_a_name: row.layering_cache?.fragrance_a?.name ?? null,
         fragrance_b_name: row.layering_cache?.fragrance_b?.name ?? null,
+        analysis_json: row.layering_cache?.analysis_json ?? null,
         layering_cache: undefined,
       }));
       store.setSignatures(mapped);

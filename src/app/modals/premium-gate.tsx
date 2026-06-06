@@ -3,7 +3,7 @@ import { View, Pressable, StyleSheet, ActivityIndicator, Linking, ScrollView } f
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconCrown } from '@tabler/icons-react-native';
+import { IconCrown, IconX } from '@tabler/icons-react-native';
 import type { PurchasesPackage } from 'react-native-purchases';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
@@ -95,6 +95,12 @@ export default function PremiumGateModal() {
           paddingBottom: insets.bottom + 20,
           maxHeight: '92%',
         }}>
+        <Pressable
+          onPress={() => !busy && router.back()}
+          style={{ position: 'absolute', top: 16, right: 20, zIndex: 10 }}
+          hitSlop={12}>
+          <IconX size={20} color={COLORS.ash} strokeWidth={1.5} />
+        </Pressable>
         <ScrollView
           bounces={false}
           showsVerticalScrollIndicator={false}

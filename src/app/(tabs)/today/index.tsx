@@ -24,7 +24,7 @@ import type { Mood } from '@/lib/supabase';
 
 export default function TodayScreen() {
   const store = useTodayStore();
-  const { selectMood, fetchSuggestion, submitRating } = useToday();
+  const { selectMood, submitRating } = useToday();
   const { fetchSignatures } = useLayering();
   const signatures = useLayeringStore((s) => s.signatures);
   const collectionEmpty = useCollectionStore((s) => s.items.length === 0);
@@ -39,20 +39,17 @@ export default function TodayScreen() {
     fetchSignatures();
   }, []);
 
-  useEffect(() => {
-    if (store.hasMoodToday() && !store.suggestion && !store.isLoadingSuggestion) {
-      fetchSuggestion();
-    }
-  }, [store.todayLog?.mood]);
-
-  const handleMoodSelect = useCallback(async (mood: Mood) => {
-    setHasError(false);
-    try {
-      await selectMood(mood);
-    } catch {
-      setHasError(true);
-    }
-  }, [selectMood]);
+  const handleMoodSelect = useCallback(
+    async (mood: Mood) => {
+      setHasError(false);
+      try {
+        await selectMood(mood);
+      } catch {
+        setHasError(true);
+      }
+    },
+    [selectMood]
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.parchment }} edges={['top']}>
@@ -73,9 +70,7 @@ export default function TodayScreen() {
           {/* Lumi greeting */}
           <View className="mt-6 min-h-[60px]">
             {store.lumiOpening ? (
-              <Text style={[TYPE.displayM, { color: COLORS.ink }]}>
-                {store.lumiOpening}
-              </Text>
+              <Text style={[TYPE.displayM, { color: COLORS.ink }]}>{store.lumiOpening}</Text>
             ) : (
               <View className="gap-2.5">
                 <ShimmerLine width="80%" />
@@ -146,7 +141,11 @@ export default function TodayScreen() {
           {hasError && !store.isLoadingSuggestion && (
             <Text
               className="mt-4 text-center"
-              style={{ fontFamily: FONTS.ui, fontSize: 13, color: collectionEmpty ? COLORS.ash : COLORS.red }}>
+              style={{
+                fontFamily: FONTS.ui,
+                fontSize: 13,
+                color: collectionEmpty ? COLORS.ash : COLORS.red,
+              }}>
               {collectionEmpty
                 ? 'Add some bottles to your collection so Lumi can suggest one.'
                 : "Lumi couldn't find a match. Try a different mood."}

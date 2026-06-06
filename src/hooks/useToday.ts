@@ -253,6 +253,15 @@ export function useToday(): UseTodayReturn {
 
   async function selectMood(mood: Mood, occasion?: string) {
     if (!profile) return;
+
+    if (!useAuthStore.getState().isPremium()) {
+      const hadSuggestionToday = !!useTodayStore.getState().todayLog?.suggested_fragrance_id;
+      if (hadSuggestionToday) {
+        router.push('/modals/premium-gate');
+        return;
+      }
+    }
+
     const { weather } = store;
     const today = todayDate();
 

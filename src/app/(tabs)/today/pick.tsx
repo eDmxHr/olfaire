@@ -7,6 +7,7 @@ import { Text } from '@/components/ui/text';
 import { NotesPyramid } from '@/components/today/notes-pyramid';
 import { useTodayStore } from '@/store/TodayStore';
 import { useToday } from '@/hooks/useToday';
+import { useAuthStore } from '@/store/authStore';
 import { supabase, getFragranceImageSource } from '@/lib/supabase';
 import { SectionLabel } from '@/components/ui/section-label';
 import { TagChip } from '@/components/ui/tag-chip';
@@ -26,6 +27,9 @@ export default function PickScreen() {
 
   const sheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['92%'], []);
+  const isWearing = useTodayStore((s) => s.isWearing());
+  const hasRated = useTodayStore((s) => s.hasRated());
+  const wearRating = useTodayStore((s) => s.todayLog?.wear_rating ?? null);
 
   useEffect(() => {
     if (!suggestion && !hasNavigatedBack) router.back();
@@ -65,15 +69,15 @@ export default function PickScreen() {
   }
 
   async function handleSuggestAnother() {
+    if (!useAuthStore.getState().isPremium()) {
+      router.push('/modals/premium-gate');
+      return;
+    }
     setNavigatedBack(true);
     sheetRef.current?.close();
     router.back();
     await requestAnother();
   }
-
-  const isWearing = useTodayStore((s) => s.isWearing());
-  const hasRated = useTodayStore((s) => s.hasRated());
-  const wearRating = useTodayStore((s) => s.todayLog?.wear_rating ?? null);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>

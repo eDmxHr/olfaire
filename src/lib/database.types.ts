@@ -640,6 +640,21 @@ export type Database = {
           },
         ]
       }
+      app_config: {
+        Row: {
+          key: string
+          value: string
+        }
+        Insert: {
+          key: string
+          value: string
+        }
+        Update: {
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
       weekly_rotation: {
         Row: {
           created_at: string
@@ -678,6 +693,7 @@ export type Database = {
     }
     Functions: {
       get_daily_layering_count: { Args: { p_user_id: string }; Returns: number }
+      get_daily_mood_count: { Args: { p_user_id: string }; Returns: number }
       increment_wear_count: {
         Args: { p_fragrance_id: number }
         Returns: undefined

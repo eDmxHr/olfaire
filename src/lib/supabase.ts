@@ -152,6 +152,7 @@ export interface Signature {
   // denormalised from layering_cache join — present when fetched via fetchSignatures
   fragrance_a_name?: string | null;
   fragrance_b_name?: string | null;
+  analysis_json?: Record<string, any> | null;
 }
 
 export interface DNAProfile {

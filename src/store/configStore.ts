@@ -4,6 +4,7 @@ interface FreeTierLimits {
   collectionCap: number;
   signatureLimit: number;
   layeringPerDay: number;
+  moodPerDay: number;
 }
 
 interface ConfigState {
@@ -12,6 +13,6 @@ interface ConfigState {
 }
 
 export const useConfigStore = create<ConfigState>()((set) => ({
-  freeTier: { collectionCap: 10, signatureLimit: 1, layeringPerDay: 3 },
+  freeTier: { collectionCap: 10, signatureLimit: 1, layeringPerDay: 3, moodPerDay: 1 },
   setFreeTier: (freeTier) => set({ freeTier }),
 }));

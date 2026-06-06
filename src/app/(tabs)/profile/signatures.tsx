@@ -2,7 +2,7 @@ import { Alert, View, ScrollView, Pressable, ActivityIndicator } from 'react-nat
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { IconShare3, IconTrash, IconSignature } from '@tabler/icons-react-native';
+import { IconShare3, IconTrash, IconSignature, IconMap2 } from '@tabler/icons-react-native';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -98,6 +98,11 @@ export default function SignaturesScreen() {
                     ))}
                   </View>
                   <View className="ml-3 flex-row items-center gap-3">
+                    <Pressable
+                      onPress={() => router.push(`/modals/signature-application?signatureId=${sig.id}`)}
+                      hitSlop={14}>
+                      <IconMap2 size={18} color={COLORS.ash} strokeWidth={1.5} />
+                    </Pressable>
                     <Pressable
                       onPress={() => router.push(`/modals/signature-share?signatureId=${sig.id}`)}
                       hitSlop={14}>
