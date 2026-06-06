@@ -1,6 +1,5 @@
+// @ts-nocheck
 // deno-lint-ignore-file no-explicit-any
-/// <reference path="../../../node_modules/@deno/types/deno.d.ts" />
-/// <reference path="../../../node_modules/@supabase/functions-js/src/edge-runtime.d.ts" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const PREMIUM_EVENTS = new Set([

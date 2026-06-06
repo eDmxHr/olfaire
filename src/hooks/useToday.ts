@@ -7,7 +7,7 @@ import {
   type WearRating,
   type Database,
 } from '@/lib/supabase';
-import { fetchLumiOpeningLine, fetchDailySuggestion } from '@/lib/claudeApi';
+import { fetchLumiOpeningLine, fetchDailySuggestion, LumiLimitError } from '@/lib/claudeApi';
 import { useTodayStore } from '@/store/TodayStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCollectionStore } from '@/store/Collectionstore';
@@ -245,7 +245,11 @@ export function useToday(): UseTodayReturn {
         })
         .eq('id', todayLog.id);
     } catch (err) {
-      console.error('fetchSuggestion error:', err);
+      if (err instanceof LumiLimitError) {
+        router.push('/modals/premium-gate');
+      } else {
+        console.error('fetchSuggestion error:', err);
+      }
     } finally {
       store.setLoadingSuggestion(false);
     }

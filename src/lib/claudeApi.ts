@@ -82,17 +82,29 @@ contains recognisable bottles, briefly demonstrate you know what they are —
 then ask what they want to explore. Do not collect skin type, weather, or mood
 unless they ask for a daily suggestion specifically.`;
 
+// ── Typed error for rate limit hits ──────────────────────────────
+export class LumiLimitError extends Error {
+  readonly callType: string;
+  constructor(callType: string) {
+    super(`Free tier limit reached for: ${callType}`);
+    this.name = 'LumiLimitError';
+    this.callType = callType;
+  }
+}
+
 // ── Base fetch ────────────────────────────────────────────────────
 async function callClaude({
   model,
   system,
   userMessage,
   maxTokens = 1000,
+  callType,
 }: {
   model: string;
   system?: string;
   userMessage: string;
   maxTokens?: number;
+  callType: string;
 }): Promise<string> {
   // Use the store's token first — it's rehydrated from AsyncStorage before
   // supabase's own client catches up on cold launch, avoiding a race condition.
@@ -113,12 +125,17 @@ async function callClaude({
       'Authorization': `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
+      call_type: callType,
       model,
       max_tokens: maxTokens,
       ...(system && { system }),
       messages: [{ role: 'user', content: userMessage }],
     }),
   });
+
+  if (res.status === 429) {
+    throw new LumiLimitError(callType);
+  }
 
   if (!res.ok) {
     const err = await res.text();
@@ -160,6 +177,7 @@ export async function fetchLumiOpeningLine(params: OpeningLineParams): Promise<s
     model: HAIKU,
     system: LUMI_SYSTEM,
     maxTokens: 60,
+    callType: 'opening',
     userMessage: `Write Lumi's ${timeOfDay} greeting — the single line the user sees before selecting their mood.
 One sentence. Maximum 15 words. No greeting words like "Good morning", "Hello", "Hi".
 Start with the day, the weather, or something sensory.
@@ -233,6 +251,7 @@ export async function fetchDailySuggestion(
     model: HAIKU,
     system: LUMI_SYSTEM,
     maxTokens: 200,
+    callType: 'suggestion',
     userMessage: `From the collection below, suggest exactly one perfume for today.
 
 USER PROFILE
@@ -323,6 +342,7 @@ export async function fetchLayeringAnalysis(params: LayeringParams): Promise<Lay
     model: SONNET,
     system: LUMI_SYSTEM,
     maxTokens: 2000,
+    callType: 'layering',
     userMessage: `Analyse the chemistry of layering these two perfumes and detect any conflicts.
 
 BOTTLE A: ${bottleA.house} ${bottleA.name}
@@ -388,6 +408,7 @@ export async function fetchDNAInsight(params: {
     model: HAIKU,
     system: LUMI_SYSTEM,
     maxTokens: 60,
+    callType: 'dna',
     userMessage: `Write one short sentence (max 18 words) that describes this user's fragrance DNA.
 It should feel like a portrait, not a summary.
 
@@ -459,6 +480,7 @@ export async function enrichFragrance(
   const text = await callClaude({
     model: SONNET,
     maxTokens: 1200,
+    callType: 'enrichment',
     system: `You are a fragrance expert with encyclopedic knowledge of perfumes — mainstream and niche, Western and Middle Eastern, vintage and contemporary. You recall note pyramids, olfactory families, longevity, sillage, and release years accurately from your training data.`,
     userMessage: `Fragrance: ${house} — ${name}${concentration ? ` (${concentration})` : ''}
 
@@ -510,6 +532,7 @@ export async function fetchSignatureNames(
     model: HAIKU,
     system: LUMI_SYSTEM,
     maxTokens: 100,
+    callType: 'naming',
     userMessage: `Suggest 3 possible signature names for this layering combination.
 
 COMBO

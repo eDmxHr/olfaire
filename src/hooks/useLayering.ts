@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { supabase, type LayeringCache } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { useConfigStore } from '@/store/configStore';
-import { fetchLayeringAnalysis } from '@/lib/claudeApi';
+import { fetchLayeringAnalysis, LumiLimitError } from '@/lib/claudeApi';
 import { useLayeringStore, type LayeringAnalysis } from '@/store/LayeringStore';
 
 interface UseLayeringReturn {
@@ -112,7 +112,11 @@ export function useLayering(): UseLayeringReturn {
       const newCacheId = await writeCache(fragA.id, fragB.id, result as LayeringAnalysis);
       if (newCacheId) store.setAnalysis(result as LayeringAnalysis, newCacheId);
     } catch (err) {
-      console.error('analyse error:', err);
+      if (err instanceof LumiLimitError) {
+        router.push('/modals/premium-gate');
+      } else {
+        console.error('analyse error:', err);
+      }
     } finally {
       store.setAnalysing(false);
     }
