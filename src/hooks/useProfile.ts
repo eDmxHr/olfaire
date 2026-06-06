@@ -1,5 +1,6 @@
 import { supabase, uploadAvatarImage, type Profile, type Theme, type SkinType, type Lifestyle } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import { showToast } from '@/components/ui/toast';
 
 interface UseProfileReturn {
   fetchProfile: () => Promise<boolean>;
@@ -82,9 +83,14 @@ export function useProfile(): UseProfileReturn {
     if (!profile) return;
     try {
       const publicUrl = await uploadAvatarImage(profile.id, uri);
-      if (publicUrl) await updateProfile({ avatar_url: publicUrl });
+      if (publicUrl) {
+        await updateProfile({ avatar_url: publicUrl });
+      } else {
+        showToast('Upload failed. Try again.', 'error');
+      }
     } catch (err) {
       console.error('uploadAvatar error:', err);
+      showToast('Upload failed. Try again.', 'error');
     }
   }
 

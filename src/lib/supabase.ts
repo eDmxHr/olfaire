@@ -350,3 +350,18 @@ export async function getCurrentUserId(): Promise<string | null> {
     return null;
   }
 }
+
+export async function deleteAccount(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { success: false, error: 'Not authenticated' };
+    const res = await fetch(
+      `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`,
+      { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` } }
+    );
+    if (!res.ok) return { success: false, error: await res.text() };
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}

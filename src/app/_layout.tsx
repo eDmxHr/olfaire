@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import { ToastOverlay } from '@/components/ui/toast';
 import type { Session } from '@supabase/supabase-js';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PortalHost } from '@rn-primitives/portal';
@@ -188,6 +189,7 @@ function Navigator() {
           options={{ presentation: 'transparentModal', animation: 'fade' }}
         />
       </Stack>
+      <ToastOverlay />
       <StatusBar style="auto" />
       <PortalHost />
     </>

@@ -11,6 +11,7 @@ import { fetchLumiOpeningLine, fetchDailySuggestion, LumiLimitError } from '@/li
 import { useTodayStore } from '@/store/TodayStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCollectionStore } from '@/store/Collectionstore';
+import { showToast } from '@/components/ui/toast';
 
 interface UseTodayReturn {
   fetchTodayLog: () => Promise<void>;
@@ -121,6 +122,7 @@ export function useToday(): UseTodayReturn {
       await backfillWeather();
     } catch (err) {
       console.error('fetchWeather error:', err);
+      showToast("Couldn't load weather. Using defaults.", 'error');
     }
   }
 
@@ -170,6 +172,7 @@ export function useToday(): UseTodayReturn {
       if (line) store.setLumiOpening(line);
     } catch (err) {
       console.error('fetchLumiOpening error:', err);
+      showToast("Couldn't load your greeting.", 'info');
     }
   }
 
@@ -249,6 +252,7 @@ export function useToday(): UseTodayReturn {
         router.push('/modals/premium-gate');
       } else {
         console.error('fetchSuggestion error:', err);
+        showToast("Lumi couldn't reach the server. Try again.", 'error');
       }
     } finally {
       store.setLoadingSuggestion(false);
@@ -330,6 +334,7 @@ export function useToday(): UseTodayReturn {
     } catch (err) {
       store.setTodayLog(prev);
       console.error('confirmWearing error:', err);
+      showToast("Couldn't save. Your change was reverted.", 'error');
     }
   }
 
@@ -350,6 +355,7 @@ export function useToday(): UseTodayReturn {
     } catch (err) {
       store.setTodayLog(prev);
       console.error('submitRating error:', err);
+      showToast("Couldn't save. Your change was reverted.", 'error');
     }
   }
 

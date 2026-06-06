@@ -34,6 +34,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { syncPremiumStatus } from '@/lib/revenueCat';
 import { COLORS, FONTS } from '@/lib/theme';
 import { SectionLabel } from '@/components/ui/section-label';
+import { deleteAccount } from '@/lib/supabase';
+import { showToast } from '@/components/ui/toast';
 import type { SkinType, Theme } from '@/lib/supabase';
 
 function RowDivider() {
@@ -70,6 +72,7 @@ export default function SettingsScreen() {
   const [draftName, setDraftName] = useState('');
   const [savingName, setSavingName] = useState(false);
   const [isUploadingAvatar, setUploadingAvatar] = useState(false);
+  const [isDeletingAccount, setDeletingAccount] = useState(false);
 
   const [isTimePickerVisible, setShowTimePicker] = useState(false);
 
@@ -131,17 +134,39 @@ export default function SettingsScreen() {
     ]);
   }
 
+  async function performDeleteAccount() {
+    setDeletingAccount(true);
+    try {
+      const result = await deleteAccount();
+      if (result.success) {
+        await signOut();
+      } else {
+        Alert.alert('Deletion failed', 'Please try again or contact support at hello@olfaire.app.');
+        showToast('Account deletion failed. Try again.', 'error');
+      }
+    } finally {
+      setDeletingAccount(false);
+    }
+  }
+
   function confirmDeleteAccount() {
     Alert.alert(
       'Delete account?',
-      'This will permanently delete your data. This action cannot be undone.',
+      'This will permanently delete your collection, logs, signatures, and all other data. This cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Delete permanently',
           style: 'destructive',
           onPress: () =>
-            Alert.alert('Coming soon', 'Account deletion will be available in a future update.'),
+            Alert.alert(
+              'Are you sure?',
+              'Your account and all associated data will be deleted immediately.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Yes, delete my account', style: 'destructive', onPress: performDeleteAccount },
+              ]
+            ),
         },
       ]
     );
@@ -560,11 +585,16 @@ export default function SettingsScreen() {
 
           <Pressable
             onPress={confirmDeleteAccount}
+            disabled={isDeletingAccount}
             className="flex-row items-center gap-3"
-            style={{ paddingVertical: 14 }}>
-            <IconTrash size={20} color={COLORS.red} strokeWidth={1.5} />
+            style={{ paddingVertical: 14, opacity: isDeletingAccount ? 0.5 : 1 }}>
+            {isDeletingAccount ? (
+              <ActivityIndicator size="small" color={COLORS.red} />
+            ) : (
+              <IconTrash size={20} color={COLORS.red} strokeWidth={1.5} />
+            )}
             <Text style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.red }}>
-              Delete account
+              {isDeletingAccount ? 'Deleting account…' : 'Delete account'}
             </Text>
           </Pressable>
         </View>

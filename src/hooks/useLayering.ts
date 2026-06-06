@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useConfigStore } from '@/store/configStore';
 import { fetchLayeringAnalysis, LumiLimitError } from '@/lib/claudeApi';
 import { useLayeringStore, type LayeringAnalysis } from '@/store/LayeringStore';
+import { showToast } from '@/components/ui/toast';
 
 interface UseLayeringReturn {
   analyse: () => Promise<void>;
@@ -116,6 +117,7 @@ export function useLayering(): UseLayeringReturn {
         router.push('/modals/premium-gate');
       } else {
         console.error('analyse error:', err);
+        showToast('Analysis failed. Check your connection.', 'error');
       }
     } finally {
       store.setAnalysing(false);
@@ -169,6 +171,7 @@ export function useLayering(): UseLayeringReturn {
       return (data as { id: string })?.id ?? null;
     } catch (err) {
       console.error('saveSignature error:', err);
+      showToast("Couldn't save signature. Try again.", 'error');
       return null;
     } finally {
       store.setSaving(false);
@@ -185,6 +188,7 @@ export function useLayering(): UseLayeringReturn {
     } catch (err) {
       store.setSignatures(prev);
       console.error('deleteSignature error:', err);
+      showToast("Couldn't delete signature. Try again.", 'error');
     }
   }
 
