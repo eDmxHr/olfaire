@@ -1,3 +1,4 @@
+import '../../sentry.config';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { ToastOverlay } from '@/components/ui/toast';
@@ -21,6 +22,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useCollection } from '@/hooks/useCollection';
 import { useToday } from '@/hooks/useToday';
 import { fetchAppConfig } from '@/hooks/useAppConfig';
+import * as Sentry from '@sentry/react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -72,7 +74,9 @@ function useAuthRedirect() {
   // Wire module-level ref so useAuth.ts can call it
   useEffect(() => {
     triggerPostSignIn = (s) => onSignedIn.current(s);
-    return () => { triggerPostSignIn = null; };
+    return () => {
+      triggerPostSignIn = null;
+    };
   }, []);
 
   // Auth state listener — only updates store state, no data fetching (avoids deadlock)
@@ -197,7 +201,7 @@ function Navigator() {
 }
 
 // ── Root layout ───────────────────────────────────────────────────
-export default function RootLayout() {
+function RootLayout() {
   useEffect(() => {
     if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.DEBUG);
     Purchases.configure({
@@ -234,3 +238,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);

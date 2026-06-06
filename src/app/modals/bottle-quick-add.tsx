@@ -274,6 +274,7 @@ export default function BottleQuickAddModal() {
                 placeholder="Search by name or house…"
                 autoFocus
                 loading={isSearching}
+                maxLength={100}
               />
 
               <FlatList

@@ -9,6 +9,7 @@ interface SearchInputProps {
   autoFocus?: boolean;
   loading?: boolean;
   className?: string;
+  maxLength?: number;
 }
 
 export function SearchInput({
@@ -18,6 +19,7 @@ export function SearchInput({
   autoFocus,
   loading,
   className,
+  maxLength,
 }: SearchInputProps) {
   return (
     <View
@@ -30,6 +32,7 @@ export function SearchInput({
         placeholder={placeholder}
         placeholderTextColor={COLORS.ash}
         autoFocus={autoFocus}
+        maxLength={maxLength}
         className="flex-1 p-0"
         style={{ fontFamily: FONTS.ui, fontSize: 15, color: COLORS.ink }}
       />

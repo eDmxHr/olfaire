@@ -161,6 +161,7 @@ export default function FeatureRequestsScreen() {
               placeholderTextColor={COLORS.ash}
               value={title}
               onChangeText={setTitle}
+              maxLength={120}
               className="mb-2 rounded-lg px-3 py-2.5"
               style={{
                 fontFamily: FONTS.ui,
@@ -177,7 +178,8 @@ export default function FeatureRequestsScreen() {
               onChangeText={setDescription}
               multiline
               numberOfLines={3}
-              className="mb-3 min-h-[72px] rounded-lg px-3 py-2.5"
+              maxLength={500}
+              className="mb-1 min-h-[72px] rounded-lg px-3 py-2.5"
               style={{
                 fontFamily: FONTS.ui,
                 fontSize: 14,
@@ -186,6 +188,11 @@ export default function FeatureRequestsScreen() {
                 textAlignVertical: 'top',
               }}
             />
+            <Text
+              className="mb-3 text-right"
+              style={{ fontFamily: FONTS.ui, fontSize: 12, color: COLORS.ash }}>
+              {description.length}/500
+            </Text>
             <Pressable
               onPress={handleSubmit}
               disabled={!title.trim() || submitting}

@@ -156,6 +156,7 @@ export default function SignatureScreen() {
           onChangeText={setName}
           placeholder="e.g. Sunday Morning"
           placeholderTextColor={COLORS.ash}
+          maxLength={120}
           style={{
             backgroundColor: COLORS.linen,
             borderRadius: 10,

@@ -14,7 +14,15 @@
     "plugins": [
       "expo-router",
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "adam-zahir"
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",

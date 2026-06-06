@@ -254,6 +254,7 @@ export default function SettingsScreen() {
                 <TextInput
                   value={draftName}
                   onChangeText={setDraftName}
+                  maxLength={50}
                   style={{
                     fontFamily: FONTS.uiMedium,
                     fontSize: 15,

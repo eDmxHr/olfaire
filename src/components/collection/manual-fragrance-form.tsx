@@ -49,12 +49,14 @@ export function ManualFragranceForm({ values, onChange }: Props) {
         placeholder="House (e.g. Chanel)"
         value={values.house}
         onChangeText={(t) => onChange('house', t)}
+        maxLength={80}
       />
       <Field
         placeholder="Fragrance name"
         value={values.name}
         onChangeText={(t) => onChange('name', t)}
         autoFocus
+        maxLength={120}
       />
       <Select value={values.concentration} onValueChange={(v) => onChange('concentration', v)}>
         <SelectTrigger style={selectTriggerStyle}>
@@ -70,22 +72,26 @@ export function ManualFragranceForm({ values, onChange }: Props) {
         placeholder="Top notes (comma-separated)"
         value={values.notesTop}
         onChangeText={(t) => onChange('notesTop', t)}
+        maxLength={200}
       />
       <Field
         placeholder="Heart notes (comma-separated)"
         value={values.notesHeart}
         onChangeText={(t) => onChange('notesHeart', t)}
+        maxLength={200}
       />
       <Field
         placeholder="Base notes (comma-separated)"
         value={values.notesBase}
         onChangeText={(t) => onChange('notesBase', t)}
+        maxLength={200}
       />
       <Field
         placeholder="Year"
         value={values.year}
         onChangeText={(t) => onChange('year', t)}
         keyboardType="numeric"
+        maxLength={4}
       />
 
       <Text
@@ -98,6 +104,7 @@ export function ManualFragranceForm({ values, onChange }: Props) {
         placeholder="Family (e.g. Floral, Woody)"
         value={values.family}
         onChangeText={(t) => onChange('family', t)}
+        maxLength={80}
       />
       <Select value={values.gender} onValueChange={(v) => onChange('gender', v)}>
         <SelectTrigger style={selectTriggerStyle}>
@@ -121,9 +128,10 @@ interface FieldProps {
   onChangeText: (t: string) => void;
   autoFocus?: boolean;
   keyboardType?: 'default' | 'numeric';
+  maxLength?: number;
 }
 
-function Field({ placeholder, value, onChangeText, autoFocus, keyboardType }: FieldProps) {
+function Field({ placeholder, value, onChangeText, autoFocus, keyboardType, maxLength }: FieldProps) {
   return (
     <TextInput
       className="mb-2.5 p-0 pb-2 text-foreground"
@@ -140,6 +148,7 @@ function Field({ placeholder, value, onChangeText, autoFocus, keyboardType }: Fi
       autoFocus={autoFocus}
       keyboardType={keyboardType ?? 'default'}
       autoCapitalize="none"
+      maxLength={maxLength}
     />
   );
 }
