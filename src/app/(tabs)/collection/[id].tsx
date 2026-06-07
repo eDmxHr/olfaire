@@ -21,6 +21,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { TagChip } from '@/components/ui/tag-chip';
 import { COLORS, FONTS, TYPE, colorWithOpacity } from '@/lib/theme';
 import { getFragranceImageSource } from '@/lib/supabase';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function BottleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,12 +59,6 @@ export default function BottleDetailScreen() {
   const ratingLabel = item.personal_rating ? `${item.personal_rating} / 5` : '—';
 
   async function pickBottleImage() {
-    const { default: ImagePicker } = await import('expo-image-picker');
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow photo access to add a bottle photo.');
-      return;
-    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: true,
@@ -147,14 +142,13 @@ export default function BottleDetailScreen() {
 
             {/* Bottle image — absolutely fills the right side of the card */}
             <Pressable
-              onPress={pickBottleImage}
+              onPress={!frag?.image_url ? pickBottleImage : undefined}
               style={{
                 position: 'absolute',
                 top: 20,
                 right: 20,
                 bottom: 20,
                 width: 100,
-                backgroundColor: colorWithOpacity(COLORS.parchment, 0.06),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
@@ -162,22 +156,24 @@ export default function BottleDetailScreen() {
                 <ActivityIndicator size="small" color={COLORS.parchment} />
               ) : (
                 <Image
-                  source={getFragranceImageSource(frag, item.custom_image_url)}
+                  source={getFragranceImageSource(frag)}
                   style={{ width: '100%', height: '100%' }}
                   resizeMode="contain"
                 />
               )}
-              <View
-                style={{
-                  position: 'absolute',
-                  bottom: 8,
-                  right: 8,
-                  backgroundColor: colorWithOpacity(COLORS.ink, 0.6),
-                  borderRadius: 99,
-                  padding: 4,
-                }}>
-                <IconCamera size={20} color={COLORS.parchment} strokeWidth={1.5} />
-              </View>
+              {!frag?.image_url && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 12,
+                    right: 0,
+                    backgroundColor: colorWithOpacity(COLORS.ink, 0.6),
+                    borderRadius: 99,
+                    padding: 4,
+                  }}>
+                  <IconCamera size={20} color={COLORS.parchment} strokeWidth={1.5} />
+                </View>
+              )}
             </Pressable>
           </View>
 

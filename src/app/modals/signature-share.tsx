@@ -92,14 +92,13 @@ export default function SignatureShareModal() {
         if (!cardRef.current) return;
         localUri = await captureRef(cardRef, { format: 'jpg', quality: 0.92 });
         if (profile?.id && signatureId) {
-          uploadSignatureCardImage(profile.id, signatureId, localUri).then((cardUrl) => {
-            if (cardUrl && signatureId) {
-              supabase
-                .from('signatures')
-                .update({ card_image_url: cardUrl })
-                .eq('id', signatureId);
-            }
-          });
+          const cardUrl = await uploadSignatureCardImage(profile.id, signatureId, localUri);
+          if (cardUrl) {
+            await supabase
+              .from('signatures')
+              .update({ card_image_url: cardUrl })
+              .eq('id', signatureId);
+          }
         }
       }
 

@@ -223,21 +223,20 @@ export function useCollection(): UseCollectionReturn {
 
   async function uploadImage(collectionId: string, uri: string) {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      const item = store.getById(collectionId);
+      if (!item || item.fragrance?.image_url) return;
 
-      const url = await uploadBottleImage(user.id, collectionId, uri);
+      const url = await uploadBottleImage(item.fragrance_id, uri);
       if (!url) return;
 
-      store.updateItem(collectionId, { custom_image_url: url });
+      store.updateItem(collectionId, {
+        fragrance: item.fragrance ? { ...item.fragrance, image_url: url } : item.fragrance,
+      });
 
-      const { error } = await supabase
-        .from('user_collection')
-        .update({ custom_image_url: url })
-        .eq('id', collectionId);
-      if (error) throw error;
+      await supabase
+        .from('fragrances')
+        .update({ image_url: url })
+        .eq('id', item.fragrance_id);
     } catch (err) {
       console.error('uploadImage error:', err);
     }

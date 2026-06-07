@@ -150,14 +150,6 @@ export function useLayering(): UseLayeringReturn {
     const { cacheId, analysis } = store;
     if (!cacheId || !analysis || !profile) return null;
 
-    if (!useAuthStore.getState().isPremium()) {
-      const { signatureLimit } = useConfigStore.getState().freeTier;
-      if (store.signatures.length >= signatureLimit) {
-        router.push('/modals/premium-gate');
-        return null;
-      }
-    }
-
     store.setSaving(true);
     try {
       const { data, error } = await supabase

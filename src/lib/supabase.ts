@@ -1,4 +1,6 @@
 import 'react-native-url-polyfill/auto';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { File } from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import type { Database as GeneratedDatabase, Json } from './database.types';
@@ -221,39 +223,24 @@ export function getFragranceImageSource(
 
 // ── Storage helpers ───────────────────────────────────────────────
 
-/**
- * Returns the public URL for a user's custom bottle image.
- * Falls back to null if no image exists.
- */
-export function getBottleImageUrl(userId: string, collectionId: string): string {
-  const { data } = supabase.storage
-    .from('user-uploads')
-    .getPublicUrl(`${userId}/${collectionId}.jpg`);
-  return data.publicUrl;
+async function compressImage(uri: string): Promise<string> {
+  const result = await manipulateAsync(
+    uri,
+    [{ resize: { width: 1200 } }],
+    { compress: 0.7, format: SaveFormat.JPEG },
+  );
+  return result.uri;
 }
 
-/**
- * Returns the public URL for a saved signature card image.
- */
-export function getSignatureCardUrl(userId: string, signatureId: string): string {
-  const { data } = supabase.storage
-    .from('signature-cards')
-    .getPublicUrl(`${userId}/${signatureId}.jpg`);
-  return data.publicUrl;
-}
 
-/**
- * Uploads a user's avatar to Supabase Storage.
- * Returns the public URL on success, null on failure.
- */
 export async function uploadAvatarImage(userId: string, fileUri: string): Promise<string | null> {
   try {
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
+    const compressed = await compressImage(fileUri);
+    const buffer = await new File(compressed).arrayBuffer();
     const path = `${userId}.jpg`;
     const { error } = await supabase.storage
       .from('avatars')
-      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+      .upload(path, buffer, { upsert: true, contentType: 'image/jpeg' });
     if (error) {
       console.error('Avatar upload error:', error);
       return null;
@@ -273,29 +260,22 @@ export async function uploadAvatarImage(userId: string, fileUri: string): Promis
   }
 }
 
-/**
- * Uploads a user's bottle photo to Supabase Storage.
- * Returns the public URL on success, null on failure.
- */
 export async function uploadBottleImage(
-  userId: string,
-  collectionId: string,
-  fileUri: string
+  fragranceId: number,
+  fileUri: string,
 ): Promise<string | null> {
   try {
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
-    const path = `${userId}/${collectionId}.jpg`;
-
+    const compressed = await compressImage(fileUri);
+    const buffer = await new File(compressed).arrayBuffer();
     const { error } = await supabase.storage
-      .from('user-uploads')
-      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-
+      .from('fragrance-images')
+      .upload(`${fragranceId}.jpg`, buffer, { upsert: false, contentType: 'image/jpeg' });
     if (error) {
       console.error('Upload error:', error);
       return null;
     }
-    return getBottleImageUrl(userId, collectionId);
+    const { data } = supabase.storage.from('fragrance-images').getPublicUrl(`${fragranceId}.jpg`);
+    return data.publicUrl;
   } catch (err) {
     console.error('uploadBottleImage failed:', err);
     return null;
@@ -308,13 +288,18 @@ export async function uploadSignatureCardImage(
   fileUri: string
 ): Promise<string | null> {
   try {
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
+    const compressed = await compressImage(fileUri);
+    const buffer = await new File(compressed).arrayBuffer();
     const { error } = await supabase.storage
       .from('signature-cards')
-      .upload(`${userId}/${signatureId}.jpg`, blob, { upsert: true, contentType: 'image/jpeg' });
+      .upload(`${userId}/${signatureId}.jpg`, buffer, { upsert: true, contentType: 'image/jpeg' });
     if (error) return null;
-    return getSignatureCardUrl(userId, signatureId);
+    const path = `${userId}/${signatureId}.jpg`;
+    const { data: signed, error: signError } = await supabase.storage
+      .from('signature-cards')
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
+    if (signError || !signed) return null;
+    return signed.signedUrl;
   } catch {
     return null;
   }
