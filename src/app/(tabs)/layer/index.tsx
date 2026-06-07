@@ -16,7 +16,6 @@ import { useLayeringStore } from '@/store/LayeringStore';
 import { useAuthStore } from '@/store/authStore';
 import { useConfigStore } from '@/store/configStore';
 import { supabase, getFragranceImageSource } from '@/lib/supabase';
-import { useLayering } from '@/hooks/useLayering';
 import { useScreenAnimation } from '@/hooks/useScreenAnimation';
 import { useCollectionSearch } from '@/hooks/useCollectionSearch';
 import { SectionLabel } from '@/components/ui/section-label';
@@ -118,12 +117,9 @@ export default function LayerScreen() {
   const selectedIds = useMemo(() => new Set(selectedItems.map((i) => i.id)), [selectedItems]);
 
   const { animStyle, trigger } = useScreenAnimation(16);
-  const { fetchSignatures } = useLayering();
-  const signatures = useLayeringStore((s) => s.signatures);
 
   useEffect(() => {
     trigger();
-    fetchSignatures();
   }, []);
 
   useFocusEffect(
@@ -146,12 +142,8 @@ export default function LayerScreen() {
         const { data, error } = await supabase.rpc('get_daily_layering_count', {
           p_user_id: userId,
         });
-        const { layeringPerDay, signatureLimit } = useConfigStore.getState().freeTier;
+        const { layeringPerDay } = useConfigStore.getState().freeTier;
         if (!error && (data as number) >= layeringPerDay) {
-          router.push('/modals/premium-gate');
-          return;
-        }
-        if (signatures.length >= signatureLimit) {
           router.push('/modals/premium-gate');
           return;
         }
